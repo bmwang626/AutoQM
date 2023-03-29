@@ -11,7 +11,7 @@ from arkane.encorr.corr import assign_frequency_scale_factor
 from arkane.input import process_model_chemistry
 from arkane.modelchem import LOT
 
-from easy_rmg_model.template_writer import BaseTemplateWriter
+from .base import BaseTemplateWriter
 
 
 class ArkaneSpecies(BaseTemplateWriter):
