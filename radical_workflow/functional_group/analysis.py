@@ -46,7 +46,7 @@ def get_n_radius_functional_group(center_atom, molecule, all_ring_atoms, max_num
     max_n_radius_neighbor = min(max_num_heavy_atoms_in_functional_group, num_heavy_atoms)
     for n_radius_neighbor in range(1, max_n_radius_neighbor + 1):
         group = make_group(center_atom, molecule, all_ring_atoms, n_radius_neighbor)
-        num_heavy_atoms_in_functional_group = sum(not group_atom.atomype[0]=="H" for group_atom in group.atoms)
+        num_heavy_atoms_in_functional_group = sum(group_atom.atomtype[0].label!="H" for group_atom in group.atoms)
         if num_heavy_atoms_in_functional_group <= max_num_heavy_atoms_in_functional_group:
             sampled_mol = group.make_sample_molecule()
             sampled_mol.sort_atoms()
