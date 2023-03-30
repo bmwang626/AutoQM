@@ -2,7 +2,7 @@ import numpy as np
 from rmgpy.molecule.molecule import Molecule
 from rmgpy.molecule.group import GroupAtom, Group, GroupBond
 
-def functional_group_analysis(smiles, max_n_radius_neighbor=1, max_num_heavy_atoms_in_functional_group=5, min_num_heavy_atoms_in_functional_group=3, max_num_heavy_atoms_in_ring=10):
+def functional_group_analysis(smiles, max_n_radius_neighbor=1, max_num_heavy_atoms_in_functional_group=5, min_num_heavy_atoms_in_functional_group=2, max_num_heavy_atoms_in_ring=10):
     functional_group_smiles_set = set()
 
     molecule = make_rmg_mol(smiles)
