@@ -5,6 +5,9 @@ def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=5)
     sampled_functional_group_smiles_set = set()
 
     mol = make_rmg_mol(smiles)
+
+    if mol is None:
+        return sampled_functional_group_smiles_set
     
     for atom in mol.atoms:
         if not atom.is_hydrogen() and not atom.is_halogen():
@@ -15,7 +18,11 @@ def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=5)
     return sampled_functional_group_smiles_set
 
 def make_rmg_mol(smiles):
-    mol = Molecule().from_smiles(smiles)
+    try:
+        mol = Molecule().from_smiles(smiles)
+    except:
+        print(f"Could not parse smiles: {smiles}")
+        return None
     mol.sort_atoms()
     return mol
 
