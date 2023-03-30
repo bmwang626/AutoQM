@@ -1,7 +1,7 @@
 from rmgpy.molecule.molecule import Molecule
 from rmgpy.molecule.group import GroupAtom, Group, GroupBond
 
-def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=5):
+def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=5, max_num_heavy_atoms_in_ring=10):
     functional_group_smiles_set = set()
 
     molecule = make_rmg_mol(smiles)
@@ -11,7 +11,10 @@ def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=5)
     
     sssr = molecule.get_smallest_set_of_smallest_rings()
     monorings, polyrings = molecule.get_disparate_cycles()
-    all_rings = sssr + monorings + polyrings
+    all_rings = []
+    for ring in sssr + monorings + polyrings:
+        if len(ring) <= max_num_heavy_atoms_in_ring:
+            all_rings.append(ring)
     
     all_ring_atoms = set()
     for ring in all_rings:
