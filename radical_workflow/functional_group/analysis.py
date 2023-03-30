@@ -79,11 +79,9 @@ def get_neighbors(atoms, group_atoms, all_ring_atoms, n_radius_neighbor, degree)
     
     for (atom, bond) in atoms:
         if atom not in group_atoms:
-            if atom not in all_ring_atoms:
-                group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype])
-            else:
-                if degree == 1:
-                    group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype])
+            group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype])
+            
+            if atom in all_ring_atoms:
                 continue
 
         if degree + 1 <= n_radius_neighbor:
