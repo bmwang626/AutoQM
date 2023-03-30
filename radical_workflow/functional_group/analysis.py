@@ -111,8 +111,9 @@ def get_ring_functional_groups(molecule):
     sampled_functional_group_smiles_set = set()
 
     sssr = molecule.get_smallest_set_of_smallest_rings()
+    monorings, polyrings = molecule.get_disparate_cycles()
 
-    for ring in sssr:
+    for ring in sssr + monorings + polyrings:
         group = make_ring_group(molecule, ring)
 
         sampled_mol = group.make_sample_molecule()
