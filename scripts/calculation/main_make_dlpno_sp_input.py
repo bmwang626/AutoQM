@@ -55,7 +55,7 @@ output_dir = os.path.join(submit_dir, args.output_folder)
 DLPNO_sp_dir = os.path.join(output_dir, args.DLPNO_sp_folder)
 os.makedirs(DLPNO_sp_dir, exist_ok=True)
 
-df = pd.read_csv(args.input_smiles, index_col=0)
+df = pd.read_csv(args.input_smiles)
 assert len(df['id']) == len(set(df['id'])), "ids must be unique"
 
 # input files
