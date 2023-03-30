@@ -48,7 +48,7 @@ def make_group(center_atom, molecule, n_radius_neighbor=1):
     aromatic_rings, aromatic_bonds = molecule.get_aromatic_rings()
 
     group_atoms = {}
-    group_atoms[center_atom] = GroupAtom(atomtype=[center_atom.atomtype])
+    group_atoms[center_atom] = GroupAtom(atomtype=[center_atom.element.symbol])
     
     neighbors = list(center_atom.edges.items())
     neighbors.sort()
@@ -75,7 +75,7 @@ def get_neighbors(atoms, aromatic_rings, group_atoms, n_radius_neighbor, degree)
                 if atom in ring:
                     for ring_atom in ring:
                         if ring_atom not in group_atoms:
-                            group_atoms[ring_atom] = GroupAtom(atomtype=[ring_atom.atomtype])
+                            group_atoms[ring_atom] = GroupAtom(atomtype=[ring_atom.element.symbol])
 
         if degree + 1 <= n_radius_neighbor:
             neighbors = list(item for item in atom.edges.items() if not item[0].is_hydrogen())
