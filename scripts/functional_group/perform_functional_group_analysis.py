@@ -16,7 +16,7 @@ args = parser.parse_args()
 
 # load smiles
 print('Loading smiles...')
-df_smiles = pd.read_csv(args.input_smiles, index_col=0)
+df_smiles = pd.read_csv(args.input_smiles)
 smiles_list = df_smiles['smiles'].tolist()
 
 # perform functional group analysis
