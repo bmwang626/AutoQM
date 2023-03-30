@@ -24,13 +24,13 @@ print('Performing functional group analysis...')
 outs = Parallel(n_jobs=args.n_jobs, backend="multiprocessing")(delayed(functional_group_analysis)(smi) for smi in tqdm(smiles_list))
 
 # collect results
-functional_group_smiles = set()
+functional_group_smiles_set = set()
 for out in outs:
-    functional_group_smiles.update(out)
+    functional_group_smiles_set.update(out)
 
 # save results
 print('Saving results...')
-df_groups = pd.DataFrame(functional_group_smiles, columns=['functional_group_smiles'])
+df_groups = pd.DataFrame(list(functional_group_smiles_set), columns=['functional_group_smiles'])
 input_file_name = os.path.basename(args.input_smiles)
 output_file_name = input_file_name.replace('.csv', '_functional_groups.csv')
 df_groups.to_csv(output_file_name, index=False)
