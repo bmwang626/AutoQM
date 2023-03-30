@@ -3,17 +3,17 @@ from rmgpy.molecule.molecule import Molecule
 from rmgpy.molecule.group import GroupAtom, Group, GroupBond
 
 def functional_group_analysis(smiles, max_n_radius_neighbor=1, max_num_heavy_atoms_in_functional_group=5, min_num_heavy_atoms_in_functional_group=2, max_num_heavy_atoms_in_ring=10):
-    functional_group_smiles_set = set()
+    functional_group_smiles_list = list()
 
     molecule = make_rmg_mol(smiles)
 
     if molecule is None:
-        return functional_group_smiles_set
+        return functional_group_smiles_list
     
     num_heavy_atoms_in_molecule = sum(not atom.is_hydrogen() for atom in molecule.atoms)
     if num_heavy_atoms_in_molecule <= min_num_heavy_atoms_in_functional_group:
-        functional_group_smiles_set.add(smiles)
-        return functional_group_smiles_set
+        functional_group_smiles_list.append(smiles)
+        return functional_group_smiles_list
     
     sssr = molecule.get_smallest_set_of_smallest_rings()
     # monorings, polyrings = molecule.get_disparate_cycles()
@@ -26,16 +26,16 @@ def functional_group_analysis(smiles, max_n_radius_neighbor=1, max_num_heavy_ato
     for ring in all_rings:
         all_ring_atoms.update(ring)
 
-    sampled_functional_group_smiles_set = get_ring_functional_groups(molecule, rings=all_rings)
-    functional_group_smiles_set.update(sampled_functional_group_smiles_set)
+    sampled_functional_group_smiles_list = get_ring_functional_groups(molecule, rings=all_rings)
+    functional_group_smiles_list.extend(sampled_functional_group_smiles_list)
         
     for atom in molecule.atoms:
         if not atom.is_hydrogen():
             sampled_functional_group_smiles = get_n_radius_functional_group(atom, molecule, all_ring_atoms, max_n_radius_neighbor=max_n_radius_neighbor, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group, min_num_heavy_atoms_in_functional_group=min_num_heavy_atoms_in_functional_group)
             if sampled_functional_group_smiles is not None:
-                functional_group_smiles_set.add(sampled_functional_group_smiles)
+                functional_group_smiles_list.append(sampled_functional_group_smiles)
 
-    return functional_group_smiles_set
+    return functional_group_smiles_list
 
 def make_rmg_mol(smiles):
     try:
@@ -119,7 +119,7 @@ def make_bonds(molecule, group, group_atoms):
     return group
 
 def get_ring_functional_groups(molecule, rings=None):
-    sampled_functional_group_smiles_set = set()
+    sampled_functional_group_smiles_list = set()
 
     if rings is None:
         sssr = molecule.get_smallest_set_of_smallest_rings()
@@ -132,9 +132,9 @@ def get_ring_functional_groups(molecule, rings=None):
         sampled_mol = group.make_sample_molecule()
         sampled_mol.sort_atoms()
         sampled_functional_group_smiles = sampled_mol.to_smiles()
-        sampled_functional_group_smiles_set.add(sampled_functional_group_smiles)
+        sampled_functional_group_smiles_list.append(sampled_functional_group_smiles)
 
-    return sampled_functional_group_smiles_set
+    return sampled_functional_group_smiles_list
 
 def make_ring_group(molecule, ring):
     group_atoms = {}
