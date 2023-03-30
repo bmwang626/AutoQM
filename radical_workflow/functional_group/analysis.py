@@ -1,7 +1,7 @@
 from rmgpy.molecule.molecule import Molecule
 from rmgpy.molecule.group import GroupAtom, Group, GroupBond
 
-def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=5):
+def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=6):
     functional_group_smiles_set = set()
 
     mol = make_rmg_mol(smiles)
@@ -70,7 +70,7 @@ def get_neighbors(atoms, aromatic_rings, group_atoms, n_radius_neighbor, degree)
     
     for (atom, bond) in atoms:
         if atom not in group_atoms:
-            group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype])
+            group_atoms[atom] = GroupAtom(atomtype=[atom.element.symbol])
             for ring in aromatic_rings: #include full aromatic rings to avoid using generate resonance structures (which is slow for some cases)
                 if atom in ring:
                     for ring_atom in ring:
