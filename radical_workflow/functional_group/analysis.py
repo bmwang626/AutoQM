@@ -23,7 +23,7 @@ def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=6)
             if sampled_functional_group_smiles is not None:
                 functional_group_smiles_set.add(sampled_functional_group_smiles)
 
-    sampled_functional_group_smiles_set = get_ring_functional_groups(mol, rings=all_rings, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group)
+    sampled_functional_group_smiles_set = get_ring_functional_groups(mol, rings=all_rings)
     functional_group_smiles_set.update(sampled_functional_group_smiles_set)
 
     return functional_group_smiles_set
