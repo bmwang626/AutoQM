@@ -13,7 +13,6 @@ from arkane.modelchem import LOT
 
 from .base import BaseTemplateWriter
 
-
 class ArkaneSpecies(BaseTemplateWriter):
 
     default_settings = {
@@ -291,5 +290,121 @@ thermo("{{ species_label }}",
                 'species_smiles': self.species_smiles,
                 'thermo_type': self.thermo_type,
                 'calc_statmech': self.calc_statmech,
+                'save_path': self.save_path,
+                }
+
+class ArkaneKinetics(BaseTemplateWriter):
+
+    default_settings = {
+        'model_chemistry': 'cbs-qb3',
+        'freq_scale_factor': None,
+        'use_bond_corrections': False,
+        'use_hindered_rotors': True,
+        'reactants': {'': ''},
+        'products': {'': ''},
+        'TS': 'TS.py',
+        'tunneling': 'Eckart',
+        'template_file': None,
+        'save_path': './input.py'
+    }
+
+    default_template = """#!/usr/bin/env python3
+# encoding: utf-8
+
+title = "{{ reaction_label | safe }}"
+
+description = \
+'''
+{{ reaction_label | safe }}
+'''
+modelChemistry = "{{ model_chemistry }}"
+frequencyScaleFactor = {{ freq_scale_factor }}
+useHinderedRotors = {{ use_hindered_rotors }}
+useBondCorrections = {{ use_bond_corrections }}
+{% for smi, path in reactants %}
+species("{{ smi | safe}}",
+        "{{ path | safe }}",
+        structure=SMILES("{{ smi | safe }}"),
+        )
+{%- endfor %}
+{% for smi, path in products %}
+species("{{ smi | safe }}",
+        "{{ path | safe }}",
+        structure=SMILES("{{ smi | safe }}"),
+        )
+{%- endfor %}
+
+transitionState('TS', '{{ TS | safe }}')
+
+reaction(
+    label='{{ reaction_label | safe }}',
+    reactants={{ reactant_list | safe }},
+    products={{ product_list | safe }},
+    transitionState = 'TS',
+    tunneling='{{ tunneling }}',
+)
+
+kinetics(
+    label='{{ reaction_label | safe }}',
+    Tmin = (300,'K'), Tmax = (2000,'K'), Tcount = 200,
+)
+
+"""
+
+    @property
+    def model_chemistry(self):
+        return self._model_chemistry
+
+    @model_chemistry.setter
+    def model_chemistry(self, value):
+        if isinstance(value, str):
+            self._model_chemistry = process_model_chemistry(value)
+        elif isinstance(value, LOT):
+            self._model_chemsitry = value
+
+    @property
+    def freq_scale_factor(self):
+        if not self._freq_scale_factor:
+            self._freq_scale_factor = assign_frequency_scale_factor(
+                self._model_chemistry)
+        return self._freq_scale_factor
+
+    @freq_scale_factor.setter
+    def freq_scale_factor(self, value):
+        if value == None or \
+           (isinstance(value, (int, float)) and
+                value > 0 and value < 5):
+            self._freq_scale_factor = value
+        else:
+            raise ValueError(f'Not valid frequency scale factor, got: {value}')
+
+    @property
+    def reaction_label(self):
+        label = " + ".join(self.reactant_list)
+        label += " <=> "
+        label += " + ".join(self.product_list)
+        return label
+
+    @property
+    def reactant_list(self):
+        return [reactant[0] for reactant in self.reactants]
+
+    @property
+    def product_list(self):
+        return [product[0] for product in self.products]
+
+    def to_dict(self):
+        return {'model_chemistry': self. model_chemistry.to_model_chem(),
+                'freq_scale_factor': self.freq_scale_factor,
+                'use_bond_corrections': self.use_bond_corrections,
+                'freq_scale_factor': self.freq_scale_factor,
+                'use_hindered_rotors': self.use_hindered_rotors,
+                'reaction_label': self.reaction_label,
+                'reactants': set(self.reactants),
+                'products': set(self.products),
+                'TS': self.TS,
+                'reactant_list': self.reactant_list,
+                'product_list': self.product_list,
+                'tunneling': self.tunneling,
                 'save_path': self.save_path,
                 }
