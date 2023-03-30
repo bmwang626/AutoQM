@@ -2,7 +2,7 @@ import numpy as np
 from rmgpy.molecule.molecule import Molecule
 from rmgpy.molecule.group import GroupAtom, Group, GroupBond
 
-def functional_group_analysis(smiles, max_n_radius_neighbor=1, max_num_heavy_atoms_in_functional_group=5, min_num_heavy_atoms_in_functional_group=2, max_num_heavy_atoms_in_ring=10):
+def functional_group_analysis(smiles, max_n_radius_neighbor=None, max_num_heavy_atoms_in_functional_group=5, min_num_heavy_atoms_in_functional_group=2, max_num_heavy_atoms_in_ring=10):
     functional_group_smiles_set = set()
 
     molecule = make_rmg_mol(smiles)
@@ -46,12 +46,15 @@ def make_rmg_mol(smiles):
     molecule.sort_atoms()
     return molecule
 
-def get_n_radius_functional_group(center_atom, molecule, all_ring_atoms, max_n_radius_neighbor=1, max_num_heavy_atoms_in_functional_group=5, min_num_heavy_atoms_in_functional_group=3):
+def get_n_radius_functional_group(center_atom, molecule, all_ring_atoms, max_n_radius_neighbor=None, max_num_heavy_atoms_in_functional_group=5, min_num_heavy_atoms_in_functional_group=3):
     if center_atom in all_ring_atoms:
         return None
     
-    sampled_functional_group_smiles = None
+    num_heavy_atoms_in_molecule = sum(not atom.is_hydrogen() for atom in molecule.atoms)
+    if max_n_radius_neighbor is None:
+        max_n_radius_neighbor = max(num_heavy_atoms_in_molecule, max_num_heavy_atoms_in_functional_group)
 
+    sampled_functional_group_smiles = None
     for n_radius_neighbor in range(1, max_n_radius_neighbor + 1):
         group = make_group(center_atom, molecule, all_ring_atoms, n_radius_neighbor)
         num_heavy_atoms_in_functional_group = sum(group_atom.atomtype[0].label!="H" for group_atom in group.atoms)
