@@ -26,7 +26,7 @@ outs = Parallel(n_jobs=args.n_jobs, backend="multiprocessing")(delayed(functiona
 # collect results
 functional_group_smiles_list = [o for out in outs for o in out]
 unique_functional_group_smiles_list = list(set(functional_group_smiles_list))
-unique_functional_group_smiles_list.sort(lambda x: (len(x), x))
+unique_functional_group_smiles_list.sort(key=lambda x: (len(x), x))
 functional_group_smiles_counts = {smi: 0 for smi in unique_functional_group_smiles_list}
 for smi in functional_group_smiles_list:
     functional_group_smiles_counts[smi] += 1
