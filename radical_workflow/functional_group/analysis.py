@@ -2,12 +2,17 @@ import numpy as np
 from rmgpy.molecule.molecule import Molecule
 from rmgpy.molecule.group import GroupAtom, Group, GroupBond
 
-def functional_group_analysis(smiles, max_n_radius_neighbor=1, max_num_heavy_atoms_in_functional_group=5, max_num_heavy_atoms_in_ring=10):
+def functional_group_analysis(smiles, max_n_radius_neighbor=1, max_num_heavy_atoms_in_functional_group=5, min_num_heavy_atoms_in_functional_group=3, max_num_heavy_atoms_in_ring=10):
     functional_group_smiles_set = set()
 
     molecule = make_rmg_mol(smiles)
 
     if molecule is None:
+        return functional_group_smiles_set
+    
+    num_heavy_atoms_in_molecule = sum(not atom.is_hydrogen() for atom in molecule.atoms)
+    if num_heavy_atoms_in_molecule <= min_num_heavy_atoms_in_functional_group:
+        functional_group_smiles_set.add(smiles)
         return functional_group_smiles_set
     
     sssr = molecule.get_smallest_set_of_smallest_rings()
@@ -23,10 +28,10 @@ def functional_group_analysis(smiles, max_n_radius_neighbor=1, max_num_heavy_ato
 
     sampled_functional_group_smiles_set = get_ring_functional_groups(molecule, rings=all_rings)
     functional_group_smiles_set.update(sampled_functional_group_smiles_set)
-    
+        
     for atom in molecule.atoms:
         if not atom.is_hydrogen():
-            sampled_functional_group_smiles = get_n_radius_functional_group(atom, molecule, all_ring_atoms, max_n_radius_neighbor=max_n_radius_neighbor, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group)
+            sampled_functional_group_smiles = get_n_radius_functional_group(atom, molecule, all_ring_atoms, max_n_radius_neighbor=max_n_radius_neighbor, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group, min_num_heavy_atoms_in_functional_group=min_num_heavy_atoms_in_functional_group)
             if sampled_functional_group_smiles is not None:
                 functional_group_smiles_set.add(sampled_functional_group_smiles)
 
@@ -41,7 +46,7 @@ def make_rmg_mol(smiles):
     molecule.sort_atoms()
     return molecule
 
-def get_n_radius_functional_group(center_atom, molecule, all_ring_atoms, max_n_radius_neighbor=1, max_num_heavy_atoms_in_functional_group=5):
+def get_n_radius_functional_group(center_atom, molecule, all_ring_atoms, max_n_radius_neighbor=1, max_num_heavy_atoms_in_functional_group=5, min_num_heavy_atoms_in_functional_group=3):
     if center_atom in all_ring_atoms:
         return None
     
@@ -50,7 +55,7 @@ def get_n_radius_functional_group(center_atom, molecule, all_ring_atoms, max_n_r
     for n_radius_neighbor in range(1, max_n_radius_neighbor + 1):
         group = make_group(center_atom, molecule, all_ring_atoms, n_radius_neighbor)
         num_heavy_atoms_in_functional_group = sum(group_atom.atomtype[0].label!="H" for group_atom in group.atoms)
-        if num_heavy_atoms_in_functional_group <= max_num_heavy_atoms_in_functional_group:
+        if min_num_heavy_atoms_in_functional_group <= num_heavy_atoms_in_functional_group and num_heavy_atoms_in_functional_group <= max_num_heavy_atoms_in_functional_group:
             sampled_mol = group.make_sample_molecule()
             sampled_mol.sort_atoms()
             sampled_functional_group_smiles = sampled_mol.to_smiles()
