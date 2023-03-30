@@ -95,7 +95,7 @@ def get_neighbors(atoms, group_atoms, all_ring_atoms, n_radius_neighbor, degree)
     
     for (atom, bond) in atoms:
         if atom not in group_atoms:
-            group_atoms[atom] = GroupAtom(atomtype=[atom.element.symbol])
+            group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype])
 
         if atom in all_ring_atoms:
             continue
@@ -140,7 +140,7 @@ def make_ring_group(molecule, ring):
     group_atoms = {}
     for atom in ring:
         if atom not in group_atoms:
-            group_atoms[atom] = GroupAtom(atomtype=[atom.element.symbol])
+            group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype])
             
     group = Group(atoms=list(group_atoms.values()))
 
