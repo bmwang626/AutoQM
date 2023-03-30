@@ -9,13 +9,21 @@ def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=6)
     if mol is None:
         return functional_group_smiles_set
     
+    sssr = mol.get_smallest_set_of_smallest_rings()
+    monorings, polyrings = mol.get_disparate_cycles()
+    all_rings = sssr + monorings + polyrings
+    
+    all_ring_atoms = set()
+    for ring in all_rings:
+        all_ring_atoms.update(ring)
+    
     for atom in mol.atoms:
-        if not atom.is_hydrogen() and not atom.is_halogen():
+        if not atom.is_hydrogen() and not atom.is_halogen() and atom not in all_ring_atoms:
             sampled_functional_group_smiles = get_n_radius_functional_group(atom, mol, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group)
             if sampled_functional_group_smiles is not None:
                 functional_group_smiles_set.add(sampled_functional_group_smiles)
 
-    sampled_functional_group_smiles_set = get_ring_functional_groups(mol, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group)
+    sampled_functional_group_smiles_set = get_ring_functional_groups(mol, rings=all_rings, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group)
     functional_group_smiles_set.update(sampled_functional_group_smiles_set)
 
     return functional_group_smiles_set
@@ -30,6 +38,7 @@ def make_rmg_mol(smiles):
     return mol
 
 def get_n_radius_functional_group(center_atom, mol, max_num_heavy_atoms_in_functional_group):
+
     sampled_functional_group_smiles = None
     num_heavy_atoms = sum(not atom.is_hydrogen() for atom in mol.atoms)
     max_n_radius_neighbor = min(max_num_heavy_atoms_in_functional_group, num_heavy_atoms)
@@ -95,13 +104,15 @@ def make_bonds(molecule, group, group_atoms):
             
     return group
 
-def get_ring_functional_groups(molecule, max_num_heavy_atoms_in_functional_group):
+def get_ring_functional_groups(molecule, max_num_heavy_atoms_in_functional_group, rings=None):
     sampled_functional_group_smiles_set = set()
 
-    sssr = molecule.get_smallest_set_of_smallest_rings()
-    monorings, polyrings = molecule.get_disparate_cycles()
-
-    for ring in sssr + monorings + polyrings:
+    if rings is None:
+        sssr = molecule.get_smallest_set_of_smallest_rings()
+        monorings, polyrings = molecule.get_disparate_cycles()
+        rings = sssr + monorings + polyrings
+    
+    for ring in rings:
         group = make_ring_group(molecule, ring)
 
         sampled_mol = group.make_sample_molecule()
