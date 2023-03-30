@@ -21,7 +21,7 @@ def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=5)
     functional_group_smiles_set.update(sampled_functional_group_smiles_set)
     
     for atom in molecule.atoms:
-        if not atom.is_hydrogen() and not atom.is_halogen():
+        if not atom.is_hydrogen():
             sampled_functional_group_smiles = get_n_radius_functional_group(atom, molecule, all_ring_atoms, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group)
             if sampled_functional_group_smiles is not None:
                 functional_group_smiles_set.add(sampled_functional_group_smiles)
