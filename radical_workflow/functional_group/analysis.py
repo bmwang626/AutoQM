@@ -57,7 +57,7 @@ def get_n_radius_functional_group(center_atom, molecule, all_ring_atoms, max_num
 def make_group(center_atom, molecule, all_ring_atoms, n_radius_neighbor=1):
 
     group_atoms = {}
-    group_atoms[center_atom] = GroupAtom(atomtype=[center_atom.element.symbol])
+    group_atoms[center_atom] = GroupAtom(atomtype=[center_atom.atomtype])
     
     neighbors = list(center_atom.edges.items())
     neighbors.sort()
@@ -79,7 +79,7 @@ def get_neighbors(atoms, group_atoms, all_ring_atoms, n_radius_neighbor, degree)
     
     for (atom, bond) in atoms:
         if atom not in group_atoms and atom not in all_ring_atoms:
-            group_atoms[atom] = GroupAtom(atomtype=[atom.element.symbol])
+            group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype])
 
         if degree + 1 <= n_radius_neighbor:
             neighbors = list(item for item in atom.edges.items() if not item[0].is_hydrogen())
