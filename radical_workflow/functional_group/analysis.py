@@ -2,20 +2,23 @@ from rmgpy.molecule.molecule import Molecule
 from rmgpy.molecule.group import GroupAtom, Group, GroupBond
 
 def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=5):
-    sampled_functional_group_smiles_set = set()
+    functional_group_smiles_set = set()
 
     mol = make_rmg_mol(smiles)
 
     if mol is None:
-        return sampled_functional_group_smiles_set
+        return functional_group_smiles_set
     
     for atom in mol.atoms:
         if not atom.is_hydrogen() and not atom.is_halogen():
-            sampled_functional_group_smiles = get_functional_group(atom, mol, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group)
+            sampled_functional_group_smiles = get_n_radius_functional_group(atom, mol, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group)
             if sampled_functional_group_smiles is not None:
-                sampled_functional_group_smiles_set.add(sampled_functional_group_smiles)
+                functional_group_smiles_set.add(sampled_functional_group_smiles)
 
-    return sampled_functional_group_smiles_set
+    sampled_functional_group_smiles_set = get_ring_functional_groups(mol)
+    functional_group_smiles_set.update(sampled_functional_group_smiles_set)
+
+    return functional_group_smiles_set
 
 def make_rmg_mol(smiles):
     try:
@@ -26,7 +29,7 @@ def make_rmg_mol(smiles):
     mol.sort_atoms()
     return mol
 
-def get_functional_group(center_atom, mol, max_num_heavy_atoms_in_functional_group):
+def get_n_radius_functional_group(center_atom, mol, max_num_heavy_atoms_in_functional_group):
     sampled_functional_group_smiles = None
     num_heavy_atoms = sum(not atom.is_hydrogen() for atom in mol.atoms)
     max_n_radius_neighbor = min(max_num_heavy_atoms_in_functional_group, num_heavy_atoms)
@@ -103,3 +106,38 @@ def make_bonds(molecule, group, group_atoms):
                     group.add_bond(GroupBond(group_atom1,group_atom2,order=[bond.order]))
             
     return group
+
+def get_ring_functional_groups(molecule):
+    sampled_functional_group_smiles_set = set()
+
+    monorings, polyrings = molecule.get_disparate_cycles()
+
+    for ring in monorings + polyrings:
+        group = make_ring_group(molecule, ring)
+
+        sampled_mol = group.make_sample_molecule()
+        sampled_mol.sort_atoms()
+        sampled_functional_group_smiles_set.add(sampled_mol.to_smiles())
+
+    return sampled_functional_group_smiles_set
+
+def make_ring_group(molecule, ring):
+    group_atoms = {}
+    for atom in ring:
+        if atom not in group_atoms:
+            group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype],
+                                         radical_electrons=[atom.radical_electrons],
+                                         lone_pairs=[atom.lone_pairs],
+                                         charge=[atom.charge],
+                                         label='')
+            
+    group = Group(atoms=list(group_atoms.values()))
+
+    group = make_bonds(molecule, group, group_atoms)
+
+    group.atoms = group.sort_by_connectivity(group.atoms)
+
+    group.update()
+
+    return group
+
