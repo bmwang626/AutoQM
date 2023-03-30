@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH -o slurm-orca_%A-%a.out
-#SBATCH --ntasks=24
+#SBATCH --ntasks=48
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=4000
 #SBATCH --array=0-31
@@ -45,7 +45,7 @@ output_name=$2
 echo $output_name
 xyz_DFT_opt_dict=$3
 echo $xyz_DFT_opt_dict
-DLPNO_sp_n_procs=24
+DLPNO_sp_n_procs=48
 DLPNO_sp_job_ram=4000
 
 #svp calculations
