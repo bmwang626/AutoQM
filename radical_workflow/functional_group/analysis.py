@@ -16,9 +16,9 @@ def functional_group_analysis(smiles, max_n_radius_neighbor=1, max_num_heavy_ato
         return functional_group_smiles_set
     
     sssr = molecule.get_smallest_set_of_smallest_rings()
-    monorings, polyrings = molecule.get_disparate_cycles()
+    # monorings, polyrings = molecule.get_disparate_cycles()
     all_rings = []
-    for ring in sssr + monorings + polyrings:
+    for ring in sssr:
         if len(ring) <= max_num_heavy_atoms_in_ring:
             all_rings.append(ring)
     
