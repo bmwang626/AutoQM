@@ -1,4 +1,5 @@
 import os
+from tqdm import tqdm
 import pandas as pd
 from argparse import ArgumentParser
 from joblib import Parallel, delayed
@@ -18,7 +19,7 @@ df_smiles = pd.read_csv(args.input_smiles, index_col=0)
 smiles_list = df_smiles['smiles'].tolist()
 
 # perform functional group analysis
-outs = Parallel(n_jobs=args.n_jobs, backend="multiprocessing")(delayed(functional_group_analysis)(smi) for smi in smiles_list)
+outs = Parallel(n_jobs=args.n_jobs, backend="multiprocessing")(delayed(functional_group_analysis)(smi) for smi in tqdm(smiles_list))
 functional_group_smiles = set()
 for out in outs:
     functional_group_smiles.update(out)
