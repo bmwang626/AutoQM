@@ -104,7 +104,7 @@ def make_bonds(molecule, group, group_atoms):
             
     return group
 
-def get_ring_functional_groups(molecule, max_num_heavy_atoms_in_functional_group, rings=None):
+def get_ring_functional_groups(molecule, rings=None):
     sampled_functional_group_smiles_set = set()
 
     if rings is None:
@@ -117,9 +117,8 @@ def get_ring_functional_groups(molecule, max_num_heavy_atoms_in_functional_group
 
         sampled_mol = group.make_sample_molecule()
         sampled_mol.sort_atoms()
-        if sum(not atom.is_hydrogen() for atom in sampled_mol.atoms) <=max_num_heavy_atoms_in_functional_group:
-            sampled_functional_group_smiles = sampled_mol.to_smiles()
-            sampled_functional_group_smiles_set.add(sampled_functional_group_smiles)
+        sampled_functional_group_smiles = sampled_mol.to_smiles()
+        sampled_functional_group_smiles_set.add(sampled_functional_group_smiles)
 
     return sampled_functional_group_smiles_set
 
