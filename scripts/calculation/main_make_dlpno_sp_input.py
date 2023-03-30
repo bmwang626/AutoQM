@@ -71,6 +71,8 @@ if "smiles" in df.columns:
 elif "rxn_smi" in df.columns:
     smiles_list = list(df.rxn_smi)
     smiles_list = [smi.split(">>")[1] for smi in smiles_list] # use the product smiles
+else:
+    raise ValueError("smiles or rxn_smi must be in the input csv file")
 mol_id_to_smi_dict = dict(zip(mol_ids, smiles_list))
 mol_id_to_charge_dict = dict()
 mol_id_to_mult_dict = dict()
