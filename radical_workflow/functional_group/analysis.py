@@ -15,7 +15,7 @@ def functional_group_analysis(smiles, max_num_heavy_atoms_in_functional_group=5)
             if sampled_functional_group_smiles is not None:
                 functional_group_smiles_set.add(sampled_functional_group_smiles)
 
-    sampled_functional_group_smiles_set = get_ring_functional_groups(mol)
+    sampled_functional_group_smiles_set = get_ring_functional_groups(mol, max_num_heavy_atoms_in_functional_group=max_num_heavy_atoms_in_functional_group)
     functional_group_smiles_set.update(sampled_functional_group_smiles_set)
 
     return functional_group_smiles_set
@@ -107,7 +107,7 @@ def make_bonds(molecule, group, group_atoms):
             
     return group
 
-def get_ring_functional_groups(molecule):
+def get_ring_functional_groups(molecule, max_num_heavy_atoms_in_functional_group):
     sampled_functional_group_smiles_set = set()
 
     sssr = molecule.get_smallest_set_of_smallest_rings()
@@ -118,7 +118,9 @@ def get_ring_functional_groups(molecule):
 
         sampled_mol = group.make_sample_molecule()
         sampled_mol.sort_atoms()
-        sampled_functional_group_smiles_set.add(sampled_mol.to_smiles())
+        if sum(not atom.is_hydrogen() for atom in sampled_mol.atoms) <=max_num_heavy_atoms_in_functional_group:
+            sampled_functional_group_smiles = sampled_mol.to_smiles()
+            sampled_functional_group_smiles_set.add(sampled_functional_group_smiles)
 
     return sampled_functional_group_smiles_set
 
