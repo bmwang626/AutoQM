@@ -128,11 +128,7 @@ def make_ring_group(molecule, ring):
     group_atoms = {}
     for atom in ring:
         if atom not in group_atoms:
-            group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype],
-                                         radical_electrons=[atom.radical_electrons],
-                                         lone_pairs=[atom.lone_pairs],
-                                         charge=[atom.charge],
-                                         label='')
+            group_atoms[atom] = GroupAtom(atomtype=[atom.element.symbol])
             
     group = Group(atoms=list(group_atoms.values()))
 
