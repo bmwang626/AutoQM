@@ -119,7 +119,7 @@ def make_bonds(molecule, group, group_atoms):
     return group
 
 def get_ring_functional_groups(molecule, rings=None):
-    sampled_functional_group_smiles_list = set()
+    sampled_functional_group_smiles_list = list()
 
     if rings is None:
         sssr = molecule.get_smallest_set_of_smallest_rings()
