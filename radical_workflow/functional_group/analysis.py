@@ -79,11 +79,10 @@ def get_neighbors(atoms, group_atoms, all_ring_atoms, n_radius_neighbor, degree)
     
     for (atom, bond) in atoms:
         if atom not in group_atoms:
-            if degree == 1:
+            if atom not in all_ring_atoms:
                 group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype])
             else:
-                if not atom in all_ring_atoms:
-                    group_atoms[atom] = GroupAtom(atomtype=[atom.atomtype])
+                continue
 
         if degree + 1 <= n_radius_neighbor:
             neighbors = list(item for item in atom.edges.items() if not item[0].is_hydrogen())
