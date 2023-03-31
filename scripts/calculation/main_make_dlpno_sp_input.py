@@ -3,6 +3,7 @@ import os
 import pickle as pkl
 import pandas as pd
 import rdkit.Chem as Chem
+import subprocess
 
 from radical_workflow.calculation.wft_calculation import generate_dlpno_sp_input
 
@@ -100,23 +101,26 @@ os.makedirs(outputs_dir, exist_ok=True)
 
 print("Make dlpno input files...")
 
+def tail(f, n):
+    proc = subprocess.Popen(['tail', '-n', str(n), f], stdout=subprocess.PIPE)
+    lines = proc.stdout.readlines()
+    return lines
+
 def has_max_core_error(log_path):
-    with open(log_path, "r") as f:
-        lines = f.readlines()
-    lines = lines[::-20]
+    lines = tail(log_path, 20)
     for line in lines:
-        if ("Please increase MaxCore - Skipping calculation" in line) or ("ORCA finished by error termination in GTOInt" in line) or ("ORCA finished by error termination in MDCI" in line):
+        if (b"Please increase MaxCore - Skipping calculation" in line) or (b"ORCA finished by error termination in GTOInt" in line) or (b"ORCA finished by error termination in MDCI" in line):
             return True
     return False
 
 mol_ids_smis = list(zip(mol_ids, smiles_list))
 for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
+    ids = str(int(int(mol_id.split("id")[1])/1000))
+    subinputs_dir = os.path.join(inputs_dir, f"inputs_{ids}")
+    suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")
+    os.makedirs(suboutputs_dir, exist_ok=True)
+    log_path = os.path.join(suboutputs_dir, f"{mol_id}.log")
     if mol_id in xyz_DFT_opt_dict:
-        ids = str(int(int(mol_id.split("id")[1])/1000))
-        subinputs_dir = os.path.join(inputs_dir, f"inputs_{ids}")
-        suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")
-        os.makedirs(suboutputs_dir, exist_ok=True)
-        log_path = os.path.join(suboutputs_dir, f"{mol_id}.log")
         if os.path.exists(log_path):
             # check if maxcore error
             if has_max_core_error(log_path):
@@ -134,5 +138,10 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
                 with open(mol_id_path, "w+") as f:
                     f.write(script)
                 print(mol_id)
+    else:
+        print(f"Cannot find xyz for {mol_id}")
+        if os.path.exists(log_path):
+            print(f"Removing {log_path}...")
+            os.remove(log_path)
 
 print("Done!")
