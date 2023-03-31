@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH -o slurm-orca_%A-%a.out
-#SBATCH --ntasks=16
+#SBATCH --ntasks=24
 #SBATCH --array=0-31
 #SBATCH --exclusive
 #SBATCH --mem=0
