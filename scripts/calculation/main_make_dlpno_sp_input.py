@@ -100,6 +100,15 @@ os.makedirs(outputs_dir, exist_ok=True)
 
 print("Make dlpno input files...")
 
+def has_max_core_error(log_path):
+    with open(log_path, "r") as f:
+        lines = f.readlines()
+    lines = lines[::-20]
+    for line in lines:
+        if ("Please increase MaxCore - Skipping calculation" in line) or ("ORCA finished by error termination in GTOInt" in line) or ("ORCA finished by error termination in MDCI" in line):
+            return True
+    return False
+
 mol_ids_smis = list(zip(mol_ids, smiles_list))
 for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
     if mol_id in xyz_DFT_opt_dict:
@@ -107,7 +116,12 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
         subinputs_dir = os.path.join(inputs_dir, f"inputs_{ids}")
         suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")
         os.makedirs(suboutputs_dir, exist_ok=True)
-        if not os.path.exists(os.path.join(suboutputs_dir, f"{mol_id}.log")):
+        log_path = os.path.join(suboutputs_dir, f"{mol_id}.log")
+        if os.path.exists(log_path):
+            # check if maxcore error
+            if has_max_core_error(log_path):
+                print(f"maxcore error for {mol_id}, removing...")
+        if not os.path.exists(log_path):
             os.makedirs(subinputs_dir, exist_ok=True)
             mol_id_path = os.path.join(subinputs_dir, f"{mol_id}.in")
             if not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.tmp")) and not os.path.exists(mol_id_path):
