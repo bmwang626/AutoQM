@@ -125,7 +125,10 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
             # check if maxcore error
             if has_max_core_error(log_path):
                 print(f"maxcore error for {mol_id}, removing...")
-                os.remove(log_path)
+                try:
+                    os.remove(log_path)
+                except FileNotFoundError:
+                    print(f"file {log_path} not found, already removed?")
         if not os.path.exists(log_path):
             os.makedirs(subinputs_dir, exist_ok=True)
             mol_id_path = os.path.join(subinputs_dir, f"{mol_id}.in")
