@@ -1,9 +1,8 @@
 #!/bin/bash -l
 #SBATCH -o slurm-orca_%A-%a.out
-#SBATCH --ntasks=48
-#SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=4000
+#SBATCH --ntasks=24
 #SBATCH --array=0-31
+#SBATCH --exclusive
 
 echo "============================================================"
 echo "Job ID : $SLURM_JOB_ID"
