@@ -12,6 +12,8 @@ echo "Running on node : $SLURMD_NODENAME"
 echo "Current directory : $(pwd)"
 echo "============================================================"
 
+echo $HOME
+
 conda activate rdmc_env
 which python
 
