@@ -45,8 +45,8 @@ output_name=$2
 echo $output_name
 xyz_DFT_opt_dict=$3
 echo $xyz_DFT_opt_dict
-DLPNO_sp_n_procs=48
-DLPNO_sp_job_ram=4000
+DLPNO_sp_n_procs=24
+DLPNO_sp_job_ram=8000
 
 #svp calculations
 DLPNO_sp_folder="DLPNO_sp"
