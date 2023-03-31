@@ -1,6 +1,5 @@
 #!/bin/bash -l
 #SBATCH -o slurm-orca_%A-%a.out
-#SBATCH --ntasks=16
 #SBATCH --array=0-31
 #SBATCH --exclusive
 #SBATCH --mem=0
@@ -47,8 +46,8 @@ output_name=$2
 echo $output_name
 xyz_DFT_opt_dict=$3
 echo $xyz_DFT_opt_dict
-DLPNO_sp_n_procs=16
-DLPNO_sp_job_ram=12000
+DLPNO_sp_n_procs=12
+DLPNO_sp_job_ram=16000
 
 echo "DLPNO_sp_n_procs $DLPNO_sp_n_procs"
 echo "DLPNO_sp_job_ram $DLPNO_sp_job_ram"
