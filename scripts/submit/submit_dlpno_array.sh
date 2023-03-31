@@ -1,6 +1,8 @@
 #!/bin/bash -l
 #SBATCH -o slurm-orca_%A-%a.out
 #SBATCH --ntasks=24
+#SBATCH --mem-per-cpu=4000
+#SBATCH --cores-per-task=2
 #SBATCH --array=0-31
 #SBATCH --exclusive
 
