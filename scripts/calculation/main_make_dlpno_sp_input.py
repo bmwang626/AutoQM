@@ -107,10 +107,21 @@ def tail(f, n):
     return lines
 
 def has_max_core_error(log_path):
-    lines = tail(log_path, 20)
+    lines = tail(log_path, 30)
     for line in lines:
         if (b"Please increase MaxCore - Skipping calculation" in line) or (b"ORCA finished by error termination in GTOInt" in line) or (b"ORCA finished by error termination in MDCI" in line):
             return True
+    # possibly strange SCF error
+    scf_error = False
+    wave_function_error = False
+    for line in line:
+        if b"ORCA finished by error termination in SCF" in line:
+            scf_error = True
+        if b"This wavefunction IS NOT CONVERGED!" in line:
+            wave_function_error = True
+    if scf_error and not wave_function_error:
+        return True
+
     return False
 
 mol_ids_smis = list(zip(mol_ids, smiles_list))
