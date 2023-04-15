@@ -19,7 +19,7 @@ def main(input_smiles_path, output_file_name, n_jobs, solvent_path):
     mol_id_to_mol_smi = dict(zip(mol_ids, mol_smis))
 
     df_solvent = pd.read_csv(solvent_path)
-    solvent_name_to_smi = dict(zip(df_solvent.cosmo_name, mol_smis))
+    solvent_name_to_smi = dict(zip(df_solvent.cosmo_name, df_solvent.smiles))
 
     out = Parallel(n_jobs=n_jobs, backend="multiprocessing", verbose=5)(delayed(cosmo_parser)(mol_id) for mol_id in tqdm(mol_ids))
     failed_mol_ids = [mol_ids[i] for i in range(len(mol_ids)) if out[i] is None]
