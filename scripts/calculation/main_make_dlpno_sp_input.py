@@ -114,7 +114,7 @@ def has_max_core_error(log_path):
     # possibly strange SCF error
     scf_error = False
     wave_function_error = False
-    for line in line:
+    for line in lines:
         if b"ORCA finished by error termination in SCF" in line:
             scf_error = True
         if b"This wavefunction IS NOT CONVERGED!" in line:
