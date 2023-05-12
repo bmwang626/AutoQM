@@ -124,6 +124,18 @@ def has_max_core_error(log_path):
 
     return False
 
+def has_wave_function_error(log_path):
+    lines = tail(log_path, 30)
+    # find wave function error
+    wave_function_error = False
+    for line in lines:
+        if b"This wavefunction IS NOT CONVERGED!" in line:
+            wave_function_error = True
+    if wave_function_error:
+        return True
+
+    return False
+
 mol_ids_smis = list(zip(mol_ids, smiles_list))
 for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
     ids = str(int(int(mol_id.split("id")[1])/1000))
@@ -131,13 +143,23 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
     suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")
     os.makedirs(suboutputs_dir, exist_ok=True)
     log_path = os.path.join(suboutputs_dir, f"{mol_id}.log")
+    DLPNO_level_of_theory = args.DLPNO_level_of_theory
     if mol_id in xyz_DFT_opt_dict:
         if os.path.exists(log_path):
-            # check if maxcore error
-            if has_max_core_error(log_path):
-                print(f"maxcore error for {mol_id}, removing...")
+            # # check if maxcore error
+            # if has_max_core_error(log_path):
+            #     print(f"maxcore error for {mol_id}, removing...")
+            #     try:
+            #         os.remove(log_path)
+            #     except FileNotFoundError:
+            #         print(f"file {log_path} not found, already removed?")
+            # check if wave function error
+            if has_wave_function_error(log_path):
+                print(f"wave function error for {mol_id}, removing...")
                 try:
                     os.remove(log_path)
+                    if args.DLPNO_level_of_theory == "uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX VeryTightSCF NormalPNO":
+                        DLPNO_level_of_theory = "uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX NormalSCF NormalPNO"
                 except FileNotFoundError:
                     print(f"file {log_path} not found, already removed?")
         if not os.path.exists(log_path):
@@ -147,7 +169,7 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
                 charge = mol_id_to_charge_dict[mol_id]
                 mult = mol_id_to_mult_dict[mol_id]
                 coords = xyz_DFT_opt_dict[mol_id].strip()
-                script = generate_dlpno_sp_input(args.DLPNO_level_of_theory, coords, charge, mult, args.DLPNO_sp_job_ram, args.DLPNO_sp_n_procs)
+                script = generate_dlpno_sp_input(DLPNO_level_of_theory, coords, charge, mult, args.DLPNO_sp_job_ram, args.DLPNO_sp_n_procs)
 
                 with open(mol_id_path, "w+") as f:
                     f.write(script)
