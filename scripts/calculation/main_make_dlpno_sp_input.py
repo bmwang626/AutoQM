@@ -21,7 +21,7 @@ parser.add_argument('--num_tasks', type=int, default=1,
 
 #dlpno sp
 parser.add_argument('--DLPNO_sp_folder', type=str, required=True, choices=['DLPNO_sp', 'DLPNO_sp_f12'],)
-parser.add_argument('--DLPNO_level_of_theory', type=str, required=True, choices=['uHF dlpno-ccsd(t) def2-svp def2-svp/c TightSCF NormalPNO', 'uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX VeryTightSCF NormalPNO'],
+parser.add_argument('--DLPNO_level_of_theory', type=str, required=True,
                     help='level of theory for DLPNO calculation')
 parser.add_argument('--DLPNO_sp_n_procs', type=int, default=24,
                     help='number of process for DLPNO calculations')
