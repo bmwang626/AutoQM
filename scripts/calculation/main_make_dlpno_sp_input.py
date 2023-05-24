@@ -154,14 +154,14 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
                 except FileNotFoundError:
                     print(f"file {log_path} not found, already removed?")
             # check if wave function error
-            # if has_wave_function_error(log_path):
-            #     print(f"wave function error for {mol_id}, removing...")
-            #     try:
-            #         os.remove(log_path)
-            #         if args.DLPNO_level_of_theory == "uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX VeryTightSCF NormalPNO":
-            #             DLPNO_level_of_theory = "uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX NormalSCF NormalPNO"
-            #     except FileNotFoundError:
-            #         print(f"file {log_path} not found, already removed?")
+            if has_wave_function_error(log_path):
+                print(f"wave function error for {mol_id}, removing...")
+                try:
+                    os.remove(log_path)
+                    if args.DLPNO_level_of_theory == "uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX VeryTightSCF NormalPNO":
+                        DLPNO_level_of_theory = "uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX NormalSCF NormalPNO"
+                except FileNotFoundError:
+                    print(f"file {log_path} not found, already removed?")
         if not os.path.exists(log_path):
             os.makedirs(subinputs_dir, exist_ok=True)
             mol_id_path = os.path.join(subinputs_dir, f"{mol_id}.in")
