@@ -101,9 +101,17 @@ if args.input_smiles.endswith(".csv"):
 elif args.input_smiles.endswith(".pkl"):
     with open(args.input_smiles, "rb") as f:
         output = pkl.load(f)
-    ids = list(output.keys())
-    rxn_smiles_list = [output[id]["rxn_smi"] for id in ids]
-    dft_xyz_list = [output[id]["xtb_xyz"] for id in ids]
+    success_dict_list = [out[1] for out in output]
+    ids = []
+    rxn_smiles_list = []
+    dft_xyz_list = []
+
+    for success_dict in success_dict_list:
+        for id in success_dict:
+            ids.append(id)
+            rxn_smiles_list.append(success_dict[id]["rxn_smi"])
+            dft_xyz_list.append(success_dict[id]["xtb_xyz"])
+
     df = pd.DataFrame({"id": ids, "rxn_smi": rxn_smiles_list, "dft_xyz": dft_xyz_list})
 else:
     raise NotImplementedError
