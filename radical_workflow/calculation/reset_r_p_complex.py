@@ -116,14 +116,14 @@ def reset_r_p_complex_ff_opt(
 
     formed_bonds, broken_bonds = get_formed_and_broken_bonds(r_complex, p_complex)
 
-    r_complex_id = f"{ts_id}_r"
+    r_complex_id = f"rxn_{ts_id}_r"
     rmol_scratch_dir = os.path.join(scratch_dir, r_complex_id)
     os.makedirs(rmol_scratch_dir)
     os.chdir(rmol_scratch_dir)
     new_r_complex = reset_r_complex(ts_mol, r_complex, formed_bonds)
     os.chdir(current_dir)
 
-    p_complex_id = f"{ts_id}_p"
+    p_complex_id = f"rxn_{ts_id}_p"
     pmol_scratch_dir = os.path.join(scratch_dir, p_complex_id)
     os.makedirs(pmol_scratch_dir)
     os.chdir(pmol_scratch_dir)
@@ -133,7 +133,7 @@ def reset_r_p_complex_ff_opt(
     new_p_complex._mol.SetProp("_Name", p_complex_smi)
     ts_mol._mol.SetProp("_Name", rxn_smi)
 
-    sdf_file = f"{ts_id}_r_p_ts.sdf"
+    sdf_file = f"rxn_{ts_id}.sdf"
     writer = Chem.rdmolfiles.SDWriter(sdf_file)
     writer.write(new_r_complex._mol)
     writer.write(new_p_complex._mol)

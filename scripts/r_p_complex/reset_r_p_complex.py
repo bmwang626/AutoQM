@@ -99,7 +99,7 @@ outputs_dir = os.path.join(r_p_complex_ff_opt_dir, "outputs")
 df = pd.read_csv(args.input_smiles, index_col=0)
 assert len(df["id"]) == len(set(df["id"])), "ids must be unique"
 
-ts_ids = list(df.index)
+ts_ids = list(df["id"])
 rxn_smiles_list = list(df["rxn_smi"])
 dft_xyz_list = list(df["dft_xyz"])
 ts_id_to_rxn_smi = dict(zip(ts_ids, rxn_smiles_list))
@@ -111,16 +111,17 @@ for ts_id, rxn_smi, dft_xyz in tasks[args.task_id :: args.num_tasks]:
     ids = int(ts_id // 1000)
     suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")
     os.makedirs(suboutputs_dir, exist_ok=True)
-    if not os.path.exists(os.path.join(suboutputs_dir, f"{ts_id}.sdf")):
+    if not os.path.exists(os.path.join(suboutputs_dir, f"rxn_{ts_id}.sdf")):
         subinputs_dir = os.path.join(inputs_dir, f"inputs_{ids}")
         os.makedirs(subinputs_dir, exist_ok=True)
         if not os.path.exists(
-            os.path.join(subinputs_dir, f"{ts_id}.in")
-        ) and not os.path.exists(os.path.join(subinputs_dir, f"{ts_id}.tmp")):
-            ts_id_path = os.path.join(subinputs_dir, f"{ts_id}.in")
-            with open(ts_id_path, "w") as f:
-                f.write(ts_id)
+            os.path.join(subinputs_dir, f"rxn_{ts_id}.in")
+        ) and not os.path.exists(os.path.join(subinputs_dir, f"rxn_{ts_id}.tmp")):
+            ts_id_input_path = os.path.join(subinputs_dir, f"rxn_{ts_id}.in")
+            with open(ts_id_input_path, "w") as f:
+                f.write(rxn_smi)
             print(ts_id)
+            print(rxn_smi)
 
 print("FF optimization for reactant and product complexes...")
 for _ in range(5):
@@ -130,11 +131,11 @@ for _ in range(5):
         suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")
         for input_file in os.listdir(subinputs_dir):
             if ".in" in input_file:
-                ts_id = input_file.split(".in")[0]
+                ts_id = int(input_file.split(".in")[0].split("rxn_")[1])
                 try:
                     os.rename(
                         os.path.join(subinputs_dir, input_file),
-                        os.path.join(subinputs_dir, f"{ts_id}.tmp"),
+                        os.path.join(subinputs_dir, f"rxn_{ts_id}.tmp"),
                     )
                 except:
                     continue
