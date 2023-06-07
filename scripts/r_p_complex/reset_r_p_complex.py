@@ -96,7 +96,17 @@ inputs_dir = os.path.join(r_p_complex_ff_opt_dir, "inputs")
 outputs_dir = os.path.join(r_p_complex_ff_opt_dir, "outputs")
 
 # read inputs
-df = pd.read_csv(args.input_smiles, index_col=0)
+if args.input_smiles.endswith(".csv"):
+    df = pd.read_csv(args.input_smiles, index_col=0)
+elif args.input_smiles.endswith(".pkl"):
+    with open(args.input_smiles, "rb") as f:
+        output = pkl.load(f)
+    ids = list(output.keys())
+    rxn_smiles_list = [output[id]["rxn_smi"] for id in ids]
+    dft_xyz_list = [output[id]["xtb_xyz"] for id in ids]
+    df = pd.DataFrame({"id": ids, "rxn_smi": rxn_smiles_list, "dft_xyz": dft_xyz_list})
+else:
+    raise NotImplementedError
 assert len(df["id"]) == len(set(df["id"])), "ids must be unique"
 
 ts_ids = list(df["id"])
