@@ -26,4 +26,4 @@ python -u $QMD_PATH/scripts/parsing/process_dlpno_sp_result_parallel.py $input_p
 python -u $QMD_PATH/scripts/parsing/process_cosmo_result_parallel.py $input_path ${output_name}_cosmo_results 48 $QMD_PATH/common_solvent_list_final.csv
 
 # r p complexes ts
-python -u $QMD_PATH/scripts/parsing/process_r_p_complexes_ts_result_parallel.py $input_path ${output_name}_r_p_complexes_ts_results 48
+python -u $QMD_PATH/scripts/parsing/process_r_p_complex_ff_opt_result_parallel.py $input_path ${output_name}_r_p_complexes_ts_results 48
