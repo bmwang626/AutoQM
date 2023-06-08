@@ -19,6 +19,11 @@ def parser(sdf_file_path):
 
     r_smi = r_mol.GetProp("_Name")
     p_smi = p_mol.GetProp("_Name")
+    rxn_smi = ts_mol.GetProp("_Name")
+
+    r_mol._mol.SetProp("_Name", r_smi)
+    p_mol._mol.SetProp("_Name", p_smi)
+    ts_mol._mol.SetProp("_Name", rxn_smi)
 
     pre_r_mol = RDKitMol.FromSmiles(r_smi, removeHs=False, sanitize=True)
     pre_p_mol = RDKitMol.FromSmiles(p_smi, removeHs=False, sanitize=True)
