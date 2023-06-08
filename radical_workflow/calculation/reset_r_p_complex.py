@@ -116,6 +116,22 @@ def reset_r_p_complex_ff_opt(
 
     formed_bonds, broken_bonds = get_formed_and_broken_bonds(r_complex, p_complex)
 
+    # get bond length of reacting bonds
+    ts_conf = ts_mol.GetConformer()
+    reacting_bond_lengths = [
+        ts_conf.GetBondLength(b) for b in broken_bonds + formed_bonds
+    ]
+    if any([b > 2.0 for b in reacting_bond_lengths]):
+        print(
+            f"Warning: reacting bond length of {ts_id} {rxn_smi} is greater than 2.0 Angstrom: {reacting_bond_lengths}. Skip this TS."
+        )
+        try:
+            os.remove(os.path.join(subinputs_dir, f"{ts_id}.tmp"))
+        except FileNotFoundError:
+            print("File not found. Continuing...")
+            print(os.path.join(subinputs_dir, f"{ts_id}.tmp"))
+        return
+
     r_complex_id = f"rxn_{ts_id}_r"
     rmol_scratch_dir = os.path.join(scratch_dir, r_complex_id)
     os.makedirs(rmol_scratch_dir)
