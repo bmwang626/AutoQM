@@ -21,10 +21,6 @@ def parser(sdf_file_path):
     p_smi = p_mol.GetProp("_Name")
     rxn_smi = ts_mol.GetProp("_Name")
 
-    r_mol._mol.SetProp("_Name", r_smi)
-    p_mol._mol.SetProp("_Name", p_smi)
-    ts_mol._mol.SetProp("_Name", rxn_smi)
-
     pre_r_mol = RDKitMol.FromSmiles(r_smi, removeHs=False, sanitize=True)
     pre_p_mol = RDKitMol.FromSmiles(p_smi, removeHs=False, sanitize=True)
 
@@ -38,7 +34,7 @@ def parser(sdf_file_path):
     if not (p_adj == pre_p_adj).all():
         return None
 
-    return rxn_id, r_smi, p_smi, ts_mol._mol, r_mol._mol, p_mol._mol
+    return rxn_id, r_smi, p_smi, rxn_smi, r_mol._mol, p_mol._mol, ts_mol._mol
 
 
 input_smiles_path = sys.argv[1]
@@ -81,15 +77,18 @@ df_out = pd.DataFrame(
 )
 df_out.to_csv(csv_file, index=False)
 
-ts_writer = Chem.rdmolfiles.SDWriter(os.path.join(f"{output_file_name}_ts.sdf"))
 r_writer = Chem.rdmolfiles.SDWriter(os.path.join(f"{output_file_name}_reactants.sdf"))
 p_writer = Chem.rdmolfiles.SDWriter(os.path.join(f"{output_file_name}_products.sdf"))
+ts_writer = Chem.rdmolfiles.SDWriter(os.path.join(f"{output_file_name}_ts.sdf"))
 
-for rxn_id, r_smi, p_smi, ts_mol, r_mol, p_mol in out:
-    ts_writer.write(ts_mol)
+for rxn_id, r_smi, p_smi, rxn_smi, r_mol, p_mol, ts_mol in out:
+    r_mol.SetProp("_Name", f"{rxn_id}_{r_smi}")
+    p_mol.SetProp("_Name", f"{rxn_id}_{p_smi}")
+    ts_mol.SetProp("_Name", f"{rxn_id}_{rxn_smi}")
     r_writer.write(r_mol)
     p_writer.write(p_mol)
+    ts_writer.write(ts_mol)
 
-ts_writer.close()
 r_writer.close()
 p_writer.close()
+ts_writer.close()
