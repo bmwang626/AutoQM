@@ -126,10 +126,10 @@ def reset_r_p_complex_ff_opt(
             f"Warning: reacting bond length of {ts_id} {rxn_smi} is greater than 2.0 Angstrom: {reacting_bond_lengths}. Skip this TS."
         )
         try:
-            os.remove(os.path.join(subinputs_dir, f"{ts_id}.tmp"))
+            os.remove(os.path.join(subinputs_dir, f"rxn_{ts_id}.tmp"))
         except FileNotFoundError:
             print("File not found. Continuing...")
-            print(os.path.join(subinputs_dir, f"{ts_id}.tmp"))
+            print(os.path.join(subinputs_dir, f"rxn_{ts_id}.tmp"))
         return
 
     r_complex_id = f"rxn_{ts_id}_r"
@@ -160,10 +160,10 @@ def reset_r_p_complex_ff_opt(
     os.chdir(current_dir)
 
     try:
-        os.remove(os.path.join(subinputs_dir, f"{ts_id}.tmp"))
+        os.remove(os.path.join(subinputs_dir, f"rxn_{ts_id}.tmp"))
     except FileNotFoundError:
         print("File not found. Continuing...")
-        print(os.path.join(subinputs_dir, f"{ts_id}.tmp"))
+        print(os.path.join(subinputs_dir, f"rxn_{ts_id}.tmp"))
     shutil.rmtree(rmol_scratch_dir)
     shutil.rmtree(pmol_scratch_dir)
 
