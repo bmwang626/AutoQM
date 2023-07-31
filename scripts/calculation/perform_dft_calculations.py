@@ -131,7 +131,8 @@ mol_id_to_charge = dict()
 mol_id_to_mult = dict()
 for k, v in mol_id_to_smi.items():
     try:
-        mol = Chem.MolFromSmiles(v)
+        rsmi, psmi = v.split(">>")
+        mol = Chem.MolFromSmiles(rsmi)
     except Exception as e:
         print(f"Cannot translate smi {v} to molecule for species {k}")
 
