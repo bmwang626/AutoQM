@@ -122,8 +122,11 @@ assert RDMC_PATH is not None, f"RDMC_PATH must be provided to read sdf files"
 
 # create id to smile mapping
 mol_ids = df["id"].tolist()
-smiles_list = df["rsmi"].tolist()
+rsmi_list = df["rsmi"].tolist()
+psmi_list = df["psmi"].tolist()
+smiles_list = [rsmi + ">>" + psmi for rsmi, psmi in zip(rsmi_list, psmi_list)]
 mol_id_to_smi = dict(zip(mol_ids, smiles_list))
+smi_to_mol_id = dict(zip(smiles_list, mol_ids))
 mol_id_to_charge = dict()
 mol_id_to_mult = dict()
 for k, v in mol_id_to_smi.items():
@@ -150,8 +153,9 @@ mol_ids_smis = list(zip(mol_ids, smiles_list))
 mols = RDKitMol.FromFile(args.input_geometry, removeHs=False, sanitize=False)
 mol_id_to_xyz = dict()
 for mol in mols:
-    mol_id = int(mol.GetProp("_Name").split("_")[0])
+    ts_smi = mol.GetProp("_Name")
     xyz = mol.ToXYZ(header=False)
+    mol_id = smi_to_mol_id[ts_smi]
     mol_id_to_xyz[mol_id] = xyz
 
 print("DFT TS opt & freq")
