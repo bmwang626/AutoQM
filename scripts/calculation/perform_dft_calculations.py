@@ -173,7 +173,7 @@ for _ in range(1):
 
     print("Optimizing lowest energy semiempirical opted conformer with DFT method...")
 
-    DFT_opt_freq_theories = [args.DFT_opt_freq_theory]
+    DFT_opt_freq_theory = args.DFT_opt_freq_theory
 
     for _ in range(1):
         for subinputs_folder in os.listdir(os.path.join(DFT_opt_freq_dir, "inputs")):
@@ -205,12 +205,12 @@ for _ in range(1):
                             mol_id
                         ]
 
-                        converged = dft_scf_opt(
+                        dft_scf_opt(
                             mol_id,
                             rsmi,
                             mol_id_to_semiempirical_opted_xyz,
                             G16_PATH,
-                            DFT_opt_freq_theories,
+                            DFT_opt_freq_theory,
                             args.DFT_opt_freq_n_procs,
                             args.DFT_opt_freq_job_ram,
                             charge,
@@ -219,9 +219,6 @@ for _ in range(1):
                             suboutputs_dir,
                             subinputs_dir,
                         )
-
-                        if converged:
-                            os.remove(os.path.join(subinputs_dir, f"{mol_id}.tmp"))
 
     print("DFT optimization and frequency calculation done.")
 

@@ -139,10 +139,9 @@ def dft_scf_qm_descriptor(
 
 def dft_scf_opt(
     mol_id,
-    mol_smi,
-    mol_id_to_xyz_dict,
+    xyz,
     g16_path,
-    DFT_opt_freq_theories,
+    level_of_theory,
     n_procs,
     job_ram,
     base_charge,
@@ -153,71 +152,38 @@ def dft_scf_opt(
 ):
     current_dir = os.getcwd()
 
-    for level_of_theory in DFT_opt_freq_theories:
-        mol_scratch_dir = os.path.join(scratch_dir, f"{mol_id}")
-        os.makedirs(mol_scratch_dir)
-        os.chdir(mol_scratch_dir)
+    mol_scratch_dir = os.path.join(scratch_dir, f"{mol_id}")
+    os.makedirs(mol_scratch_dir)
+    os.chdir(mol_scratch_dir)
 
-        xyz = mol_id_to_xyz_dict[mol_id]
-        g16_command = os.path.join(g16_path, "g16")
-        head = "%chk={}.chk\n%nprocshared={}\n%mem={}mb\n{}\n".format(
-            mol_id, n_procs, job_ram, level_of_theory
+    g16_command = os.path.join(g16_path, "g16")
+    head = "%chk={}.chk\n%nprocshared={}\n%mem={}mb\n{}\n".format(
+        mol_id, n_procs, job_ram, level_of_theory
+    )
+
+    comfile = f"{mol_id}.gjf"
+    xyz2com(xyz, head=head, comfile=comfile, charge=base_charge, mult=mult, footer="\n")
+
+    logfile = f"{mol_id}.log"
+    outfile = f"{mol_id}.out"
+
+    start_time = time.time()
+    with open(outfile, "w") as out:
+        subprocess.run(
+            "{} < {} >> {}".format(g16_command, comfile, logfile),
+            shell=True,
+            stdout=out,
+            stderr=out,
         )
+    end_time = time.time()
+    print(
+        f"Optimization of {mol_id} with {level_of_theory} took {end_time - start_time} seconds."
+    )
 
-        comfile = f"{mol_id}.gjf"
-        xyz2com(
-            xyz, head=head, comfile=comfile, charge=base_charge, mult=mult, footer="\n"
-        )
-
-        logfile = f"{mol_id}.log"
-        outfile = f"{mol_id}.out"
-
-        start_time = time.time()
-        with open(outfile, "w") as out:
-            subprocess.run(
-                "{} < {} >> {}".format(g16_command, comfile, logfile),
-                shell=True,
-                stdout=out,
-                stderr=out,
-            )
-        end_time = time.time()
-        print(
-            f"Optimization of {mol_id} with {level_of_theory} took {end_time - start_time} seconds."
-        )
-
-        # check for convergence
-        start_time = time.time()
-        failed_job, valid_job = dft_opt_freq_parser(
-            mol_id, mol_smi, logfile, parse_data=False
-        )
-        end_time = time.time()
-        print(
-            f"Parsing of {mol_id} with {level_of_theory} took {end_time - start_time} seconds."
-        )
-
-        if valid_job:
-            shutil.copyfile(logfile, os.path.join(suboutputs_dir, logfile))
-            try:
-                os.remove(os.path.join(subinputs_dir, f"{mol_id}.tmp"))
-            except FileNotFoundError:
-                pass
-            os.chdir(current_dir)
-            shutil.rmtree(mol_scratch_dir)
-            print(f"Optimization of {mol_id} with {level_of_theory} converged.")
-            return True
-        else:
-            with open(logfile, "r") as f:
-                lines = f.readlines()
-            print("\n".join(lines[-10:]))
-            shutil.copyfile(logfile, os.path.join(suboutputs_dir, logfile))
-            os.chdir(current_dir)
-            shutil.rmtree(mol_scratch_dir)
-            print(f"Optimization of {mol_id} with {level_of_theory} didn't converge.")
-            print(failed_job)
-            continue
-
-    print(f"{mol_id} failed for all levels of theory.")
-    return False
+    shutil.copyfile(outfile, os.path.join(suboutputs_dir, f"{mol_id}.out"))
+    shutil.copyfile(comfile, os.path.join(subinputs_dir, f"{mol_id}.gjf"))
+    shutil.copyfile(logfile, os.path.join(suboutputs_dir, f"{mol_id}.log"))
+    os.remove(os.path.join(subinputs_dir, f"{mol_id}.in"))
 
 
 def dft_scf_sp(
