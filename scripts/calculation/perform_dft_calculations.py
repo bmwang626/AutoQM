@@ -187,7 +187,7 @@ for _ in range(1):
                 input_rxn_dir = os.path.join(input_rxns_dir, input_rxn_folder)
                 input_file_path = os.path.join(input_rxn_dir, f"{mol_id}.in")
                 if os.path.exists(input_file_path):
-                    mol_id = int(os.path.basename(input_rxn_dir).split(".in")[0])
+                    mol_id = int(input_rxn_folder.split("_")[1])
                     try:
                         os.rename(
                             input_file_path,
