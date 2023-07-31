@@ -163,6 +163,7 @@ def dft_scf_opt(
 
     comfile = f"{mol_id}.gjf"
     xyz2com(xyz, head=head, comfile=comfile, charge=base_charge, mult=mult, footer="\n")
+    shutil.copyfile(comfile, os.path.join(subinputs_dir, f"{mol_id}.gjf"))
 
     logfile = f"{mol_id}.log"
     outfile = f"{mol_id}.out"
@@ -181,7 +182,6 @@ def dft_scf_opt(
     )
 
     shutil.copyfile(outfile, os.path.join(suboutputs_dir, f"{mol_id}.out"))
-    shutil.copyfile(comfile, os.path.join(subinputs_dir, f"{mol_id}.gjf"))
     shutil.copyfile(logfile, os.path.join(suboutputs_dir, f"{mol_id}.log"))
     os.remove(os.path.join(subinputs_dir, f"{mol_id}.in"))
 
