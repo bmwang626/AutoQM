@@ -153,7 +153,7 @@ mol_ids_smis = list(zip(mol_ids, smiles_list))
 mols = RDKitMol.FromFile(args.input_geometry, removeHs=False, sanitize=False)
 mol_id_to_xyz = dict()
 for mol in mols:
-    mol_id = mol.GetProp("_Name")
+    mol_id = int(mol.GetProp("_Name").split("_")[0])
     xyz = mol.ToXYZ(header=False)
     mol_id_to_xyz[mol_id] = xyz
 
