@@ -153,17 +153,24 @@ for _ in range(1):
 
     for mol_id, smi in mol_ids_smis[args.task_id : len(mol_ids_smis) : args.num_tasks]:
         ids = mol_id // 1000
-        subinputs_dir = os.path.join(DFT_opt_freq_dir, "inputs", f"inputs_{ids}")
-        suboutputs_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"outputs_{ids}")
-        os.makedirs(suboutputs_dir, exist_ok=True)
+        input_rxns_dir = os.path.join(DFT_opt_freq_dir, "inputs", f"rxns_{ids}")
+        output_rxns_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"rxns_{ids}")
+        os.makedirs(output_rxns_dir, exist_ok=True)
+        input_rxn_dir = os.path.join(input_rxns_dir, f"rxn_{mol_id}")
+        output_rxn_dir = os.path.join(output_rxns_dir, f"rxn_{mol_id}")
+        os.makedirs(output_rxn_dir, exist_ok=True)
 
-        if not os.path.exists(os.path.join(suboutputs_dir, f"{mol_id}.log")):
+        if not os.path.exists(os.path.join(output_rxn_dir, f"{mol_id}.log")):
             if mol_id in mol_id_to_xyz:
-                os.makedirs(subinputs_dir, exist_ok=True)
                 if not os.path.exists(
-                    os.path.join(subinputs_dir, f"{mol_id}.in")
-                ) and not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.tmp")):
-                    with open(os.path.join(subinputs_dir, f"{mol_id}.in"), "w") as f:
+                    os.path.join(input_rxn_dir, f"{mol_id}.in")
+                ) and not os.path.exists(os.path.join(input_rxn_dir, f"{mol_id}.tmp")):
+                    os.makedirs(input_rxns_dir, exist_ok=True)
+                    os.makedirs(input_rxn_dir, exist_ok=True)
+                    with open(
+                        os.path.join(input_rxn_dir, f"{mol_id}.in"),
+                        "w",
+                    ) as f:
                         f.write("")
                     print(mol_id)
 
@@ -172,31 +179,32 @@ for _ in range(1):
     DFT_opt_freq_theory = args.DFT_opt_freq_theory
 
     for _ in range(1):
-        for subinputs_folder in os.listdir(os.path.join(DFT_opt_freq_dir, "inputs")):
-            ids = subinputs_folder.split("_")[1]
-            subinputs_dir = os.path.join(DFT_opt_freq_dir, "inputs", f"inputs_{ids}")
-            suboutputs_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"outputs_{ids}")
-            for input_file in os.listdir(subinputs_dir):
-                if ".in" in input_file:
-                    mol_id = input_file.split(".in")[0]
+        for input_rxns_folder in os.listdir(os.path.join(DFT_opt_freq_dir, "inputs")):
+            ids = int(input_rxns_folder.split("_")[1])
+            input_rxns_dir = os.path.join(DFT_opt_freq_dir, "inputs", f"rxns_{ids}")
+            output_rxns_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"rxns_{ids}")
+            for input_rxn_folder in os.listdir(input_rxns_dir):
+                input_rxn_dir = os.path.join(input_rxns_dir, input_rxn_folder)
+                input_file_path = os.path.join(input_rxn_dir, f"{mol_id}.in")
+                if os.path.exists(input_file_path):
+                    mol_id = int(os.path.basename(input_rxn_dir).split(".in")[0])
                     try:
                         os.rename(
-                            os.path.join(subinputs_dir, input_file),
-                            os.path.join(subinputs_dir, f"{mol_id}.tmp"),
+                            input_file_path,
+                            os.path.join(input_rxn_dir, f"{mol_id}.tmp"),
                         )
                     except:
                         continue
                     else:
-                        mol_id = int(mol_id)
-                        ids = mol_id // 1000
                         rxn_smi = mol_id_to_rxn_smi[mol_id]
                         charge = mol_id_to_charge[mol_id]
                         mult = mol_id_to_mult[mol_id]
+                        xyz = mol_id_to_xyz[mol_id]
+
                         print(mol_id)
                         print(rxn_smi)
-                        rsmi, psmi = rxn_smi.split(">>")
 
-                        xyz = mol_id_to_xyz[mol_id]
+                        rsmi, psmi = rxn_smi.split(">>")
 
                         dft_scf_opt(
                             mol_id,
@@ -208,8 +216,8 @@ for _ in range(1):
                             charge,
                             mult,
                             args.scratch_dir,
-                            suboutputs_dir,
-                            subinputs_dir,
+                            output_rxn_dir,
+                            input_rxn_dir,
                         )
 
     print("DFT optimization and frequency calculation done.")

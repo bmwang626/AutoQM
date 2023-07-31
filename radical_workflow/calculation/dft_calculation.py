@@ -147,8 +147,8 @@ def dft_scf_opt(
     base_charge,
     mult,
     scratch_dir,
-    suboutputs_dir,
-    subinputs_dir,
+    input_dir,
+    output_dir,
 ):
     current_dir = os.getcwd()
 
@@ -163,7 +163,7 @@ def dft_scf_opt(
 
     comfile = f"{mol_id}.gjf"
     xyz2com(xyz, head=head, comfile=comfile, charge=base_charge, mult=mult, footer="\n")
-    shutil.copyfile(comfile, os.path.join(subinputs_dir, f"{mol_id}.gjf"))
+    shutil.copyfile(comfile, os.path.join(output_dir, f"{mol_id}.gjf"))
 
     logfile = f"{mol_id}.log"
     outfile = f"{mol_id}.out"
@@ -181,9 +181,11 @@ def dft_scf_opt(
         f"Optimization of {mol_id} with {level_of_theory} took {end_time - start_time} seconds."
     )
 
-    shutil.copyfile(outfile, os.path.join(suboutputs_dir, f"{mol_id}.out"))
-    shutil.copyfile(logfile, os.path.join(suboutputs_dir, f"{mol_id}.log"))
-    os.remove(os.path.join(subinputs_dir, f"{mol_id}.in"))
+    shutil.copyfile(outfile, os.path.join(output_dir, f"{mol_id}.out"))
+    shutil.copyfile(logfile, os.path.join(output_dir, f"{mol_id}.log"))
+    os.remove(os.path.join(input_dir, f"{mol_id}.in"))
+
+    os.chdir(current_dir)
 
 
 def dft_scf_sp(
