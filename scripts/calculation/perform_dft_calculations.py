@@ -122,7 +122,7 @@ assert RDMC_PATH is not None, f"RDMC_PATH must be provided to read sdf files"
 
 # create id to smile mapping
 mol_ids = df["id"].tolist()
-smiles_list = df["smiles"].tolist()
+smiles_list = df["rsmi"].tolist()
 mol_id_to_smi = dict(zip(mol_ids, smiles_list))
 mol_id_to_charge = dict()
 mol_id_to_mult = dict()
