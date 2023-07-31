@@ -64,9 +64,6 @@ parser.add_argument(
 
 # specify paths
 parser.add_argument(
-    "--XTB_path", type=str, required=False, default=None, help="path to installed XTB"
-)
-parser.add_argument(
     "--G16_path",
     type=str,
     required=False,
@@ -80,24 +77,6 @@ parser.add_argument(
     default=None,
     help="path to RDMC to use xtb-gaussian script for xtb optimization calculation.",
 )
-parser.add_argument(
-    "--COSMOtherm_path",
-    type=str,
-    required=False,
-    default=None,
-    help="path to COSMOthermo",
-)
-parser.add_argument(
-    "--COSMO_database_path",
-    type=str,
-    required=False,
-    default=None,
-    help="path to COSMO_database",
-)
-parser.add_argument(
-    "--ORCA_path", type=str, required=False, default=None, help="path to ORCA"
-)
-
 parser.add_argument("--scratch_dir", type=str, required=True, help="scratch directory")
 
 args = parser.parse_args()
@@ -125,11 +104,11 @@ mol_ids = df["id"].tolist()
 rsmi_list = df["rsmi"].tolist()
 psmi_list = df["psmi"].tolist()
 smiles_list = [rsmi + ">>" + psmi for rsmi, psmi in zip(rsmi_list, psmi_list)]
-mol_id_to_smi = dict(zip(mol_ids, smiles_list))
-smi_to_mol_id = dict(zip(smiles_list, mol_ids))
+mol_id_to_rxn_smi = dict(zip(mol_ids, smiles_list))
+rxn_smi_to_mol_id = dict(zip(smiles_list, mol_ids))
 mol_id_to_charge = dict()
 mol_id_to_mult = dict()
-for k, v in mol_id_to_smi.items():
+for k, v in mol_id_to_rxn_smi.items():
     try:
         rsmi, psmi = v.split(">>")
         mol = Chem.MolFromSmiles(rsmi)
@@ -154,14 +133,14 @@ mol_ids_smis = list(zip(mol_ids, smiles_list))
 mols = RDKitMol.FromFile(args.input_geometry, removeHs=False, sanitize=False)
 mol_id_to_xyz = dict()
 for mol in mols:
-    ts_smi = mol.GetProp("_Name")
-    if "_" in ts_smi:
-        ts_smi = ts_smi.split("_")[1]
+    rxn_smi = mol.GetProp("_Name")
+    if "_" in rxn_smi:
+        rxn_smi = rxn_smi.split("_")[1]
     xyz = mol.ToXYZ(header=False)
-    if ts_smi not in smi_to_mol_id:
-        print(f"Cannot find TS {ts_smi} in the input smiles file")
+    if rxn_smi not in rxn_smi_to_mol_id:
+        print(f"Cannot find TS {rxn_smi} in the input smiles file")
         continue
-    mol_id = smi_to_mol_id[ts_smi]
+    mol_id = rxn_smi_to_mol_id[rxn_smi]
     mol_id_to_xyz[mol_id] = xyz
 
 print("DFT TS opt & freq")
@@ -214,11 +193,12 @@ for _ in range(1):
                     else:
                         mol_id = int(mol_id)
                         ids = mol_id // 1000
-                        smi = mol_id_to_smi[mol_id]
+                        rxn_smi = mol_id_to_rxn_smi[mol_id]
                         charge = mol_id_to_charge[mol_id]
                         mult = mol_id_to_mult[mol_id]
                         print(mol_id)
-                        print(smi)
+                        print(rxn_smi)
+                        rsmi, psmi = rxn_smi.split(">>")
 
                         mol_id_to_semiempirical_opted_xyz = dict()
                         mol_id_to_semiempirical_opted_xyz[mol_id] = mol_id_to_xyz[
@@ -227,7 +207,7 @@ for _ in range(1):
 
                         converged = dft_scf_opt(
                             mol_id,
-                            smi,
+                            rsmi,
                             mol_id_to_semiempirical_opted_xyz,
                             G16_PATH,
                             DFT_opt_freq_theories,
