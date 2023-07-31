@@ -200,15 +200,11 @@ for _ in range(1):
                         print(rxn_smi)
                         rsmi, psmi = rxn_smi.split(">>")
 
-                        mol_id_to_semiempirical_opted_xyz = dict()
-                        mol_id_to_semiempirical_opted_xyz[mol_id] = mol_id_to_xyz[
-                            mol_id
-                        ]
+                        xyz = mol_id_to_xyz[mol_id]
 
                         dft_scf_opt(
                             mol_id,
-                            rsmi,
-                            mol_id_to_semiempirical_opted_xyz,
+                            xyz,
                             G16_PATH,
                             DFT_opt_freq_theory,
                             args.DFT_opt_freq_n_procs,
