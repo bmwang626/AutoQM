@@ -212,7 +212,7 @@ for _ in range(1):
                     except:
                         continue
                     else:
-                        ids = mol_id // 1000
+                        ids = int(mol_id) // 1000
                         smi = mol_id_to_smi[mol_id]
                         charge = mol_id_to_charge[mol_id]
                         mult = mol_id_to_mult[mol_id]
