@@ -81,12 +81,8 @@ parser.add_argument("--scratch_dir", type=str, required=True, help="scratch dire
 
 args = parser.parse_args()
 
-XTB_PATH = args.XTB_path
 G16_PATH = args.G16_path
 RDMC_PATH = args.RDMC_path
-COSMOTHERM_PATH = args.COSMOtherm_path
-COSMO_DATABASE_PATH = args.COSMO_database_path
-ORCA_PATH = args.ORCA_path
 
 submit_dir = os.path.abspath(os.getcwd())
 output_dir = os.path.join(submit_dir, args.output_folder)
