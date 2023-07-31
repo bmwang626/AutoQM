@@ -156,6 +156,9 @@ mol_id_to_xyz = dict()
 for mol in mols:
     ts_smi = mol.GetProp("_Name")
     xyz = mol.ToXYZ(header=False)
+    if ts_smi not in smi_to_mol_id:
+        print(f"Cannot find TS {ts_smi} in the input smiles file")
+        continue
     mol_id = smi_to_mol_id[ts_smi]
     mol_id_to_xyz[mol_id] = xyz
 
