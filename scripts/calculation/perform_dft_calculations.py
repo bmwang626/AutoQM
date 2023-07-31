@@ -155,6 +155,8 @@ mols = RDKitMol.FromFile(args.input_geometry, removeHs=False, sanitize=False)
 mol_id_to_xyz = dict()
 for mol in mols:
     ts_smi = mol.GetProp("_Name")
+    if "_" in ts_smi:
+        ts_smi = ts_smi.split("_")[1]
     xyz = mol.ToXYZ(header=False)
     if ts_smi not in smi_to_mol_id:
         print(f"Cannot find TS {ts_smi} in the input smiles file")
