@@ -139,8 +139,6 @@ for mol in mols:
     mol_id = rxn_smi_to_mol_id[rxn_smi]
     mol_id_to_xyz[mol_id] = xyz
 
-print("DFT TS opt & freq")
-
 for _ in range(1):
     print("Making input files for TS DFT optimization and frequency calculation")
 
