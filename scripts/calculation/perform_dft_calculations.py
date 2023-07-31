@@ -216,8 +216,8 @@ for _ in range(1):
                             charge,
                             mult,
                             args.scratch_dir,
-                            output_rxn_dir,
                             input_rxn_dir,
+                            output_rxn_dir,
                         )
 
     print("DFT optimization and frequency calculation done.")
