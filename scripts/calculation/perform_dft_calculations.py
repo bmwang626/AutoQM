@@ -184,6 +184,7 @@ for _ in range(1):
             for input_rxn_folder in os.listdir(input_rxns_dir):
                 input_rxn_dir = os.path.join(input_rxns_dir, input_rxn_folder)
                 input_file_path = os.path.join(input_rxn_dir, f"{mol_id}.in")
+                print(input_file_path)
                 if os.path.exists(input_file_path):
                     mol_id = int(input_rxn_folder.split("_")[1])
                     try:
