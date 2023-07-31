@@ -153,6 +153,8 @@ def dft_scf_opt(
     current_dir = os.getcwd()
 
     mol_scratch_dir = os.path.join(scratch_dir, f"{mol_id}")
+    print(mol_scratch_dir)
+
     os.makedirs(mol_scratch_dir)
     os.chdir(mol_scratch_dir)
 
