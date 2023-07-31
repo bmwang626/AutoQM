@@ -115,13 +115,10 @@ output_dir = os.path.join(submit_dir, args.output_folder)
 df = pd.read_csv(args.input_smiles)
 assert len(df["id"]) == len(set(df["id"])), "ids must be unique"
 
-assert XTB_PATH is not None, f"XTB_PATH must be provided for GFNFF conformer search"
 assert (
     G16_PATH is not None
-), f"G16_PATH must be provided for semiempirical optimization and DFT optimization and frequency calculation"
-assert (
-    RDMC_PATH is not None
-), f"RDMC_PATH must be provided for xtb optimization calculation"
+), f"G16_PATH must be provided for DFT optimization and frequency calculation"
+assert RDMC_PATH is not None, f"RDMC_PATH must be provided to read sdf files"
 
 # create id to smile mapping
 mol_ids = df["id"].tolist()
