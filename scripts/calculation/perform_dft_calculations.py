@@ -112,7 +112,7 @@ ORCA_PATH = args.ORCA_path
 submit_dir = os.path.abspath(os.getcwd())
 output_dir = os.path.join(submit_dir, args.output_folder)
 
-df = pd.read_csv(args.input_smiles, index_col=0)
+df = pd.read_csv(args.input_smiles)
 assert len(df["id"]) == len(set(df["id"])), "ids must be unique"
 
 assert XTB_PATH is not None, f"XTB_PATH must be provided for GFNFF conformer search"
