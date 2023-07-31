@@ -183,10 +183,10 @@ for _ in range(1):
             output_rxns_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"rxns_{ids}")
             for input_rxn_folder in os.listdir(input_rxns_dir):
                 input_rxn_dir = os.path.join(input_rxns_dir, input_rxn_folder)
+                mol_id = int(input_rxn_folder.split("_")[1])
                 input_file_path = os.path.join(input_rxn_dir, f"{mol_id}.in")
                 print(input_file_path)
                 if os.path.exists(input_file_path):
-                    mol_id = int(input_rxn_folder.split("_")[1])
                     try:
                         print(input_file_path)
                         print(os.path.join(input_rxn_dir, f"{mol_id}.tmp"))
