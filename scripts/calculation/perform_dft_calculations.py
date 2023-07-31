@@ -140,7 +140,7 @@ for mol in mols:
     mol_id_to_xyz[mol_id] = xyz
 
 for _ in range(1):
-    print("Making input files for TS DFT optimization and frequency calculation")
+    print("Making input files for TS DFT optimization and frequency calculation...")
 
     DFT_opt_freq_dir = os.path.join(output_dir, args.DFT_opt_freq_folder)
     os.makedirs(DFT_opt_freq_dir, exist_ok=True)
