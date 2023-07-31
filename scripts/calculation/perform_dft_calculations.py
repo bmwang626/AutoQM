@@ -189,6 +189,8 @@ for _ in range(1):
                 if os.path.exists(input_file_path):
                     mol_id = int(input_rxn_folder.split("_")[1])
                     try:
+                        print(input_file_path)
+                        print(os.path.join(input_rxn_dir, f"{mol_id}.tmp"))
                         os.rename(
                             input_file_path,
                             os.path.join(input_rxn_dir, f"{mol_id}.tmp"),
@@ -203,8 +205,6 @@ for _ in range(1):
 
                         print(mol_id)
                         print(rxn_smi)
-
-                        rsmi, psmi = rxn_smi.split(">>")
 
                         dft_scf_opt(
                             mol_id,
