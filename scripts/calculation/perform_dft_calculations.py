@@ -132,7 +132,7 @@ for mol in mols:
     rxn_smi = mol.GetProp("_Name")
     if "_" in rxn_smi:
         rxn_smi = rxn_smi.split("_")[1]
-    xyz = mol.ToXYZ(header=False)
+    xyz = mol.ToXYZ()
     if rxn_smi not in rxn_smi_to_mol_id:
         print(f"Cannot find TS {rxn_smi} in the input smiles file")
         continue
