@@ -174,7 +174,7 @@ for _ in range(1):
                         f.write("")
                     print(mol_id)
 
-    print("Optimizing lowest energy semiempirical opted conformer with DFT method...")
+    print("Performing DFT TS optimization and frequency calculation...")
 
     DFT_opt_freq_theory = args.DFT_opt_freq_theory
 
