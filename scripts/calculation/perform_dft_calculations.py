@@ -97,6 +97,7 @@ parser.add_argument(
 parser.add_argument(
     "--ORCA_path", type=str, required=False, default=None, help="path to ORCA"
 )
+
 parser.add_argument("--scratch_dir", type=str, required=True, help="scratch directory")
 
 args = parser.parse_args()
