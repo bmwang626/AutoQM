@@ -189,7 +189,7 @@ for _ in range(1):
                     os.path.join(subinputs_dir, f"{mol_id}.in")
                 ) and not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.tmp")):
                     with open(os.path.join(subinputs_dir, f"{mol_id}.in"), "w") as f:
-                        f.write(mol_id)
+                        f.write("")
                     print(mol_id)
 
     print("Optimizing lowest energy semiempirical opted conformer with DFT method...")
