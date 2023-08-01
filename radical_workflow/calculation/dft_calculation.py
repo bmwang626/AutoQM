@@ -185,7 +185,7 @@ def dft_scf_opt(
 
     shutil.copyfile(outfile, os.path.join(output_dir, f"{mol_id}.out"))
     shutil.copyfile(logfile, os.path.join(output_dir, f"{mol_id}.log"))
-    os.remove(os.path.join(input_dir, f"{mol_id}.in"))
+    os.remove(os.path.join(input_dir, f"{mol_id}.tmp"))
 
     os.chdir(current_dir)
 
