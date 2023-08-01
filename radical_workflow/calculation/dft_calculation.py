@@ -185,7 +185,10 @@ def dft_scf_opt(
 
     shutil.copyfile(outfile, os.path.join(output_dir, f"{mol_id}.out"))
     shutil.copyfile(logfile, os.path.join(output_dir, f"{mol_id}.log"))
-    os.remove(os.path.join(input_dir, f"{mol_id}.tmp"))
+    try:
+        os.remove(os.path.join(input_dir, f"{mol_id}.tmp"))
+    except FileNotFoundError:
+        print(f"{os.path.join(input_dir, f'{mol_id}.tmp')} not found. Already deleted?")
 
     os.chdir(current_dir)
 
