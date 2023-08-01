@@ -153,13 +153,11 @@ for _ in range(1):
         ids = mol_id // 1000
         input_rxns_dir = os.path.join(DFT_opt_freq_dir, "inputs", f"rxns_{ids}")
         output_rxns_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"rxns_{ids}")
-        os.makedirs(output_rxns_dir, exist_ok=True)
         input_rxn_dir = os.path.join(input_rxns_dir, f"rxn_{mol_id}")
         output_rxn_dir = os.path.join(output_rxns_dir, f"rxn_{mol_id}")
-        os.makedirs(output_rxn_dir, exist_ok=True)
 
-        if not os.path.exists(os.path.join(output_rxn_dir, f"{mol_id}.log")):
-            if mol_id in mol_id_to_xyz:
+        if mol_id in mol_id_to_xyz:
+            if not os.path.exists(os.path.join(output_rxn_dir, f"{mol_id}.log")):
                 if not os.path.exists(
                     os.path.join(input_rxn_dir, f"{mol_id}.in")
                 ) and not os.path.exists(os.path.join(input_rxn_dir, f"{mol_id}.tmp")):
@@ -177,46 +175,48 @@ for _ in range(1):
     DFT_opt_freq_theory = args.DFT_opt_freq_theory
 
     for _ in range(1):
-        for input_rxns_folder in os.listdir(os.path.join(DFT_opt_freq_dir, "inputs")):
-            ids = int(input_rxns_folder.split("_")[1])
+        for mol_id, smi in mol_ids_smis:
+            ids = mol_id // 1000
             input_rxns_dir = os.path.join(DFT_opt_freq_dir, "inputs", f"rxns_{ids}")
             output_rxns_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"rxns_{ids}")
-            for input_rxn_folder in os.listdir(input_rxns_dir):
-                input_rxn_dir = os.path.join(input_rxns_dir, input_rxn_folder)
-                mol_id = int(input_rxn_folder.split("_")[1])
-                input_file_path = os.path.join(input_rxn_dir, f"{mol_id}.in")
-                if os.path.exists(input_file_path):
-                    try:
-                        print(input_file_path)
-                        print(os.path.join(input_rxn_dir, f"{mol_id}.tmp"))
-                        os.rename(
-                            input_file_path,
-                            os.path.join(input_rxn_dir, f"{mol_id}.tmp"),
-                        )
-                    except:
-                        continue
-                    else:
-                        rxn_smi = mol_id_to_rxn_smi[mol_id]
-                        charge = mol_id_to_charge[mol_id]
-                        mult = mol_id_to_mult[mol_id]
-                        xyz = mol_id_to_xyz[mol_id]
+            input_rxn_dir = os.path.join(input_rxns_dir, f"rxn_{mol_id}")
+            output_rxn_dir = os.path.join(output_rxns_dir, f"rxn_{mol_id}")
+            input_file_path = os.path.join(input_rxn_dir, f"{mol_id}.in")
+            print(input_file_path)
+            if os.path.exists(input_file_path):
+                try:
+                    os.rename(
+                        input_file_path,
+                        os.path.join(input_rxn_dir, f"{mol_id}.tmp"),
+                    )
+                except FileNotFoundError:
+                    continue
+                else:
+                    print(os.path.join(input_rxn_dir, f"{mol_id}.tmp"))
+                    rxn_smi = mol_id_to_rxn_smi[mol_id]
+                    charge = mol_id_to_charge[mol_id]
+                    mult = mol_id_to_mult[mol_id]
+                    xyz = mol_id_to_xyz[mol_id]
 
-                        print(mol_id)
-                        print(rxn_smi)
+                    print(mol_id)
+                    print(rxn_smi)
 
-                        dft_scf_opt(
-                            mol_id,
-                            xyz,
-                            G16_PATH,
-                            DFT_opt_freq_theory,
-                            args.DFT_opt_freq_n_procs,
-                            args.DFT_opt_freq_job_ram,
-                            charge,
-                            mult,
-                            args.scratch_dir,
-                            input_rxn_dir,
-                            output_rxn_dir,
-                        )
+                    os.makedirs(output_rxns_dir, exist_ok=True)
+                    os.makedirs(output_rxn_dir, exist_ok=True)
+
+                    dft_scf_opt(
+                        mol_id,
+                        xyz,
+                        G16_PATH,
+                        DFT_opt_freq_theory,
+                        args.DFT_opt_freq_n_procs,
+                        args.DFT_opt_freq_job_ram,
+                        charge,
+                        mult,
+                        args.scratch_dir,
+                        input_rxn_dir,
+                        output_rxn_dir,
+                    )
 
     print("DFT optimization and frequency calculation done.")
 
