@@ -140,7 +140,7 @@ def has_wave_function_error(log_path):
 
 mol_ids_smis = list(zip(mol_ids, smiles_list))
 for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
-    ids = str(int(int(mol_id.split("id")[1])/1000))
+    ids = mol_id // 1000
     subinputs_dir = os.path.join(inputs_dir, f"inputs_{ids}")
     suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")
     os.makedirs(suboutputs_dir, exist_ok=True)
