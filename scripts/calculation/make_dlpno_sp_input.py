@@ -69,6 +69,8 @@ mol_ids = list(df["id"])
 # create id to smile mapping
 if "smiles" in df.columns:
     smiles_list = list(df.smiles)
+elif "psmi" in df.columns:
+    smiles_list = list(df.psmi) # use the product smiles
 elif "rxn_smi" in df.columns:
     smiles_list = list(df.rxn_smi)
     smiles_list = [smi.split(">>")[1] for smi in smiles_list] # use the product smiles

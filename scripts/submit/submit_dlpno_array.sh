@@ -58,7 +58,7 @@ DLPNO_level_of_theory="uHF dlpno-ccsd(t) def2-svp def2-svp/c TightSCF NormalPNO"
 echo $DLPNO_sp_folder
 echo $DLPNO_level_of_theory
 
-python -u $QMD_PATH/scripts/calculation/main_make_dlpno_sp_input.py \
+python -u $QMD_PATH/scripts/calculation/make_dlpno_sp_input.py \
 --input_smiles $input_smiles \
 --xyz_DFT_opt_dict $xyz_DFT_opt_dict \
 --DLPNO_sp_folder $DLPNO_sp_folder \
