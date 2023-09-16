@@ -88,7 +88,7 @@ ORCA_PATH = args.ORCA_path
 submit_dir = os.path.abspath(os.getcwd())
 output_dir = os.path.join(submit_dir, args.output_folder)
 
-df = pd.read_csv(args.input_smiles, index_col=0)
+df = pd.read_csv(args.input_smiles)
 assert len(df['id']) == len(set(df['id'])), "ids must be unique"
 
 assert XTB_PATH is not None, f"XTB_PATH must be provided for GFNFF conformer search"
@@ -97,7 +97,7 @@ assert RDMC_PATH is not None, f"RDMC_PATH must be provided for xtb optimization 
 
 # create id to smile mapping
 mol_ids = df['id'].tolist()
-smiles_list = df['smiles'].tolist()
+smiles_list = df['smi'].tolist()
 mol_id_to_smi = dict(zip(mol_ids, smiles_list))
 mol_id_to_charge = dict()
 mol_id_to_mult = dict()
@@ -121,7 +121,7 @@ for k, v in mol_id_to_smi.items():
 os.makedirs(args.scratch_dir, exist_ok=True)
 mol_ids_smis = list(zip(mol_ids, smiles_list))
 
-print("FF conf -> semiempirical opt -> DFT opt & freq")
+print("Force-field conformer search -> semiempirical optimization -> DFT optimization & frequency calculation")
 
 for _ in range(1):
 
@@ -135,7 +135,7 @@ for _ in range(1):
     os.makedirs(outputs_dir, exist_ok=True)
 
     for mol_id, smi in mol_ids_smis[args.task_id:len(mol_ids_smis):args.num_tasks]:
-        ids = str(int(int(mol_id.split("id")[1])/1000))
+        ids = mol_id // 1000
         subinputs_dir = os.path.join(FF_conf_dir, "inputs", f"inputs_{ids}")
         suboutputs_dir = os.path.join(FF_conf_dir, "outputs", f"outputs_{ids}")
         os.makedirs(suboutputs_dir, exist_ok=True)
@@ -144,8 +144,8 @@ for _ in range(1):
             os.makedirs(subinputs_dir, exist_ok=True)
             if not os.path.exists(mol_id_path) and not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.tmp")):
                 with open(mol_id_path, "w") as f:
-                    f.write(mol_id)
-                print(mol_id)
+                    f.write("")
+                print(f"Making input file for conformer searching for {mol_id}...")
 
     print("Conformer searching with force field...")
 
@@ -157,24 +157,23 @@ for _ in range(1):
             suboutputs_dir = os.path.join(FF_conf_dir, "outputs", f"outputs_{ids}")
             for input_file in os.listdir(subinputs_dir):
                 if ".in" in input_file:
-                    mol_id = input_file.split(".in")[0]
+                    mol_id = int(input_file.split(".in")[0])
                     try:
                         os.rename(os.path.join(subinputs_dir, input_file), os.path.join(subinputs_dir, f"{mol_id}.tmp"))
                     except:
                         continue
                     else:
-                        ids = str(int(int(mol_id.split("id")[1])/1000))
+                        ids = mol_id // 1000
                         smi = mol_id_to_smi[mol_id]
-                        print(mol_id)
-                        print(smi)
+                        print(f"Conformer searching with force field for {mol_id} {smi}...")
                         start_time = time.time()
                         _genConf(smi, mol_id, XTB_PATH, conf_search_FFs, args.max_n_conf, args.max_conf_try, args.rmspre, args.E_cutoff_fraction, args.rmspost, args.n_lowest_E_confs_to_save, args.scratch_dir, suboutputs_dir, subinputs_dir)
                         end_time = time.time()
-                        print(f"Time for conformer search for {mol_id} is {end_time - start_time} seconds")
+                        print(f"Time for conformer search for {mol_id} took {end_time - start_time} seconds")
 
     print("Conformer searching with force field done.")
 
-    print("Making input files for semiempirical optimization")
+    print("Making input files for semiempirical optimization...")
 
     semiempirical_opt_dir = os.path.join(output_dir, args.semiempirical_opt_folder)
     os.makedirs(semiempirical_opt_dir, exist_ok=True)
@@ -184,7 +183,7 @@ for _ in range(1):
     os.makedirs(outputs_dir, exist_ok=True)
 
     for mol_id, smi in mol_ids_smis[args.task_id:len(mol_ids_smis):args.num_tasks]:
-        ids = str(int(int(mol_id.split("id")[1])/1000))
+        ids = mol_id // 1000
         subinputs_dir = os.path.join(semiempirical_opt_dir, "inputs", f"inputs_{ids}")
         suboutputs_dir = os.path.join(semiempirical_opt_dir, "outputs", f"outputs_{ids}")
         os.makedirs(suboutputs_dir, exist_ok=True)
@@ -192,8 +191,8 @@ for _ in range(1):
             os.makedirs(subinputs_dir, exist_ok=True)
             if not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.in")) and not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.tmp")):
                 with open(os.path.join(subinputs_dir, f"{mol_id}.in"), "w") as f:
-                    f.write(mol_id)
-                print(mol_id)
+                    f.write("")
+                print(f"Making input file for semiempirical optimization for {mol_id}...")
 
     print("Optimizing conformers with semiempirical method...")
 
@@ -204,20 +203,19 @@ for _ in range(1):
             suboutputs_dir = os.path.join(semiempirical_opt_dir, "outputs", f"outputs_{ids}")
             for input_file in os.listdir(subinputs_dir):
                 if ".in" in input_file:
-                    mol_id = input_file.split(".in")[0]
+                    mol_id = int(input_file.split(".in")[0])
                     try:
                         os.rename(os.path.join(subinputs_dir, input_file), os.path.join(subinputs_dir, f"{mol_id}.tmp"))
                     except:
                         continue
                     else:
-                        ids = str(int(int(mol_id.split("id")[1])/1000))
+                        ids = mol_id // 1000
                         smi = mol_id_to_smi[mol_id]
                         charge = mol_id_to_charge[mol_id]
                         mult = mol_id_to_mult[mol_id]
-                        print(mol_id)
-                        print(smi)
+                        print(f"Optimizing conformers with semiempirical method for {mol_id} {smi}...")
 
-                        tmp_mol_dir = os.path.join(suboutputs_dir, mol_id)
+                        tmp_mol_dir = os.path.join(suboutputs_dir, f"{mol_id}")
                         os.makedirs(tmp_mol_dir, exist_ok=True)
 
                         mol_confs_sdf = os.path.join(FF_conf_dir, "outputs", f"outputs_{ids}", f"{mol_id}_confs.sdf")
@@ -230,7 +228,7 @@ for _ in range(1):
                         start_time = time.time()
                         semiempirical_opt(mol_id, charge, mult, mol_id_to_FF_opted_xyz_dict, XTB_PATH, RDMC_PATH, G16_PATH, args.gaussian_semiempirical_opt_theory, args.gaussian_semiempirical_opt_n_procs, args.gaussian_semiempirical_opt_job_ram, args.scratch_dir, tmp_mol_dir, suboutputs_dir, subinputs_dir)
                         end_time = time.time()
-                        print(f"Time for semiempirical optimization for {mol_id} is {end_time - start_time} seconds")
+                        print(f"Time for semiempirical optimization for {mol_id} took {end_time - start_time} seconds")
 
     print("Semiempirical optimization done.")
 
@@ -244,7 +242,7 @@ for _ in range(1):
     os.makedirs(outputs_dir, exist_ok=True)
 
     for mol_id, smi in mol_ids_smis[args.task_id:len(mol_ids_smis):args.num_tasks]:
-        ids = str(int(int(mol_id.split("id")[1])/1000))
+        ids = mol_id // 1000
         subinputs_dir = os.path.join(DFT_opt_freq_dir, "inputs", f"inputs_{ids}")
         suboutputs_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"outputs_{ids}")
         os.makedirs(suboutputs_dir, exist_ok=True)
@@ -253,8 +251,8 @@ for _ in range(1):
             os.makedirs(subinputs_dir, exist_ok=True)
             if not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.in")) and not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.tmp")):
                 with open(os.path.join(subinputs_dir, f"{mol_id}.in"), "w") as f:
-                    f.write(mol_id)
-                print(mol_id)
+                    f.write("")
+                print(f"Making input file for DFT optimization and frequency calculation for {mol_id}...")
 
     print("Optimizing lowest energy semiempirical opted conformer with DFT method...")
 
@@ -267,25 +265,25 @@ for _ in range(1):
             suboutputs_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"outputs_{ids}")
             for input_file in os.listdir(subinputs_dir):
                 if ".in" in input_file:
-                    mol_id = input_file.split(".in")[0]
+                    mol_id = int(input_file.split(".in")[0])
                     try:
                         os.rename(os.path.join(subinputs_dir, input_file), os.path.join(subinputs_dir, f"{mol_id}.tmp"))
                     except:
                         continue
                     else:
-                        ids = str(int(int(mol_id.split("id")[1])/1000))
+                        ids = mol_id // 1000
                         smi = mol_id_to_smi[mol_id]
                         charge = mol_id_to_charge[mol_id]
                         mult = mol_id_to_mult[mol_id]
-                        print(mol_id)
-                        print(smi)
+                        print(f"Optimizing lowest energy semiempirical opted conformer with DFT method for {mol_id} {smi}...")
+                        
                         semiempirical_opt_tar = os.path.join(semiempirical_opt_dir, "outputs", f"outputs_{ids}", f"{mol_id}.tar")
                         failed_job, valid_job = semiempirical_opt_parser(mol_id, smi, semiempirical_opt_tar)
 
                         if valid_job:
                             mol_id_to_semiempirical_opted_xyz = get_mol_id_to_semiempirical_opted_xyz(valid_job)
 
-                            converged = dft_scf_opt(mol_id, smi, mol_id_to_semiempirical_opted_xyz, G16_PATH, DFT_opt_freq_theories, args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, suboutputs_dir, subinputs_dir)
+                            converged = dft_scf_opt(mol_id, mol_id_to_semiempirical_opted_xyz[mol_id], G16_PATH, DFT_opt_freq_theories, args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, suboutputs_dir, subinputs_dir)
 
                             if not converged:
                                 print(f"DFT optimization for {mol_id} failed. Trying to optimize lowest energy FF opted conformer with DFT method...")
@@ -298,7 +296,7 @@ for _ in range(1):
                                         mol_id_to_FF_opted_xyz_dict[mol_id] = mol.ToXYZ()
                                         break
                             
-                                converged = dft_scf_opt(mol_id, smi, mol_id_to_FF_opted_xyz_dict, G16_PATH, [args.DFT_opt_freq_theory_backup], args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, suboutputs_dir, subinputs_dir)
+                                converged = dft_scf_opt(mol_id, mol_id_to_FF_opted_xyz_dict[mol_id], G16_PATH, [args.DFT_opt_freq_theory_backup], args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, suboutputs_dir, subinputs_dir)
 
                         else:
                             print(f"All semiempirical opted conformers failed for {mol_id}")
@@ -314,7 +312,7 @@ for _ in range(1):
                                     mol_id_to_FF_opted_xyz_dict[mol_id] = mol.ToXYZ()
                                     break
                             
-                            converged = dft_scf_opt(mol_id, smi, mol_id_to_FF_opted_xyz_dict, G16_PATH, [args.DFT_opt_freq_theory_backup], args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, suboutputs_dir, subinputs_dir)
+                            converged = dft_scf_opt(mol_id, mol_id_to_FF_opted_xyz_dict[mol_id], G16_PATH, [args.DFT_opt_freq_theory_backup], args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, suboutputs_dir, subinputs_dir)
 
     print("DFT optimization and frequency calculation done.")
 
