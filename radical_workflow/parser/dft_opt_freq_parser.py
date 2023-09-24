@@ -376,22 +376,9 @@ def dft_opt_freq_parser(
         # [4] Calculated as described in 10.1021/ct100326h
         # https://github.com/ReactionMechanismGenerator/RMG-database/blob/main/input/quantum_corrections/data.py
 
-        if check_connectivity:
-            pre_adj = RDKitMol.FromSmiles(smi).GetAdjacencyMatrix()
+        glog = GaussianLog(g16_log)
 
-            glog = GaussianLog(g16_log)
-            post_adj = glog.get_mol(
-                refid=glog.num_all_geoms - 1,  # The last geometry in the job
-                converged=False,
-                sanitize=False,
-                backend="openbabel",
-            ).GetAdjacencyMatrix()
-
-            if not (pre_adj == post_adj).all():
-                failed_job["reason"] = "adjacency matrix"
-                return failed_job, valid_job
-
-        job_stat = check_job_status(read_log_file(g16_log))
+        job_stat = glog.success
 
         if not job_stat:
             failed_job["reason"] = "error termination"
@@ -415,6 +402,25 @@ def dft_opt_freq_parser(
             except:
                 failed_job["reason"] = "parser1"
             return failed_job, valid_job
+        
+        if check_connectivity:
+            pre_adj = RDKitMol.FromSmiles(smi).GetAdjacencyMatrix()
+
+            try:
+                post_adj = glog.get_mol(
+                    refid=glog.num_all_geoms - 1,  # The last geometry in the job
+                    converged=False,
+                    sanitize=False,
+                    backend="openbabel",
+                ).GetAdjacencyMatrix()
+            except:
+                print(g16_log)
+                failed_job["reason"] = "can't get post_adj"
+                return failed_job, valid_job
+
+            if not (pre_adj == post_adj).all():
+                failed_job["reason"] = "adjacency matrix"
+                return failed_job, valid_job
 
         freqs = load_freq(g16_log)
         has_neg_freq, neg_freq = check_neg_freq(freqs)
@@ -423,7 +429,7 @@ def dft_opt_freq_parser(
         else:
             pass_freq_check = not has_neg_freq
 
-        if pass_freq_check:
+        if not pass_freq_check:
             failed_job["reason"] = "freq"
             try:
                 failed_job["dft_freq"] = freqs

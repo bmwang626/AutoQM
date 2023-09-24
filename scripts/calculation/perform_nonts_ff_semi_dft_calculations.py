@@ -247,7 +247,7 @@ for _ in range(1):
         suboutputs_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"outputs_{ids}")
         os.makedirs(suboutputs_dir, exist_ok=True)
         semiempirical_opt_tar = os.path.join(semiempirical_opt_dir, "outputs", f"outputs_{ids}", f"{mol_id}.tar")
-        if not os.path.exists(os.path.join(suboutputs_dir, f"{mol_id}.log")) and os.path.exists(semiempirical_opt_tar):
+        if not os.path.exists(os.path.join(suboutputs_dir, f"{mol_id}", f"{mol_id}.log")) and os.path.exists(semiempirical_opt_tar):
             os.makedirs(subinputs_dir, exist_ok=True)
             if not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.in")) and not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.tmp")):
                 with open(os.path.join(subinputs_dir, f"{mol_id}.in"), "w") as f:
@@ -275,6 +275,10 @@ for _ in range(1):
                         smi = mol_id_to_smi[mol_id]
                         charge = mol_id_to_charge[mol_id]
                         mult = mol_id_to_mult[mol_id]
+
+                        output_mol_dir = os.path.join(DFT_opt_freq_dir, "outputs", f"outputs_{ids}", f"{mol_id}")
+                        os.makedirs(output_mol_dir, exist_ok=True)
+
                         print(f"Optimizing lowest energy semiempirical opted conformer with DFT method for {mol_id} {smi}...")
                         
                         semiempirical_opt_tar = os.path.join(semiempirical_opt_dir, "outputs", f"outputs_{ids}", f"{mol_id}.tar")
@@ -283,7 +287,7 @@ for _ in range(1):
                         if valid_job:
                             mol_id_to_semiempirical_opted_xyz = get_mol_id_to_semiempirical_opted_xyz(valid_job)
 
-                            converged = dft_scf_opt(mol_id, mol_id_to_semiempirical_opted_xyz[mol_id], G16_PATH, DFT_opt_freq_theories, args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, suboutputs_dir, subinputs_dir)
+                            converged = dft_scf_opt(mol_id, mol_id_to_semiempirical_opted_xyz[mol_id], G16_PATH, args.DFT_opt_freq_theory, args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, subinputs_dir, output_mol_dir)
 
                             if not converged:
                                 print(f"DFT optimization for {mol_id} failed. Trying to optimize lowest energy FF opted conformer with DFT method...")
@@ -296,7 +300,7 @@ for _ in range(1):
                                         mol_id_to_FF_opted_xyz_dict[mol_id] = mol.ToXYZ()
                                         break
                             
-                                converged = dft_scf_opt(mol_id, mol_id_to_FF_opted_xyz_dict[mol_id], G16_PATH, [args.DFT_opt_freq_theory_backup], args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, suboutputs_dir, subinputs_dir)
+                                converged = dft_scf_opt(mol_id, mol_id_to_FF_opted_xyz_dict[mol_id], G16_PATH, args.DFT_opt_freq_theory_backup, args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, subinputs_dir, output_mol_dir)
 
                         else:
                             print(f"All semiempirical opted conformers failed for {mol_id}")
@@ -312,7 +316,7 @@ for _ in range(1):
                                     mol_id_to_FF_opted_xyz_dict[mol_id] = mol.ToXYZ()
                                     break
                             
-                            converged = dft_scf_opt(mol_id, mol_id_to_FF_opted_xyz_dict[mol_id], G16_PATH, [args.DFT_opt_freq_theory_backup], args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, suboutputs_dir, subinputs_dir)
+                            converged = dft_scf_opt(mol_id, mol_id_to_FF_opted_xyz_dict[mol_id], G16_PATH, args.DFT_opt_freq_theory_backup, args.DFT_opt_freq_n_procs, args.DFT_opt_freq_job_ram, charge, mult, args.scratch_dir, subinputs_dir, output_mol_dir)
 
     print("DFT optimization and frequency calculation done.")
 

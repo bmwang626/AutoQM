@@ -11,7 +11,6 @@ import traceback
 
 from rdkit import Chem
 
-from radical_workflow.calculation.wft_calculation import generate_dlpno_sp_input
 from radical_workflow.calculation.cosmo_calculation import cosmo_calc
 
 parser = ArgumentParser()
@@ -56,16 +55,20 @@ args = parser.parse_args()
 with open(args.xyz_DFT_opt_dict, "rb") as f:
     xyz_DFT_opt_dict = pkl.load(f)
 
-df = pd.read_csv(args.input_smiles, index_col=0)
+df = pd.read_csv(args.input_smiles)
+
+mol_ids = list(df.id)
 
 if "smiles" in df.columns:
     mol_smis = list(df.smiles)
 elif "rxn_smi" in df.columns:
     mol_smis = list(df.rxn_smi)
+elif "smi" in df.columns:
+    mol_smis = list(df.smi)
 else:
     raise ValueError("Cannot find smiles or rxn_smi in input file.")
 
-mol_id_to_smi_dict = dict(zip(df.id, mol_smis))
+mol_id_to_smi_dict = dict(zip(mol_ids, mol_smis))
 mol_id_to_charge_dict = dict()
 mol_id_to_mult_dict = dict()
 for k, v in mol_id_to_smi_dict.items():
@@ -96,11 +99,6 @@ COSMO_DATABASE_PATH = args.COSMO_database_path
 assert COSMOTHERM_PATH is not None and COSMO_DATABASE_PATH is not None, "COSMOTHERM_PATH and COSMO_DATABASE_PATH must be provided for COSMO calc"
 
 print("Making inputs and outputs dir...")
-mol_ids = list(df.id)
-if "smiles" in df.columns:
-    smiles_list = list(df.smiles)
-elif "rxn_smi" in df.columns:
-    smiles_list = list(df.rxn_smi)
 inputs_dir = os.path.join(COSMO_dir, "inputs")
 os.makedirs(inputs_dir, exist_ok=True)
 outputs_dir = os.path.join(COSMO_dir, "outputs")
@@ -108,10 +106,10 @@ os.makedirs(outputs_dir, exist_ok=True)
 
 print("Making helper input files...")
 
-mol_ids_smis = list(zip(mol_ids, smiles_list))
+mol_ids_smis = list(zip(mol_ids, mol_smis))
 for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
     if mol_id in xyz_DFT_opt_dict:
-        ids = str(int(int(mol_id.split("id")[1])/1000))
+        ids = mol_id // 1000
         subinputs_dir = os.path.join(inputs_dir, f"inputs_{ids}")
         suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")
         os.makedirs(suboutputs_dir, exist_ok=True)
@@ -121,30 +119,29 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
             os.makedirs(subinputs_dir, exist_ok=True)
             if not os.path.exists(mol_id_path) and not os.path.exists(tmp_mol_id_path):
                 with open(mol_id_path, "w+") as f:
-                    f.write(mol_id)
+                    f.write("")
                 print(mol_id)
 
 print("Starting COSMO calculations...")
-for _ in range(5):
-    for subinputs_folder in os.listdir(os.path.join(COSMO_dir, "inputs")):
-        ids = subinputs_folder.split("_")[1]
-        subinputs_dir = os.path.join(COSMO_dir, "inputs", subinputs_folder)
-        suboutputs_dir = os.path.join(COSMO_dir, "outputs", f"outputs_{ids}")
-        for input_file in os.listdir(subinputs_dir):
-            if ".in" in input_file:
-                mol_id = input_file.split(".in")[0]
-                try:
-                    os.rename(os.path.join(subinputs_dir, input_file), os.path.join(subinputs_dir, f"{mol_id}.tmp"))
-                except:
-                    continue
-                else:
-                    print(mol_id)
-                    ids = str(int(int(mol_id.split("id")[1])/1000))
-                    charge = mol_id_to_charge_dict[mol_id]
-                    mult = mol_id_to_mult_dict[mol_id]
-                    coords = xyz_DFT_opt_dict[mol_id]
-                    tmp_mol_dir = os.path.join(suboutputs_dir, mol_id)
-                    os.makedirs(tmp_mol_dir, exist_ok=True)
-                    cosmo_calc(mol_id, COSMOTHERM_PATH, COSMO_DATABASE_PATH, charge, mult, args.COSMO_temperatures, df_pure, coords, args.scratch_dir, tmp_mol_dir, suboutputs_dir, subinputs_dir)
+for subinputs_folder in os.listdir(os.path.join(COSMO_dir, "inputs")):
+    ids = int(subinputs_folder.split("_")[1])
+    subinputs_dir = os.path.join(COSMO_dir, "inputs", subinputs_folder)
+    suboutputs_dir = os.path.join(COSMO_dir, "outputs", f"outputs_{ids}")
+    for input_file in os.listdir(subinputs_dir):
+        if ".in" in input_file:
+            mol_id = int(input_file.split(".in")[0])
+            try:
+                os.rename(os.path.join(subinputs_dir, input_file), os.path.join(subinputs_dir, f"{mol_id}.tmp"))
+            except:
+                continue
+            else:
+                print(mol_id)
+                ids = mol_id // 1000
+                charge = mol_id_to_charge_dict[mol_id]
+                mult = mol_id_to_mult_dict[mol_id]
+                coords = xyz_DFT_opt_dict[mol_id]
+                tmp_mol_dir = os.path.join(suboutputs_dir, f"{mol_id}")
+                os.makedirs(tmp_mol_dir, exist_ok=True)
+                cosmo_calc(mol_id, COSMOTHERM_PATH, COSMO_DATABASE_PATH, charge, mult, args.COSMO_temperatures, df_pure, coords, args.scratch_dir, tmp_mol_dir, suboutputs_dir, subinputs_dir)
 
 print("Done!")

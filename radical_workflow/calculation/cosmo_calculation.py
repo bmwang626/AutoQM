@@ -14,24 +14,32 @@ from rdkit import Chem
 from .file_parser import mol2xyz
 
 def cosmo_calc(mol_id, cosmotherm_path, cosmo_database_path, charge, mult, T_list, df_pure, xyz, scratch_dir, tmp_mol_dir, save_dir, input_dir):
-    num_atoms = len(xyz.splitlines())
-    xyz = str(num_atoms) + "\n\n" + xyz
 
     #create and move to working directory
     current_dir = os.getcwd()
     scratch_dir_mol_id = os.path.join(scratch_dir, f'{mol_id}')
     os.makedirs(scratch_dir_mol_id)
     os.chdir(scratch_dir_mol_id)
+
+    #open the tar file
+    tar_file = f"{mol_id}.tar"
+    tar_file_path = os.path.join(save_dir, tar_file)
+    tar = tarfile.open(tar_file_path, "x")
+    member_basename_list = set(os.path.basename(member.name) for member in tar.getmembers())
     
     energyfile = f"{mol_id}.energy"
     cosmofile = f"{mol_id}.cosmo"
-    if os.path.exists(os.path.join(tmp_mol_dir, energyfile)) and os.path.exists(os.path.join(tmp_mol_dir, cosmofile)):
-        shutil.copy(os.path.join(tmp_mol_dir, energyfile), energyfile)
-        shutil.copy(os.path.join(tmp_mol_dir, cosmofile), cosmofile)
+    if energyfile in member_basename_list and cosmofile in member_basename_list:
+        # extract to files
+        tar.extract(energyfile, path=scratch_dir_mol_id)
+        tar.extract(cosmofile, path=scratch_dir_mol_id)
     else:
         #turbomole
         print(f"Running Turbomole for {mol_id}...")
 
+        num_atoms = len(xyz.splitlines())
+        xyz = str(num_atoms) + "\n\n" + xyz
+            
         os.makedirs("xyz")
         xyz_mol_id = f'{mol_id}.xyz'
         with open(os.path.join("xyz", xyz_mol_id), "w+") as f:
@@ -42,30 +50,40 @@ def cosmo_calc(mol_id, cosmotherm_path, cosmo_database_path, charge, mult, T_lis
             f.write(f"{mol_id} {charge} {mult}")
 
         #run the job
-        logfile = mol_id + '.log'
-        outfile = mol_id + '.out'
+        logfile = f'{mol_id}.log'
+        outfile = f'{mol_id}.out'
         with open(outfile, 'w') as out:
             subprocess.run(f'calculate -l {txtfile} -m BP-TZVPD-FINE-COSMO-SP -f xyz -din xyz > {logfile}', shell=True, stdout=out, stderr=out)
             subprocess.run(f'calculate -l {txtfile} -m BP-TZVPD-GAS-SP -f xyz -din xyz > {logfile}', shell=True, stdout=out, stderr=out)
+
+        cosmo_done = False
+        energy_done = False
 
         #copy the cosmo and energy files
         for file in os.listdir("CosmofilesBP-TZVPD-FINE-COSMO-SP"):
             if file.endswith("cosmo"):
                 shutil.copyfile(os.path.join("CosmofilesBP-TZVPD-FINE-COSMO-SP",file), file)
-                shutil.copyfile(os.path.join("CosmofilesBP-TZVPD-FINE-COSMO-SP",file), os.path.join(tmp_mol_dir, file))
+                tar.add(file)
+                cosmo_done = True
                 break
-        else:
-            print(f"Turbomole calculation failed for {mol_id}")
-            os.chdir(current_dir)
-            return
 
         for file in os.listdir("EnergyfilesBP-TZVPD-FINE-COSMO-SP"):
             if file.endswith("energy"):
                 shutil.copyfile(os.path.join("EnergyfilesBP-TZVPD-FINE-COSMO-SP", file), file)
-                shutil.copyfile(os.path.join("EnergyfilesBP-TZVPD-FINE-COSMO-SP", file), os.path.join(tmp_mol_dir, file))
+                tar.add(file)
+                energy_done = True
                 break
-        else:
+
+        if not cosmo_done or not energy_done:
+            shutil.copyfile(outfile, os.path.join(tmp_mol_dir, outfile))
+            shutil.copyfile(logfile, os.path.join(tmp_mol_dir, logfile))
             print(f"Turbomole calculation failed for {mol_id}")
+            print("Output files:")
+            with open(outfile, "r") as f:
+                print(f.read())
+            print("Log files:")
+            with open(logfile, "r") as f:
+                print(f.read())
             os.chdir(current_dir)
             return
         
@@ -78,12 +96,12 @@ def cosmo_calc(mol_id, cosmotherm_path, cosmo_database_path, charge, mult, T_lis
         tabfile = f'{mol_id}_{cosmo_name}.tab'
         outfile = f'{mol_id}_{cosmo_name}.out'
 
-        if os.path.exists(os.path.join(tmp_mol_dir, tabfile)):
+        if tabfile in member_basename_list:
             continue
 
         print(f"Running COSMO calculation for {mol_id} in {index} {row.cosmo_name}...")
 
-        script = generate_cosmo_input(mol_id, cosmotherm_path, cosmo_database_path, T_list, row)
+        script = generate_cosmo_input(str(mol_id), cosmotherm_path, cosmo_database_path, T_list, row)
         
         with open(inpfile, "w+") as f:
             f.write(script)
@@ -92,49 +110,29 @@ def cosmo_calc(mol_id, cosmotherm_path, cosmo_database_path, charge, mult, T_lis
         subprocess.run(f'{cosmo_command} {inpfile}', shell=True)
 
         if not os.path.exists(tabfile):
+            shutil.copyfile(inpfile, os.path.join(tmp_mol_dir, inpfile))
+            shutil.copyfile(outfile, os.path.join(tmp_mol_dir, outfile))
             print(f"COSMO calculation failed for {mol_id} in {index} {row.cosmo_name}")
+            with open(inpfile, "r") as f:
+                print(f.read())
+            with open(outfile, "r") as f:
+                print(f.read())
             os.chdir(current_dir)
             return 
         else:
-            shutil.copyfile(tabfile, os.path.join(tmp_mol_dir, tabfile))
-            shutil.copyfile(outfile, os.path.join(tmp_mol_dir, outfile))
+            tar.add(inpfile)
+            tar.add(tabfile)
+            tar.add(outfile)
+
             print(f"COSMO calculation done for {mol_id} in {index} {row.cosmo_name}")
-
-    #tar the cosmo, energy and tab files
-    tar_file = f"{mol_id}.tar"
-    tar = tarfile.open(tar_file, "w")
-    tar.add(os.path.join(tmp_mol_dir, energyfile))
-    tar.add(os.path.join(tmp_mol_dir, cosmofile))
-
-    for index, row in df_pure.iterrows():
-        solvent = row.cosmo_name
-        cosmo_name = "".join(letter if letter not in REPLACE_LETTER else REPLACE_LETTER[letter] for letter in row.cosmo_name)
-        tabfile = os.path.join(tmp_mol_dir, f'{mol_id}_{cosmo_name}.tab')
-        outfile = os.path.join(tmp_mol_dir, f'{mol_id}_{cosmo_name}.out')
-        try:
-            each_data_list = read_cosmo_tab_result(tabfile)
-        except FileNotFoundError as e:
-            print(e)
-            print("Assuming done by other worker. Return...")
-            os.chdir(current_dir)
-            shutil.rmtree(scratch_dir_mol_id)
-            return
-        each_data_list = get_dHsolv_value(each_data_list)
-        tar.add(tabfile)
-        tar.add(outfile)
         
     tar.close()
 
-    shutil.copyfile(tar_file, os.path.join(save_dir, tar_file))
     try:
         os.remove(os.path.join(input_dir, f"{mol_id}.tmp"))
-        shutil.rmtree(tmp_mol_dir)
     except FileNotFoundError as e:
         print(e)
-        print("Assuming done by other worker. Return...")
-        os.chdir(current_dir)
-        shutil.rmtree(scratch_dir_mol_id)
-        return
+        print("Removed by other worker? Skipping...")
     os.chdir(current_dir)
     shutil.rmtree(scratch_dir_mol_id)
     

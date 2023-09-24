@@ -346,7 +346,7 @@ def semiempirical_opt_parser(mol_id, mol_smi, mol_confs_tar=None):
     failed_job = dict()
 
     if mol_confs_tar is None:
-        ids = str(int(int(mol_id.split("id")[1])/1000)) 
+        ids = mol_id // 1000
         mol_confs_tar = os.path.join("output", "semiempirical_opt", "outputs", f"outputs_{ids}", f"{mol_id}.tar")
 
     if os.path.isfile(mol_confs_tar):
@@ -411,6 +411,6 @@ def get_mol_id_to_semiempirical_opted_xyz(valid_jobs):
         conf_ids = np.array([conf_id for conf_id, conf_dict in valid_jobs[mol_id].items()])
         lowest_conf_ind = conf_ids[np.argsort(ens)[0]]
         xyz = valid_jobs[mol_id][lowest_conf_ind]["semiempirical_xyz_std_ori"]
-        xyz = str(len(xyz.splitlines())) + "\n" + mol_id + "\n" + xyz
+        xyz = str(len(xyz.splitlines())) + "\n" + f"{mol_id}" + "\n" + xyz
         mol_id_to_semiempirical_opted_xyz[mol_id] = xyz
     return mol_id_to_semiempirical_opted_xyz
