@@ -24,16 +24,25 @@ def cosmo_calc(mol_id, cosmotherm_path, cosmo_database_path, charge, mult, T_lis
     #open the tar file
     tar_file = f"{mol_id}.tar"
     tar_file_path = os.path.join(save_dir, tar_file)
-    tar = tarfile.open(tar_file_path, "x")
-    member_basename_list = set(os.path.basename(member.name) for member in tar.getmembers())
+    if os.path.exists(tar_file_path):
+        tar = tarfile.open(tar_file_path, "r")
+        member_basename_list = set(os.path.basename(member.name) for member in tar.getmembers())
+    else:
+        tar = tarfile.open(tar_file_path, "w")
+        member_basename_list = set()
     
     energyfile = f"{mol_id}.energy"
     cosmofile = f"{mol_id}.cosmo"
     if energyfile in member_basename_list and cosmofile in member_basename_list:
         # extract to files
-        tar.extract(energyfile, path=scratch_dir_mol_id)
-        tar.extract(cosmofile, path=scratch_dir_mol_id)
+        tar.extract(energyfile, path=".")
+        tar.extract(cosmofile, path=".")
+        tar.close()
+        tar = tarfile.open(tar_file_path, "a")
     else:
+        tar.close()
+        tar = tarfile.open(tar_file_path, "a")
+
         #turbomole
         print(f"Running Turbomole for {mol_id}...")
 
@@ -64,6 +73,8 @@ def cosmo_calc(mol_id, cosmotherm_path, cosmo_database_path, charge, mult, T_lis
             if file.endswith("cosmo"):
                 shutil.copyfile(os.path.join("CosmofilesBP-TZVPD-FINE-COSMO-SP",file), file)
                 tar.add(file)
+                tar.close()
+                tar = tarfile.open(tar_file_path, "a")
                 cosmo_done = True
                 break
 
@@ -71,10 +82,14 @@ def cosmo_calc(mol_id, cosmotherm_path, cosmo_database_path, charge, mult, T_lis
             if file.endswith("energy"):
                 shutil.copyfile(os.path.join("EnergyfilesBP-TZVPD-FINE-COSMO-SP", file), file)
                 tar.add(file)
+                tar.close()
+                tar = tarfile.open(tar_file_path, "a")
                 energy_done = True
                 break
 
-        if not cosmo_done or not energy_done:
+        if not (cosmo_done and energy_done):
+            shutil.copyfile(os.path.join("xyz", xyz_mol_id), os.path.join(tmp_mol_dir, xyz_mol_id))
+            shutil.copyfile(txtfile, os.path.join(tmp_mol_dir, txtfile))
             shutil.copyfile(outfile, os.path.join(tmp_mol_dir, outfile))
             shutil.copyfile(logfile, os.path.join(tmp_mol_dir, logfile))
             print(f"Turbomole calculation failed for {mol_id}")
@@ -123,16 +138,29 @@ def cosmo_calc(mol_id, cosmotherm_path, cosmo_database_path, charge, mult, T_lis
             tar.add(inpfile)
             tar.add(tabfile)
             tar.add(outfile)
+            tar.close()
+            tar = tarfile.open(tar_file_path, "a")
 
             print(f"COSMO calculation done for {mol_id} in {index} {row.cosmo_name}")
         
     tar.close()
 
+    print("Removing temporary folder...")
+    if os.path.exists(tmp_mol_dir): 
+        if not os.listdir(tmp_mol_dir):
+            shutil.rmtree(tmp_mol_dir)
+        else:
+            print(f"Some jobs for {mol_id} failed. See {tmp_mol_dir} for details.")
+    else:
+        print("Removed by other worker? Skipping...")
+
+    print("Removing temporary file...")
     try:
         os.remove(os.path.join(input_dir, f"{mol_id}.tmp"))
     except FileNotFoundError as e:
         print(e)
         print("Removed by other worker? Skipping...")
+
     os.chdir(current_dir)
     shutil.rmtree(scratch_dir_mol_id)
     

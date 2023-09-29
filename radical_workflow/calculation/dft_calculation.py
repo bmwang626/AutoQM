@@ -183,7 +183,6 @@ def dft_scf_opt(
         f"Optimization of {mol_id} with {level_of_theory} took {end_time - start_time} seconds."
     )
 
-    shutil.copyfile(outfile, os.path.join(output_dir, f"{mol_id}.out"))
     shutil.copyfile(logfile, os.path.join(output_dir, f"{mol_id}.log"))
     try:
         os.remove(os.path.join(input_dir, f"{mol_id}.tmp"))

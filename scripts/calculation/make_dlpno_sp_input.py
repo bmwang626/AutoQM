@@ -21,12 +21,14 @@ parser.add_argument('--num_tasks', type=int, default=1,
 
 #dlpno sp
 parser.add_argument('--DLPNO_sp_folder', type=str, required=True, choices=['DLPNO_sp', 'DLPNO_sp_f12'],)
-parser.add_argument('--DLPNO_level_of_theory', type=str, required=True,
+parser.add_argument('--DLPNO_sp_level_of_theory', type=str, required=True,
                     help='level of theory for DLPNO calculation')
 parser.add_argument('--DLPNO_sp_n_procs', type=int, default=24,
                     help='number of process for DLPNO calculations')
 parser.add_argument('--DLPNO_sp_job_ram', type=int, default=4000,
                     help='amount of ram (MB) per core allocated for each DLPNO calculation')
+parser.add_argument('--DLPNO_sp_cutoff_heavy_atoms', type=int, default=100,
+                    help='Only perform DLPNO calculation for molecules with less than this number of heavy atoms.')
 
 # specify paths
 parser.add_argument('--XTB_path', type=str, required=False, default=None,
@@ -69,6 +71,8 @@ mol_ids = list(df["id"])
 # create id to smile mapping
 if "smiles" in df.columns:
     smiles_list = list(df.smiles)
+elif "smi" in df.columns:
+    smiles_list = list(df.smi)
 elif "psmi" in df.columns:
     smiles_list = list(df.psmi) # use the product smiles
 elif "rxn_smi" in df.columns:
@@ -79,6 +83,7 @@ else:
 mol_id_to_smi_dict = dict(zip(mol_ids, smiles_list))
 mol_id_to_charge_dict = dict()
 mol_id_to_mult_dict = dict()
+mol_id_to_num_heavy_atoms_dict = dict()
 for k, v in mol_id_to_smi_dict.items():
     try:
         mol = Chem.MolFromSmiles(v)
@@ -95,6 +100,12 @@ for k, v in mol_id_to_smi_dict.items():
     for atom in mol.GetAtoms():
         num_radical_elec += atom.GetNumRadicalElectrons()
     mol_id_to_mult_dict[k] =  num_radical_elec + 1
+
+    num_heavy_atoms = 0
+    for atom in mol.GetAtoms():
+        if atom.GetAtomicNum() > 1:
+            num_heavy_atoms += 1
+    mol_id_to_num_heavy_atoms_dict[k] = num_heavy_atoms
 
 inputs_dir = os.path.join(DLPNO_sp_dir, "inputs")
 os.makedirs(inputs_dir, exist_ok=True)
@@ -140,12 +151,14 @@ def has_wave_function_error(log_path):
 
 mol_ids_smis = list(zip(mol_ids, smiles_list))
 for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
+    if mol_id_to_num_heavy_atoms_dict[mol_id] > args.DLPNO_sp_cutoff_heavy_atoms:
+        continue
     ids = mol_id // 1000
     subinputs_dir = os.path.join(inputs_dir, f"inputs_{ids}")
     suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")
     os.makedirs(suboutputs_dir, exist_ok=True)
     log_path = os.path.join(suboutputs_dir, f"{mol_id}.log")
-    DLPNO_level_of_theory = args.DLPNO_level_of_theory
+    DLPNO_sp_level_of_theory = args.DLPNO_sp_level_of_theory
     if mol_id in xyz_DFT_opt_dict:
         if os.path.exists(log_path):
             # check if maxcore error
@@ -160,8 +173,8 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
                 print(f"wave function error for {mol_id}, removing...")
                 try:
                     os.remove(log_path)
-                    if args.DLPNO_level_of_theory == "uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX VeryTightSCF NormalPNO":
-                        DLPNO_level_of_theory = "uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX NormalSCF NormalPNO"
+                    if args.DLPNO_sp_level_of_theory == "uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX VeryTightSCF NormalPNO":
+                        DLPNO_sp_level_of_theory = "uHF UNO DLPNO-CCSD(T)-F12D cc-pvtz-f12 def2/J cc-pvqz/c cc-pvqz-f12-cabs RIJCOSX NormalSCF NormalPNO"
                 except FileNotFoundError:
                     print(f"file {log_path} not found, already removed?")
         if not os.path.exists(log_path):
@@ -171,11 +184,11 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
                 charge = mol_id_to_charge_dict[mol_id]
                 mult = mol_id_to_mult_dict[mol_id]
                 coords = xyz_DFT_opt_dict[mol_id].strip()
-                script = generate_dlpno_sp_input(DLPNO_level_of_theory, coords, charge, mult, args.DLPNO_sp_job_ram, args.DLPNO_sp_n_procs)
+                script = generate_dlpno_sp_input(DLPNO_sp_level_of_theory, coords, charge, mult, args.DLPNO_sp_job_ram, args.DLPNO_sp_n_procs)
 
+                print(f"Generating input file for {mol_id}...")
                 with open(mol_id_path, "w+") as f:
                     f.write(script)
-                print(mol_id)
     else:
         print(f"Cannot find xyz for {mol_id}")
         if os.path.exists(log_path):
