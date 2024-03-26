@@ -47,14 +47,14 @@ def dft_scf_qm_descriptor(
     )
 
     job_tmp_output_dir = suboutputs_dir / f"{job_id}"
-    gjf_file = job_tmp_output_dir / f"{job_id}.gjf"
+    comfile = job_tmp_output_dir / f"{job_id}.gjf"
     logfile = job_tmp_output_dir / f"{job_id}.log"
     outfile = job_tmp_output_dir / f"{job_id}.out"
 
     xyz2com(
         job_xyz,
         head=head,
-        gjf_file=gjf_file,
+        comfile=comfile,
         charge=charge,
         mult=mult,
         footer="$NBO BNDIDX $END",
@@ -63,7 +63,7 @@ def dft_scf_qm_descriptor(
     start_time = time.time()
     with open(outfile, "w") as out:
         subprocess.run(
-            "{} < {} >> {}".format(g16_command, gjf_file, logfile),
+            "{} < {} >> {}".format(g16_command, comfile, logfile),
             shell=True,
             stdout=out,
             stderr=out,
@@ -107,11 +107,11 @@ def dft_scf_opt(
         job_id, n_procs, job_ram, level_of_theory
     )
 
-    gjf_file = f"{job_id}.gjf"
+    comfile = f"{job_id}.gjf"
     xyz2com(
-        job_xyz, head=head, gjf_file=gjf_file, charge=charge, mult=mult, footer="\n"
+        job_xyz, head=head, comfile=comfile, charge=charge, mult=mult, footer="\n"
     )
-    shutil.copyfile(gjf_file, os.path.join(suboutputs_dir, f"{job_id}.gjf"))
+    shutil.copyfile(comfile, os.path.join(suboutputs_dir, f"{job_id}.gjf"))
 
     logfile = f"{job_id}.log"
     outfile = f"{job_id}.out"
@@ -119,7 +119,7 @@ def dft_scf_opt(
     start_time = time.time()
     with open(outfile, "w") as out:
         subprocess.run(
-            "{} < {} >> {}".format(g16_command, gjf_file, logfile),
+            "{} < {} >> {}".format(g16_command, comfile, logfile),
             shell=True,
             stdout=out,
             stderr=out,
@@ -158,16 +158,16 @@ def dft_scf_sp(
         job_id, n_procs, job_ram, level_of_theory
     )
 
-    gjf_file = job_id + ".gjf"
+    comfile = job_id + ".gjf"
     xyz2com(
-        job_xyz, head=head, gjf_file=gjf_file, charge=charge, mult=mult, footer="\n"
+        job_xyz, head=head, comfile=comfile, charge=charge, mult=mult, footer="\n"
     )
 
     logfile = job_id + ".log"
     outfile = job_id + ".out"
     with open(outfile, "w") as out:
         subprocess.run(
-            "{} < {} >> {}".format(g16_command, gjf_file, logfile),
+            "{} < {} >> {}".format(g16_command, comfile, logfile),
             shell=True,
             stdout=out,
             stderr=out,
