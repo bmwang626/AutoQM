@@ -43,16 +43,13 @@ def add_shared_arguments(parser):
     return parser
 
 def add_cosmo_arguments(parser):
-    # Turbomole and COSMO calculation
-    parser.add_argument('--COSMO_folder', default='COSMO_calc',
-                        help='folder for COSMO calculation',)
     parser.add_argument('--COSMO_temperatures', nargs="+", required=False, default=['297.15', '298.15', '299.15'],
                         help='temperatures used for COSMO calculation')
-    parser.add_argument('--COSMO_input_pure_solvents', required=False, default='common_solvent_list_final.csv',
+    parser.add_argument('--COSMO_input_pure_solvents', required=True,
                         help='input file containing pure solvents used for COSMO calculation.')
-    parser.add_argument('--COSMOtherm_path', required=False, default=None,
+    parser.add_argument('--COSMOtherm_path', required=True
                         help='path to COSMOthermo')
-    parser.add_argument('--COSMO_database_path', required=False, default=None,
+    parser.add_argument('--COSMO_database_path', required=True
                         help='path to COSMO_database')
 
 def add_xtb_arguments(parser):
