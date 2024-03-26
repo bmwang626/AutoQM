@@ -30,7 +30,6 @@ def dft_scf_qm_descriptor(
     subinputs_dir,
     suboutputs_dir,
 ):
-    current_dir = os.getcwd()
 
     job_scratch_dir = scratch_dir / f"{job_id}"
     job_scratch_dir.mkdir()
@@ -40,7 +39,7 @@ def dft_scf_qm_descriptor(
     )
 
     g16_command = os.path.join(g16_path, "g16")
-    head = "%chk={}.chk\n%nprocshared={}\n%mem={}mb\n{}\n".format(
+    head = "%chk={}.chk\n%nprocshared={}\n%mem={}\n{}\n".format(
         job_id,
         n_procs,
         job_ram,
