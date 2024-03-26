@@ -12,7 +12,7 @@ echo "Running on node : $SLURM_NODENAME"
 echo "Current directory : $(pwd)"
 echo "============================================================"
 
-conda activate rdmc_env
+conda activate autoqm_env
 which python
 
 scratch_dir=$TMPDIR/$USER/$SLURM_JOB_ID-$SLURM_ARRAY_TASK_ID-$LLSUB_RANK-$LLSUB_SIZE

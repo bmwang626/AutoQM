@@ -12,7 +12,7 @@ echo "Running on node : $SLURMD_NODENAME"
 echo "Current directory : $(pwd)"
 echo "============================================================"
 
-conda activate rdmc_env
+conda activate autoqm_env
 which python
 
 #COSMO

@@ -9,7 +9,7 @@ echo "Current directory : $(pwd)"
 echo "============================================================"
 
 source /state/partition1/llgrid/pkg/anaconda/anaconda3-2022b/etc/profile.d/conda.sh
-conda activate rdmc_env
+conda activate autoqm_env
 which python
 
 #RDMC

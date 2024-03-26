@@ -3,7 +3,7 @@
 #SBATCH -n 48
 #SBATCH -o slurm-process.out
 
-conda activate rdmc_env
+conda activate autoqm_env
 
 #QMD
 QMD_PATH=/home/gridsan/groups/RMG/Software/autoqm

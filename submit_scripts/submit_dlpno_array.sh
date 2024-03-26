@@ -14,7 +14,7 @@ echo "============================================================"
 
 echo $HOME
 
-conda activate rdmc_env
+conda activate autoqm_env
 which python
 
 #RDMC
