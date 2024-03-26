@@ -118,7 +118,6 @@ def main(args):
 
                     job_id = int(job_input_path.stem)
                     job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
-                    job_tmp_output_dir = suboutputs_dir / f"{job_id}"
 
                     if job_tmp_input_path.exists():
                         continue
