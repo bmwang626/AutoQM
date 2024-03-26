@@ -40,6 +40,14 @@ def dft_scf_qm_descriptor(
         f"export GAUSS_SCRDIR={job_scratch_dir.absolute()}", shell=True, check=True
     )
 
+    job_tmp_output_dir = suboutputs_dir / f"{job_id}"
+    try:
+        shutil.rmtree(job_tmp_output_dir)
+    except FileNotFoundError:
+        pass
+    job_tmp_output_dir.mkdir()
+    os.chdir(job_tmp_output_dir)
+
     g16_command = os.path.join(g16_path, "g16")
     head = "%chk={}.chk\n%nprocshared={}\n%mem={}\n{}\n".format(
         job_id,
@@ -48,8 +56,6 @@ def dft_scf_qm_descriptor(
         title_card,
     )
 
-    job_tmp_output_dir = suboutputs_dir / f"{job_id}"
-    os.chdir(job_tmp_output_dir)
     comfile = Path(f"{job_id}.gjf").absolute()
     logfile = Path(f"{job_id}.log").absolute()
     outfile = Path(f"{job_id}.out").absolute()

@@ -100,49 +100,54 @@ def main(args):
             f.write("")
 
     logging.info("Starting QM descriptor calculations...")
-    for subinputs_dir in inputs_dir.iterdir():
-        job_id_div_1000 = int(subinputs_dir.stem.split("_")[1])
-        suboutputs_dir = outputs_dir / f"outputs_{job_id_div_1000}"
-        for job_input_path in subinputs_dir.iterdir():
-            if job_input_path.suffix == ".in":
 
-                job_id = int(job_input_path.stem)
-                job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
-                job_tmp_output_dir = suboutputs_dir / f"{job_id}"
+    for i in range(2):
 
-                if job_tmp_input_path.exists():
-                    continue
+        count = 0
 
-                logging.info(f"Starting calculation for {job_id}...")
+        for subinputs_dir in inputs_dir.iterdir():
 
-                try:
-                    job_input_path.rename(job_tmp_input_path)
-                except FileNotFoundError:
-                    logging.error(f"Cannot find input file {job_input_path}. Assuming being calculated by another worker. Skipping...")
-                    continue
+            if (i == 0) and (count % args.num_tasks != args.task_id):
+                count += 1
+                continue
 
-                if job_tmp_output_dir.exists():
-                    shutil.rmtree(job_tmp_output_dir)
+            job_id_div_1000 = int(subinputs_dir.stem.split("_")[1])
+            suboutputs_dir = outputs_dir / f"outputs_{job_id_div_1000}"
+            for job_input_path in subinputs_dir.iterdir():
+                if job_input_path.suffix == ".in":
 
-                job_tmp_output_dir.mkdir()
+                    job_id = int(job_input_path.stem)
+                    job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
+                    job_tmp_output_dir = suboutputs_dir / f"{job_id}"
 
-                charge = id_to_charge_dict[job_id]
-                mult = id_to_mult_dict[job_id]
-                coords = id_to_xyz_dict[job_id]
+                    if job_tmp_input_path.exists():
+                        continue
 
-                dft_scf_qm_descriptor(
-                    job_id=job_id,
-                    job_xyz=coords,
-                    g16_path=args.g16_path,
-                    title_card=args.title_card,
-                    n_procs=args.n_procs,
-                    job_ram=args.job_ram,
-                    charge=charge,
-                    mult=mult,
-                    scratch_dir=args.scratch_dir,
-                    subinputs_dir=subinputs_dir,
-                    suboutputs_dir=suboutputs_dir,
-                )
+                    logging.info(f"Starting calculation for {job_id}...")
+
+                    try:
+                        job_input_path.rename(job_tmp_input_path)
+                    except FileNotFoundError:
+                        logging.error(f"Cannot find input file {job_input_path}. Assuming being calculated by another worker. Skipping...")
+                        continue
+
+                    charge = id_to_charge_dict[job_id]
+                    mult = id_to_mult_dict[job_id]
+                    coords = id_to_xyz_dict[job_id]
+
+                    dft_scf_qm_descriptor(
+                        job_id=job_id,
+                        job_xyz=coords,
+                        g16_path=args.g16_path,
+                        title_card=args.title_card,
+                        n_procs=args.n_procs,
+                        job_ram=args.job_ram,
+                        charge=charge,
+                        mult=mult,
+                        scratch_dir=args.scratch_dir,
+                        subinputs_dir=subinputs_dir,
+                        suboutputs_dir=suboutputs_dir,
+                    )
 
 
 if __name__ == "__main__":
