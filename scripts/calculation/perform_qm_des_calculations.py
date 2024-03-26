@@ -107,17 +107,22 @@ def main(args):
         suboutputs_dir = outputs_dir / f"outputs_{job_id_div_1000}"
         for job_input_path in subinputs_dir.iterdir():
             if job_input_path.suffix == ".in":
+
                 job_id = int(job_input_path.stem)
                 job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
+                job_tmp_output_dir = suboutputs_dir / f"{job_id}"
 
                 if job_tmp_input_path.exists():
                     continue
 
                 logging.info(f"Starting calculation for {job_id}...")
                 job_input_path.rename(job_tmp_input_path)
+                job_tmp_output_dir.mkdir()
+
                 charge = id_to_charge_dict[job_id]
                 mult = id_to_mult_dict[job_id]
                 coords = id_to_xyz_dict[job_id]
+
                 dft_scf_qm_descriptor(
                     job_id=job_id,
                     job_xyz=coords,
