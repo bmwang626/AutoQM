@@ -49,9 +49,8 @@ python $AUTOQM_PATH/scripts/calculation/perform_qm_des_calculations.py \
     --scratch_dir $scratch_dir \
     --task_id $LLSUB_RANK \
     --num_tasks $LLSUB_SIZE \
-    --RDMC_path $RDMC_PATH \
     --G16_path $g16root/g16 \
-    --title_card $title_card
+    --title_card "$title_card"
 
 rm -rf $scratch_dir
 
