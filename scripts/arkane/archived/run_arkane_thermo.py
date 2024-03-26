@@ -216,7 +216,7 @@ def get_rmg_conformer(label,
         # Get bonds count
         try:
             bonds = molecule.enumerate_bonds()
-            bond_corrections = get_bac(level_of_theory, bonds, coords, number,
+            bond_corrections = get_bac(level_of_theory, bonds, coords, numbers,
                                        bac_type='p', multiplicity=multiplicity)
         except AttribureError:
             raise ValueError('Cannot get BAC, since argument ``molecule`` is not provided.')
@@ -238,13 +238,15 @@ def get_rmg_conformer(label,
                      spin_multiplicity=multiplicity,
                      optical_isomers=optical_isomers), scaled_zpe
 
+# read input info
+
 energy_log_path = '/home/gridsan/hwpang/RMG_shared/Projects/Hao-Wei-Oscar-Yunsie/HAbs_calculations/reactants_products_calculations/calculations/aug11b/output/DFT_opt_freq/outputs/outputs_0/id0.log'
 freq_log_path = '/home/gridsan/hwpang/RMG_shared/Projects/Hao-Wei-Oscar-Yunsie/HAbs_calculations/reactants_products_calculations/calculations/aug11b/output/DFT_opt_freq/outputs/outputs_0/id0.log'
-# energy_level = 'wb97xd/def2svp'
-energy_level = 'b3lyp/631g(d,p)'
+energy_level = 'QG-wb97xd/def2svp'
+# energy_level = 'b3lyp/631g(d,p)'
 energy_software = 'gaussian'
-# freq_level = 'wb97xd/def2svp'
-freq_level = 'b3lyp/631g(d,p)'
+freq_level = 'QG-wb97xd/def2svp'
+# freq_level = 'b3lyp/631g(d,p)'
 freq_software = 'gaussian'
 freq_scale = 0.986
 

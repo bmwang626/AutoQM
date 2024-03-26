@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 import os
 import tarfile
+import shutil
 
 import pickle as pkl
 import pandas as pd
@@ -48,18 +49,20 @@ parser.add_argument('--ORCA_path', type=str, required=False, default=None,
 
 args = parser.parse_args()
 
-# input files
-with open(args.xyz_DFT_opt_dict, "rb") as f:
-    xyz_DFT_opt_dict = pkl.load(f)
-
 df = pd.read_csv(args.input_smiles)
-
 mol_ids = list(df.id)
+
+if args.xyz_DFT_opt_dict:
+    # input files
+    with open(args.xyz_DFT_opt_dict, "rb") as f:
+        xyz_DFT_opt_dict = pkl.load(f)
+else:
+    xyz_DFT_opt_dict = dict(zip(df.id, df.std_xyz_str.str.split("\n\n").str[1]))
 
 if "smiles" in df.columns:
     mol_smis = list(df.smiles)
 elif "rxn_smi" in df.columns:
-    mol_smis = list(df.rxn_smi)
+    mol_smis = list(df.rxn_smi.str.split(">>").str[0])
 elif "smi" in df.columns:
     mol_smis = list(df.smi)
 else:
@@ -104,10 +107,15 @@ outputs_dir = os.path.join(COSMO_dir, "outputs")
 os.makedirs(outputs_dir, exist_ok=True)
 
 print("Making helper input files...")
+print(f"Task id: {args.task_id}")
+print(f"Number of tasks: {args.num_tasks}")
 
 mol_ids_smis = list(zip(mol_ids, mol_smis))
+
 for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
     if mol_id in xyz_DFT_opt_dict:
+        print(f"Mol id: {mol_id} in xyz dict")
+
         ids = mol_id // 1000
         subinputs_dir = os.path.join(inputs_dir, f"inputs_{ids}")
         suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")
@@ -115,6 +123,8 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
         input_file_path = os.path.join(subinputs_dir, f"{mol_id}.in")
         tmp_input_file_path = os.path.join(subinputs_dir, f"{mol_id}.tmp")
         tar_file_path = os.path.join(suboutputs_dir, f"{mol_id}.tar")
+        mol_tmp_dir = os.path.join(suboutputs_dir, f"{mol_id}")
+        mol_tmp_log_path = os.path.join(mol_tmp_dir, f"{mol_id}.log")
 
         if os.path.exists(tar_file_path):
             tar = tarfile.open(tar_file_path, "r")
@@ -122,14 +132,33 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
             if any(f"_{last_cosmo_name_replaced}.tab" in member_basename for member_basename in member_basename_list):
                 tar.close()
                 print(f"COSMO-RS calculation for {mol_id} already finished.")
+
+                if os.path.exists(mol_tmp_dir):
+                    shutil.rmtree(mol_tmp_dir)
+
                 continue
             tar.close()
+
+        if os.path.exists(mol_tmp_log_path):
+
+            with open(mol_tmp_log_path, "r") as f:
+                lines = f.readlines()
+                print(lines)
+                if any("calculation did not converge" in line for line in lines):
+                    print(mol_tmp_log_path)
+                    print(f"Turbomole calculation for {mol_id} did not converge. Skipping...")
+
+                    continue
+
             
         os.makedirs(subinputs_dir, exist_ok=True)
         if not os.path.exists(input_file_path) and not os.path.exists(tmp_input_file_path):
             with open(input_file_path, "w+") as f:
                 f.write("")
             print(f"Making helper input file for {mol_id}...")
+
+    else:
+        print(f"Mol id: {mol_id} not in xyz dict")
 
 print("Starting COSMO calculations...")
 for subinputs_folder in os.listdir(os.path.join(COSMO_dir, "inputs")):

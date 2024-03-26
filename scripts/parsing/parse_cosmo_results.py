@@ -35,13 +35,13 @@ def main(input_smiles_path, output_file_name, n_jobs, solvent_path, output_dir):
     out = Parallel(n_jobs=n_jobs, backend="multiprocessing", verbose=5)(
         delayed(cosmo_parser)(tar_file_path) for tar_file_path in tqdm(tar_file_paths)
     )
-    failed_mol_ids = [mol_ids[i] for i in range(len(mol_ids)) if out[i] is None]
+
     out = [x for x in out if x is not None]
     for each_data_lists in tqdm(out):
         for each_data_list in each_data_lists:
             for each_data in each_data_list:
                 each_data[1] = solvent_name_to_smi[each_data[0]]
-                each_data[3] = mol_id_to_mol_smi[each_data[2]]
+                each_data[3] = mol_id_to_mol_smi[float(each_data[2])]
 
     headers = [
         "solvent_name",
@@ -68,14 +68,9 @@ def main(input_smiles_path, output_file_name, n_jobs, solvent_path, output_dir):
     with open(os.path.join(submit_dir, f"{output_file_name}.pkl"), "wb") as outfile:
         pkl.dump(df_cosmo, outfile, protocol=pkl.HIGHEST_PROTOCOL)
 
-    df_failed = df_solute[df_solute.id.isin(failed_mol_ids)]
-    df_failed.to_csv(
-        os.path.join(submit_dir, f"{output_file_name}_failed.csv"), index=False
-    )
-
-    print(f"Total number of jobs: {len(mol_ids)}")
-    print(f"Failed mol ids: {len(failed_mol_ids)}")
-    print(failed_mol_ids)
+    print(f"Total number of mols: {len(mol_ids)}")
+    print(f"Total number of tar files: {len(tar_file_paths)}")
+    print(f"Total number of cosmo results: {len(df_cosmo.index)}")
 
 
 if __name__ == "__main__":
