@@ -2,9 +2,7 @@ import os
 import pickle as pkl
 import shutil
 import tarfile
-
 import pandas as pd
-from autoqm.calculation.utils import REPLACE_LETTER
 from rdkit import Chem
 
 REPLACE_LETTER = {"(": "_", ")": "_", "'": "_"}
