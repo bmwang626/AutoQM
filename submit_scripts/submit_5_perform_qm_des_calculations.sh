@@ -49,7 +49,7 @@ python $AUTOQM_PATH/scripts/calculation/perform_qm_des_calculations.py \
     --scratch_dir $scratch_dir \
     --task_id $LLSUB_RANK \
     --num_tasks $LLSUB_SIZE \
-    --G16_path $g16root/g16 \
+    --g16_path $g16root/g16 \
     --title_card "$title_card" \
     --n_procs 48 \
     --job_ram "120gb" \
