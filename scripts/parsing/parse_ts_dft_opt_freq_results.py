@@ -55,7 +55,12 @@ for rxn_id in rxn_ids:
     log_paths.append(log_path)
 
 out = Parallel(n_jobs=n_jobs, backend="multiprocessing", verbose=5)(
-    delayed(dft_opt_freq_parser)(path, is_ts=True, check_connectivity=False,) for path in tqdm(log_paths) # not able to use check_connectivity=True for TS
+    delayed(dft_opt_freq_parser)(
+        path,
+        is_ts=True,
+        check_connectivity=False,
+    )
+    for path in tqdm(log_paths)  # not able to use check_connectivity=True for TS
 )
 
 failed_jobs = dict()

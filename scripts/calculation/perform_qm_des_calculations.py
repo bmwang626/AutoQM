@@ -7,11 +7,11 @@ from pathlib import Path
 
 import pandas as pd
 from autoqm.calculation.dft_calculation import dft_scf_qm_descriptor
-from autoqm.calculation.utils import (add_qm_des_arguments,
-                                                add_shared_arguments)
+from autoqm.calculation.utils import add_qm_des_arguments, add_shared_arguments
 from rdkit import Chem
 
 logging.basicConfig(level=logging.INFO)
+
 
 def main(args):
     input_df = pd.read_csv(args.job_input_file)
@@ -29,18 +29,22 @@ def main(args):
         try:
             mol = Chem.MolFromSmiles(v)
         except Exception as e:
-            logging.error(f'Cannot translate job_smi {v} to molecule for species {k}: {e}')
+            logging.error(
+                f"Cannot translate job_smi {v} to molecule for species {k}: {e}"
+            )
 
         try:
             charge = Chem.GetFormalCharge(mol)
             id_to_charge_dict[k] = charge
         except Exception as e:
-            logging.error(f'Cannot determine molecular charge for species {k} with job_smi {v}: {e}')
+            logging.error(
+                f"Cannot determine molecular charge for species {k} with job_smi {v}: {e}"
+            )
 
         num_radical_elec = 0
         for atom in mol.GetAtoms():
             num_radical_elec += atom.GetNumRadicalElectrons()
-        id_to_mult_dict[k] =  num_radical_elec + 1
+        id_to_mult_dict[k] = num_radical_elec + 1
 
     submit_dir = Path.cwd().absolute()
     output_dir = submit_dir / "output"
@@ -57,7 +61,7 @@ def main(args):
 
     id_smi_list = list(zip(job_ids, job_smis))
 
-    for job_id, job_smi in id_smi_list[args.task_id::args.num_tasks]:
+    for job_id, job_smi in id_smi_list[args.task_id :: args.num_tasks]:
         if job_id not in id_to_xyz_dict:
             logging.info(f"Mol id: {job_id} not in xyz dict")
             continue
@@ -121,6 +125,7 @@ def main(args):
                     subinputs_dir=subinputs_dir,
                     suboutputs_dir=suboutputs_dir,
                 )
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()

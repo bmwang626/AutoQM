@@ -8,7 +8,7 @@ from .file_parser import mol2xyz
 
 
 def dlpno_sp_calc(mol_id, orca_path, charge, mult, n_procs, job_ram, xyz_DFT_opt):
-    sdf = mol_id + '.sdf'
+    sdf = mol_id + ".sdf"
     mol_dir = os.getcwd()
 
     if xyz_DFT_opt:
@@ -18,7 +18,7 @@ def dlpno_sp_calc(mol_id, orca_path, charge, mult, n_procs, job_ram, xyz_DFT_opt
         xyz = mol2xyz(mol)
         coords = "\n".join(xyz.splitlines()[2:])
 
-    #create working directory
+    # create working directory
     try:
         shutil.rmtree("scratch")
     except:
@@ -32,13 +32,18 @@ def dlpno_sp_calc(mol_id, orca_path, charge, mult, n_procs, job_ram, xyz_DFT_opt
     with open(infile, "w+") as f:
         f.write(script)
 
-    #run jobs
+    # run jobs
     orca_command = os.path.join(orca_path, "orca")
-    logfile = mol_id + '.log'
-    outfile = mol_id + '.out'
-    with open(outfile, 'w') as out:
-        subprocess.run('{} {} > {}'.format(orca_command, infile, logfile), shell=True, stdout=out, stderr=out)
-    
+    logfile = mol_id + ".log"
+    outfile = mol_id + ".out"
+    with open(outfile, "w") as out:
+        subprocess.run(
+            "{} {} > {}".format(orca_command, infile, logfile),
+            shell=True,
+            stdout=out,
+            stderr=out,
+        )
+
     # check for normal termination
     with open(logfile, "r") as f:
         lines = f.readlines()
@@ -51,17 +56,19 @@ def dlpno_sp_calc(mol_id, orca_path, charge, mult, n_procs, job_ram, xyz_DFT_opt
         os.chdir(mol_dir)
         raise RuntimeError(f"ORCA calculation failed for {mol_id}")
 
-def generate_dlpno_sp_input(level_of_theory: str,
-                            xyz_str: str,
-                            charge: int,
-                            multiplicity: int,
-                            memory_mb: int,
-                            cpu_threads: int,
-                            ) -> str:
+
+def generate_dlpno_sp_input(
+    level_of_theory: str,
+    xyz_str: str,
+    charge: int,
+    multiplicity: int,
+    memory_mb: int,
+    cpu_threads: int,
+) -> str:
     """
     Modified from ACS
     """
-    
+
     script = f"""!{level_of_theory}
 
 %mdci
@@ -80,5 +87,3 @@ end
 
 """
     return script
-
-    

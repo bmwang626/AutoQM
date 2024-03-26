@@ -1,4 +1,5 @@
 import logging
+
 logging.basicConfig(level=logging.INFO)
 import shutil
 from rdkit import Chem
@@ -34,11 +35,16 @@ def dft_scf_qm_descriptor(
     job_scratch_dir = scratch_dir / f"{job_id}"
     job_scratch_dir.mkdir()
     logging.info(f"Creating scratch directory {job_scratch_dir} for {job_id}.")
-    subprocess.run(f"export GAUSS_SCRDIR={job_scratch_dir.absolute()}", shell=True, check=True)
+    subprocess.run(
+        f"export GAUSS_SCRDIR={job_scratch_dir.absolute()}", shell=True, check=True
+    )
 
     g16_command = os.path.join(g16_path, "g16")
     head = "%chk={}.chk\n%nprocshared={}\n%mem={}mb\n{}\n".format(
-        job_id, n_procs, job_ram, title_card,
+        job_id,
+        n_procs,
+        job_ram,
+        title_card,
     )
 
     job_tmp_output_dir = suboutputs_dir / f"{job_id}"
@@ -46,7 +52,14 @@ def dft_scf_qm_descriptor(
     logfile = job_tmp_output_dir / f"{job_id}.log"
     outfile = job_tmp_output_dir / f"{job_id}.out"
 
-    xyz2com(job_xyz, head=head, gjf_file=gjf_file, charge=charge, mult=mult, footer="$NBO BNDIDX $END")
+    xyz2com(
+        job_xyz,
+        head=head,
+        gjf_file=gjf_file,
+        charge=charge,
+        mult=mult,
+        footer="$NBO BNDIDX $END",
+    )
 
     start_time = time.time()
     with open(outfile, "w") as out:
@@ -67,6 +80,7 @@ def dft_scf_qm_descriptor(
     job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
     job_tmp_input_path.unlink()
     shutil.rmtree(job_scratch_dir)
+
 
 def dft_scf_opt(
     job_id,
@@ -95,7 +109,9 @@ def dft_scf_opt(
     )
 
     gjf_file = f"{job_id}.gjf"
-    xyz2com(job_xyz, head=head, gjf_file=gjf_file, charge=charge, mult=mult, footer="\n")
+    xyz2com(
+        job_xyz, head=head, gjf_file=gjf_file, charge=charge, mult=mult, footer="\n"
+    )
     shutil.copyfile(gjf_file, os.path.join(suboutputs_dir, f"{job_id}.gjf"))
 
     logfile = f"{job_id}.log"
@@ -118,7 +134,9 @@ def dft_scf_opt(
     try:
         os.remove(os.path.join(subinputs_dir, f"{job_id}.tmp"))
     except FileNotFoundError:
-        print(f"{os.path.join(subinputs_dir, f'{job_id}.tmp')} not found. Already deleted?")
+        print(
+            f"{os.path.join(subinputs_dir, f'{job_id}.tmp')} not found. Already deleted?"
+        )
 
     job_stat = check_job_status(read_log_file(logfile))
 
@@ -142,7 +160,9 @@ def dft_scf_sp(
     )
 
     gjf_file = job_id + ".gjf"
-    xyz2com(job_xyz, head=head, gjf_file=gjf_file, charge=charge, mult=mult, footer="\n")
+    xyz2com(
+        job_xyz, head=head, gjf_file=gjf_file, charge=charge, mult=mult, footer="\n"
+    )
 
     logfile = job_id + ".log"
     outfile = job_id + ".out"

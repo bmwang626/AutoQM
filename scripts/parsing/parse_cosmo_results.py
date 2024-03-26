@@ -19,7 +19,9 @@ def main(input_smiles_path, output_file_name, n_jobs, solvent_path, output_dir):
     elif "rxn_smi" in df_solute.columns:
         mol_smis = list(df_solute.rxn_smi)
     else:
-        raise ValueError(f"No smiles column in input file. headers: {df_solute.columns}")
+        raise ValueError(
+            f"No smiles column in input file. headers: {df_solute.columns}"
+        )
 
     mol_id_to_mol_smi = dict(zip(mol_ids, mol_smis))
 

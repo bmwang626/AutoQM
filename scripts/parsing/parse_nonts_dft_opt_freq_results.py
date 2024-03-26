@@ -55,7 +55,10 @@ for mol_id in mol_ids:
     log_paths.append(log_path)
 
 out = Parallel(n_jobs=n_jobs, backend="multiprocessing", verbose=5)(
-    delayed(dft_opt_freq_parser)(path, is_ts=False, check_connectivity=True, smi=smi) for path, smi in tqdm(zip(log_paths, smiles_list)) # not able to use check_connectivity=True for TS
+    delayed(dft_opt_freq_parser)(path, is_ts=False, check_connectivity=True, smi=smi)
+    for path, smi in tqdm(
+        zip(log_paths, smiles_list)
+    )  # not able to use check_connectivity=True for TS
 )
 
 failed_jobs = dict()

@@ -8,51 +8,129 @@ import subprocess
 from autoqm.calculation.wft_calculation import generate_dlpno_sp_input
 
 parser = ArgumentParser()
-parser.add_argument('--input_smiles', type=str, required=True,
-                    help='input smiles included in a .csv file')
-parser.add_argument('--output_folder', type=str, default='output',
-                    help='output folder name')
-parser.add_argument('--task_id', type=int, default=0,
-                    help='task id for the calculation',)
-parser.add_argument('--num_tasks', type=int, default=1,
-                    help='number of tasks for the calculation',)
-parser.add_argument('--smiles_column', type=str, default='smiles',
-                    help='column name for smiles in the input csv file',)
-parser.add_argument('--xyz_column', type=str, default='xyz',
-                    help='column name for xyz in the input csv file',)
-parser.add_argument('--id_column', type=str, default='id',
-                    help='column name for id in the input csv file',)
-parser.add_argument('--is_rxn', action='store_true',
-                    help='whether the input is reaction smiles',)
-parser.add_argument('--xyz_has_header', action='store_true',
-                    help='whether the xyz file has header',)
+parser.add_argument(
+    "--input_smiles",
+    type=str,
+    required=True,
+    help="input smiles included in a .csv file",
+)
+parser.add_argument(
+    "--output_folder", type=str, default="output", help="output folder name"
+)
+parser.add_argument(
+    "--task_id",
+    type=int,
+    default=0,
+    help="task id for the calculation",
+)
+parser.add_argument(
+    "--num_tasks",
+    type=int,
+    default=1,
+    help="number of tasks for the calculation",
+)
+parser.add_argument(
+    "--smiles_column",
+    type=str,
+    default="smiles",
+    help="column name for smiles in the input csv file",
+)
+parser.add_argument(
+    "--xyz_column",
+    type=str,
+    default="xyz",
+    help="column name for xyz in the input csv file",
+)
+parser.add_argument(
+    "--id_column",
+    type=str,
+    default="id",
+    help="column name for id in the input csv file",
+)
+parser.add_argument(
+    "--is_rxn",
+    action="store_true",
+    help="whether the input is reaction smiles",
+)
+parser.add_argument(
+    "--xyz_has_header",
+    action="store_true",
+    help="whether the xyz file has header",
+)
 
-#dlpno sp
-parser.add_argument('--DLPNO_sp_folder', type=str, required=True, choices=['DLPNO_sp', 'DLPNO_sp_f12'],)
-parser.add_argument('--DLPNO_sp_level_of_theory', type=str, required=True,
-                    help='level of theory for DLPNO calculation')
-parser.add_argument('--DLPNO_sp_n_procs', type=int, default=24,
-                    help='number of process for DLPNO calculations')
-parser.add_argument('--DLPNO_sp_job_ram', type=int, default=4000,
-                    help='amount of ram (MB) per core allocated for each DLPNO calculation')
-parser.add_argument('--DLPNO_sp_cutoff_heavy_atoms', type=int, default=0,
-                    help='Only perform DLPNO calculation for molecules with less than this number of heavy atoms.')
-parser.add_argument('--DLPNO_sp_cutoff_total_atoms', type=int, default=0,
-                    help='Only perform DLPNO calculation for molecules with less than this number of total atoms (include H).')
+# dlpno sp
+parser.add_argument(
+    "--DLPNO_sp_folder",
+    type=str,
+    required=True,
+    choices=["DLPNO_sp", "DLPNO_sp_f12"],
+)
+parser.add_argument(
+    "--DLPNO_sp_level_of_theory",
+    type=str,
+    required=True,
+    help="level of theory for DLPNO calculation",
+)
+parser.add_argument(
+    "--DLPNO_sp_n_procs",
+    type=int,
+    default=24,
+    help="number of process for DLPNO calculations",
+)
+parser.add_argument(
+    "--DLPNO_sp_job_ram",
+    type=int,
+    default=4000,
+    help="amount of ram (MB) per core allocated for each DLPNO calculation",
+)
+parser.add_argument(
+    "--DLPNO_sp_cutoff_heavy_atoms",
+    type=int,
+    default=0,
+    help="Only perform DLPNO calculation for molecules with less than this number of heavy atoms.",
+)
+parser.add_argument(
+    "--DLPNO_sp_cutoff_total_atoms",
+    type=int,
+    default=0,
+    help="Only perform DLPNO calculation for molecules with less than this number of total atoms (include H).",
+)
 
 # specify paths
-parser.add_argument('--XTB_path', type=str, required=False, default=None,
-                    help='path to installed XTB')
-parser.add_argument('--G16_path', type=str, required=False, default=None,
-                    help='path to installed Gaussian 16')
-parser.add_argument('--RDMC_path', type=str, required=False, default=None,
-                    help='path to RDMC to use xtb-gaussian script for xtb optimization calculation.')
-parser.add_argument('--COSMOtherm_path', type=str, required=False, default=None,
-                    help='path to COSMOthermo')
-parser.add_argument('--COSMO_database_path', type=str, required=False, default=None,
-                    help='path to COSMO_database')
-parser.add_argument('--ORCA_path', type=str, required=False, default=None,
-                    help='path to ORCA')
+parser.add_argument(
+    "--XTB_path", type=str, required=False, default=None, help="path to installed XTB"
+)
+parser.add_argument(
+    "--G16_path",
+    type=str,
+    required=False,
+    default=None,
+    help="path to installed Gaussian 16",
+)
+parser.add_argument(
+    "--RDMC_path",
+    type=str,
+    required=False,
+    default=None,
+    help="path to RDMC to use xtb-gaussian script for xtb optimization calculation.",
+)
+parser.add_argument(
+    "--COSMOtherm_path",
+    type=str,
+    required=False,
+    default=None,
+    help="path to COSMOthermo",
+)
+parser.add_argument(
+    "--COSMO_database_path",
+    type=str,
+    required=False,
+    default=None,
+    help="path to COSMO_database",
+)
+parser.add_argument(
+    "--ORCA_path", type=str, required=False, default=None, help="path to ORCA"
+)
 
 args = parser.parse_args()
 
@@ -84,8 +162,8 @@ if not args.is_rxn:
     smiles_list = list(df[args.smiles_column])
 else:
     smiles_list = list(df[args.smiles_column])
-    smiles_list = [smi.split(">>")[0] for smi in smiles_list] # use the reactant smiles
-    
+    smiles_list = [smi.split(">>")[0] for smi in smiles_list]  # use the reactant smiles
+
 # create id to property mapping
 mol_id_to_smi_dict = dict(zip(mol_ids, smiles_list))
 mol_id_to_charge_dict = dict()
@@ -96,24 +174,24 @@ mol_id_to_num_total_atoms_dict = dict()
 # smi parsing settings
 params = Chem.SmilesParserParams()
 # rdkit by default removes explicit Hs, to make sure total atom count is correct we need to include all Hs in smiles
-params.removeHs = False 
+params.removeHs = False
 
 for k, v in mol_id_to_smi_dict.items():
     try:
         mol = Chem.MolFromSmiles(v, params)
     except Exception as e:
-        print(f'Cannot translate smi {v} to molecule for species {k}')
+        print(f"Cannot translate smi {v} to molecule for species {k}")
 
     try:
         charge = Chem.GetFormalCharge(mol)
         mol_id_to_charge_dict[k] = charge
     except Exception as e:
-        print(f'Cannot determine molecular charge for species {k} with smi {v}')
+        print(f"Cannot determine molecular charge for species {k} with smi {v}")
 
     num_radical_elec = 0
     for atom in mol.GetAtoms():
         num_radical_elec += atom.GetNumRadicalElectrons()
-    mol_id_to_mult_dict[k] =  num_radical_elec + 1
+    mol_id_to_mult_dict[k] = num_radical_elec + 1
 
     num_total_atoms = 0
     num_heavy_atoms = 0
@@ -133,22 +211,26 @@ print("Make dlpno input files...")
 
 
 def get_maxcore(log_path):
-    proc = subprocess.run(f'head -n 200 {log_path} | grep maxcore', shell=True, capture_output=True)
+    proc = subprocess.run(
+        f"head -n 200 {log_path} | grep maxcore", shell=True, capture_output=True
+    )
     strings = proc.stdout.split()
     if strings:
         return int(strings[-1])
     return None
 
+
 def tail(f, n):
-    proc = subprocess.Popen(['tail', '-n', str(n), f], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(["tail", "-n", str(n), f], stdout=subprocess.PIPE)
     lines = proc.stdout.readlines()
     return lines
+
 
 def has_mdci_error(log_path, bypass=False, exclude_convergence=True):
     """
     Check MDCI error in ORCA log. Most MDCI errors are due to ram issue or unexpected kill of the job. Use bypass to skip this test when needed as this might interference with maxcore check.
     """
-    
+
     if bypass:
         return False
 
@@ -163,7 +245,7 @@ def has_mdci_error(log_path, bypass=False, exclude_convergence=True):
                 return False
 
     for line in lines:
-        if b"ORCA finished by error termination in MDCI" in line: 
+        if b"ORCA finished by error termination in MDCI" in line:
             return True
     else:
         return False
@@ -172,7 +254,11 @@ def has_mdci_error(log_path, bypass=False, exclude_convergence=True):
 def has_max_core_error(log_path, current_maxcore):
     lines = tail(log_path, 30)
     for line in lines:
-        if (b"Please increase MaxCore - Skipping calculation" in line) or (b"ORCA finished by error termination in GTOInt" in line) or (b"ORCA finished by error termination in MDCI" in line):
+        if (
+            (b"Please increase MaxCore - Skipping calculation" in line)
+            or (b"ORCA finished by error termination in GTOInt" in line)
+            or (b"ORCA finished by error termination in MDCI" in line)
+        ):
             maxcore = get_maxcore(log_path)
             if maxcore is not None and maxcore < current_maxcore:
                 return True
@@ -189,6 +275,7 @@ def has_max_core_error(log_path, current_maxcore):
 
     return False
 
+
 def has_wave_function_error(log_path):
     lines = tail(log_path, 30)
     # find wave function error
@@ -200,6 +287,7 @@ def has_wave_function_error(log_path):
         return True
 
     return False
+
 
 # added by oscar Jan 3, 2023
 def has_coordinates_error(log_path):
@@ -216,9 +304,10 @@ def has_coordinates_error(log_path):
 
     return False
 
+
 mol_ids_smis = list(zip(mol_ids, smiles_list))
-for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
-    
+for mol_id, smi in mol_ids_smis[args.task_id :: args.num_tasks]:
+
     # determine if we need to skip some jobs based on atom counts
     if not any([args.DLPNO_sp_cutoff_heavy_atoms, args.DLPNO_sp_cutoff_total_atoms]):
         # both keywords are not specified, proceed to calculate all
@@ -231,7 +320,7 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
             continue
         # cases for only one keyword is specified
     elif args.DLPNO_sp_cutoff_heavy_atoms:
-        # skip based on heavy atom count 
+        # skip based on heavy atom count
         if mol_id_to_num_heavy_atoms_dict[mol_id] > args.DLPNO_sp_cutoff_heavy_atoms:
             continue
     elif args.DLPNO_sp_cutoff_total_atoms:
@@ -284,11 +373,20 @@ for mol_id, smi in mol_ids_smis[args.task_id::args.num_tasks]:
         if not os.path.exists(log_path):
             os.makedirs(subinputs_dir, exist_ok=True)
             mol_id_path = os.path.join(subinputs_dir, f"{mol_id}.in")
-            if not os.path.exists(os.path.join(subinputs_dir, f"{mol_id}.tmp")) and not os.path.exists(mol_id_path):
+            if not os.path.exists(
+                os.path.join(subinputs_dir, f"{mol_id}.tmp")
+            ) and not os.path.exists(mol_id_path):
                 charge = mol_id_to_charge_dict[mol_id]
                 mult = mol_id_to_mult_dict[mol_id]
                 coords = xyz_DFT_opt_dict[mol_id].strip()
-                script = generate_dlpno_sp_input(DLPNO_sp_level_of_theory, coords, charge, mult, args.DLPNO_sp_job_ram, args.DLPNO_sp_n_procs)
+                script = generate_dlpno_sp_input(
+                    DLPNO_sp_level_of_theory,
+                    coords,
+                    charge,
+                    mult,
+                    args.DLPNO_sp_job_ram,
+                    args.DLPNO_sp_n_procs,
+                )
 
                 print(f"Generating input file for {mol_id}...")
                 with open(mol_id_path, "w+") as f:

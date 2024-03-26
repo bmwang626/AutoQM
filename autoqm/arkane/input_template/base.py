@@ -15,10 +15,7 @@ class BaseTemplateWriter(object):
     This is a base class for all template writer.
     """
 
-    default_settings = {
-        'template_file': None,
-        'save_path': './base_template.txt'
-    }
+    default_settings = {"template_file": None, "save_path": "./base_template.txt"}
     default_template = ""
 
     def __init__(self, spec={}):
@@ -27,13 +24,12 @@ class BaseTemplateWriter(object):
         for key, value in self.default_settings.items():
             if not hasattr(self, key):
                 setattr(self, key, value)
-    
+
     @property
     def template(self):
         if self.template_file:
             template_dir, template_file = os.path.split(self.template_path)
-            env = Environment(loader=FileSystemLoader(template_dir),
-                              autoescape=True)
+            env = Environment(loader=FileSystemLoader(template_dir), autoescape=True)
             template = env.get_template(template_file)
         else:
             template = Template(self.default_template, autoescape=True)
@@ -41,13 +37,13 @@ class BaseTemplateWriter(object):
 
     @property
     def rendered_template(self):
-        if not hasattr(self, '_rendered'):
+        if not hasattr(self, "_rendered"):
             if self.template:
                 self._rendered = self.template.render(self.to_dict())
         return self._rendered
 
     def save(self):
-        with open(self.save_path, 'w') as f:
+        with open(self.save_path, "w") as f:
             f.write(self.rendered_template)
         return True
 

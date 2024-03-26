@@ -16,7 +16,7 @@ with open(f"{output_name}_ff_opted_results_failed.pkl", "rb") as f:
 failed_reason = [""] * len(input_df)
 for mol_id in failed_jobs:
     index = mol_id_to_index[mol_id]
-    failed_reason[index] = failed_jobs[mol_id].get('reason', '')
+    failed_reason[index] = failed_jobs[mol_id].get("reason", "")
 
 input_df["ff_failed_reason"] = failed_reason
 
@@ -27,7 +27,7 @@ with open(f"{output_name}_semiempirical_opted_results_failed.pkl", "rb") as f:
 failed_reason = [""] * len(input_df)
 for mol_id in failed_jobs:
     index = mol_id_to_index[mol_id]
-    failed_reason[index] = failed_jobs[mol_id].get('reason', '')
+    failed_reason[index] = failed_jobs[mol_id].get("reason", "")
 
 input_df["semiempirical_failed_reason"] = failed_reason
 
@@ -38,7 +38,7 @@ with open(f"{output_name}_dft_opted_results_failed.pkl", "rb") as f:
 failed_reason = [""] * len(input_df)
 for mol_id in failed_jobs:
     index = mol_id_to_index[mol_id]
-    failed_reason[index] = failed_jobs[mol_id].get('reason', '')
+    failed_reason[index] = failed_jobs[mol_id].get("reason", "")
 
 input_df["dft_failed_reason"] = failed_reason
 
@@ -49,7 +49,7 @@ with open(f"{output_name}_dlpno_sp_results_failed.pkl", "rb") as f:
 failed_reason = [""] * len(input_df)
 for mol_id in failed_jobs:
     index = mol_id_to_index[mol_id]
-    failed_reason[index] = failed_jobs[mol_id].get('reason', '')
+    failed_reason[index] = failed_jobs[mol_id].get("reason", "")
 
 input_df["dlpno_failed_reason"] = failed_reason
 

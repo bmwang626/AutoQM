@@ -2,15 +2,127 @@ import os, sys
 import re
 import numpy as np
 
-periodictable = ["", "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar",
-                 "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br",
-                 "Kr", "Rb", "Sr", "Y", "Zr",
-                 "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I", "Xe", "Cs", "Ba", "La",
-                 "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu", "Hf", "Ta", "W",
-                 "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl",
-                 "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf",
-                 "Es", "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Uub", "Uut", "Uuq",
-                 "Uup", "Uuh", "Uus", "Uuo"]
+periodictable = [
+    "",
+    "H",
+    "He",
+    "Li",
+    "Be",
+    "B",
+    "C",
+    "N",
+    "O",
+    "F",
+    "Ne",
+    "Na",
+    "Mg",
+    "Al",
+    "Si",
+    "P",
+    "S",
+    "Cl",
+    "Ar",
+    "K",
+    "Ca",
+    "Sc",
+    "Ti",
+    "V",
+    "Cr",
+    "Mn",
+    "Fe",
+    "Co",
+    "Ni",
+    "Cu",
+    "Zn",
+    "Ga",
+    "Ge",
+    "As",
+    "Se",
+    "Br",
+    "Kr",
+    "Rb",
+    "Sr",
+    "Y",
+    "Zr",
+    "Nb",
+    "Mo",
+    "Tc",
+    "Ru",
+    "Rh",
+    "Pd",
+    "Ag",
+    "Cd",
+    "In",
+    "Sn",
+    "Sb",
+    "Te",
+    "I",
+    "Xe",
+    "Cs",
+    "Ba",
+    "La",
+    "Ce",
+    "Pr",
+    "Nd",
+    "Pm",
+    "Sm",
+    "Eu",
+    "Gd",
+    "Tb",
+    "Dy",
+    "Ho",
+    "Er",
+    "Tm",
+    "Yb",
+    "Lu",
+    "Hf",
+    "Ta",
+    "W",
+    "Re",
+    "Os",
+    "Ir",
+    "Pt",
+    "Au",
+    "Hg",
+    "Tl",
+    "Pb",
+    "Bi",
+    "Po",
+    "At",
+    "Rn",
+    "Fr",
+    "Ra",
+    "Ac",
+    "Th",
+    "Pa",
+    "U",
+    "Np",
+    "Pu",
+    "Am",
+    "Cm",
+    "Bk",
+    "Cf",
+    "Es",
+    "Fm",
+    "Md",
+    "No",
+    "Lr",
+    "Rf",
+    "Db",
+    "Sg",
+    "Bh",
+    "Hs",
+    "Mt",
+    "Ds",
+    "Rg",
+    "Uub",
+    "Uut",
+    "Uuq",
+    "Uup",
+    "Uuh",
+    "Uus",
+    "Uuo",
+]
 
 
 def elementID(massno):
@@ -23,8 +135,8 @@ def elementID(massno):
 class G16Log:
     def __init__(self, file):
         # default values for thermochemical calculations
-        if '.log' not in file:
-            raise TypeError('A g16 .log file must be provided')
+        if ".log" not in file:
+            raise TypeError("A g16 .log file must be provided")
 
         self.file = file
         self.name = os.path.basename(file)
@@ -62,7 +174,7 @@ class G16Log:
 
     def GetError(self):
         with open(self.file) as fh:
-            for line in (fh):
+            for line in fh:
                 if line.find("Error termination") > -1:
                     self.error = line
                     return True
@@ -70,8 +182,8 @@ class G16Log:
 
     def GetChargeMult(self):
         with open(self.file) as fh:
-            for line in (fh):
-                m = re.search('Charge\s*=\s*(-?\d+)\s*Multiplicity\s*=\s*(-?\d+)', line)
+            for line in fh:
+                m = re.search("Charge\s*=\s*(-?\d+)\s*Multiplicity\s*=\s*(-?\d+)", line)
                 if m:
                     self.formal_charge = int(m[1])
                     self.mult = int(m[2])
@@ -79,7 +191,7 @@ class G16Log:
 
     def GetCPU(self):
         with open(self.file) as fh:
-            for line in (fh):
+            for line in fh:
                 if line.find("Job cpu time") > -1:
                     days = int(line.split()[3])
                     hours = int(line.split()[5])
@@ -93,8 +205,8 @@ class G16Log:
         with open(self.file) as fh:
             starting = False
             found_coord = False
-            for line in (fh):
-                if line.find('Standard orientation') > -1:
+            for line in fh:
+                if line.find("Standard orientation") > -1:
                     starting = True
                     AtomsNum = []
                     AtomsType = []
@@ -102,14 +214,19 @@ class G16Log:
                     sep = 0
                     found_coord = False
                 if starting:
-                    m = re.search('(\d+)\s+(\d+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)',
-                                  line)
-                    if not m: continue
+                    m = re.search(
+                        "(\d+)\s+(\d+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)",
+                        line,
+                    )
+                    if not m:
+                        continue
                     AtomsNum.append(int(m.group(2)))
                     AtomsType.append(elementID(int(m.group(2))))
-                    Coords.append([float(m.group(4)), float(m.group(5)), float(m.group(6))])
+                    Coords.append(
+                        [float(m.group(4)), float(m.group(5)), float(m.group(6))]
+                    )
                     found_coord = True
-                if found_coord and line.find('-----------') > -1:
+                if found_coord and line.find("-----------") > -1:
                     starting = False
                     found_coord = False
         self.AtomsNum = AtomsNum
@@ -122,8 +239,8 @@ class G16Log:
 
         txt = [x.strip() for x in txt]
         for i, line in enumerate(txt):
-            if line.find('Sum of electronic and thermal Free Energies=') > -1:
-                m = re.search('-?\d+\.\d+', line)
+            if line.find("Sum of electronic and thermal Free Energies=") > -1:
+                m = re.search("-?\d+\.\d+", line)
                 if m:
                     self.G = float(m.group(0))
                     break
@@ -135,12 +252,12 @@ class G16Log:
 
         txt = [x.strip() for x in txt]
         for i, line in enumerate(txt):
-            if line.find('Sum of electronic and thermal Energies') > -1:
-                m = re.search('-?\d+\.\d+', line)
+            if line.find("Sum of electronic and thermal Energies") > -1:
+                m = re.search("-?\d+\.\d+", line)
                 if m:
                     self.E = float(m.group(0))
-            elif line.find('SCF Done') > -1:
-                m = re.search('=\s+(-?\d+\.\d+)', line)
+            elif line.find("SCF Done") > -1:
+                m = re.search("=\s+(-?\d+\.\d+)", line)
                 if m:
                     self.E = float(m[1])
             if self.E is not None:
@@ -154,18 +271,18 @@ class G16Log:
 
         freqs = []
         for line in txt:
-            if 'Frequencies --' in line:
+            if "Frequencies --" in line:
                 splits = line.split()
                 freqs.extend(float(freq) for freq in splits[2:])
 
         for i, line in enumerate(txt):
-            if line.find('Integrated intensity (I) in km.mol^-1') > -1:
-                txt = txt[i+2:]
+            if line.find("Integrated intensity (I) in km.mol^-1") > -1:
+                txt = txt[i + 2 :]
                 break
 
         for i, line in enumerate(txt):
-            if line.find('Fundamental Bands') > -1:
-                txt = txt[i+3:]
+            if line.find("Fundamental Bands") > -1:
+                txt = txt[i + 3 :]
 
         an_wavenumbers = []
         an_intensities = []
@@ -173,10 +290,10 @@ class G16Log:
         har_intensities = []
         for i, line in enumerate(txt):
             if not line:
-                txt = txt[i+1:]
+                txt = txt[i + 1 :]
                 break
 
-            m = re.findall('(\d+\.\d+)', line)
+            m = re.findall("(\d+\.\d+)", line)
 
             if len(m) != 4:
                 continue
@@ -186,16 +303,16 @@ class G16Log:
             an_wavenumbers.append(float(m[1]))
             an_intensities.append(float(m[3]))
         for i, line in enumerate(txt):
-            if line.find('Overtones') > -1:
-                txt = txt[i+3:]
+            if line.find("Overtones") > -1:
+                txt = txt[i + 3 :]
 
         over_wavenumbers = []
         over_intensities = []
         for i, line in enumerate(txt):
             if not line:
-                txt = txt[i+1:]
+                txt = txt[i + 1 :]
                 break
-            m = re.findall('(\d+\.\d+)', line)
+            m = re.findall("(\d+\.\d+)", line)
             if len(m) != 3:
                 continue
 
@@ -203,20 +320,20 @@ class G16Log:
             over_intensities.append(float(m[2]))
 
         for i, line in enumerate(txt):
-            if line.find('Combination Bands') > -1:
-                txt = txt[i+3:]
+            if line.find("Combination Bands") > -1:
+                txt = txt[i + 3 :]
 
         com_wavenumbers = []
         com_intensities = []
         for i, line in enumerate(txt):
             if not line:
-                txt = txt[i+1:]
+                txt = txt[i + 1 :]
                 break
 
-            m = re.findall('(\d+\.\d+)', line)
+            m = re.findall("(\d+\.\d+)", line)
             if len(m) != 3:
                 continue
-                
+
             com_wavenumbers.append(float(m[1]))
             com_intensities.append(float(m[2]))
 
@@ -245,14 +362,16 @@ class G16Log:
         txt = (x.strip() for x in txt)
 
         starting = False
-        dipole_moment = ''
+        dipole_moment = ""
         while True:
             try:
                 line = next(txt)
             except StopIteration as e:
                 break
 
-            if re.match('Mulliken charges:', line) or re.match('Mulliken charges and spin densities:', line):
+            if re.match("Mulliken charges:", line) or re.match(
+                "Mulliken charges and spin densities:", line
+            ):
                 _ = next(txt)
                 line = next(txt)
 
@@ -261,21 +380,20 @@ class G16Log:
 
                 starting = True
 
-
             if starting:
-                if line.find('Mulliken charges') > -1:
-                    starting =False
+                if line.find("Mulliken charges") > -1:
+                    starting = False
                     continue
 
-                m = re.findall('(-?\d+\.\d+)', line)
+                m = re.findall("(-?\d+\.\d+)", line)
                 mulliken.append(m[0])
 
                 if len(m) > 1:
                     spin_density.append(m[1])
 
-            if re.match('Dipole moment', line):
+            if re.match("Dipole moment", line):
                 line = next(txt)
-                m = re.findall('(-?\d+\.\d+)', line)
+                m = re.findall("(-?\d+\.\d+)", line)
                 dipole_moment = m
 
             if dipole_moment:
@@ -291,16 +409,19 @@ class G16Log:
 
         txt = [x.strip() for x in txt]
         for i, line in enumerate(txt):
-            if line.find('Hirshfeld charges, spin densities, dipoles, and CM5 charges') > -1:
-                txt = txt[i+2:]
+            if (
+                line.find("Hirshfeld charges, spin densities, dipoles, and CM5 charges")
+                > -1
+            ):
+                txt = txt[i + 2 :]
 
         hirshfeld_charges = []
         hirshfeld_spin_density = []
         hirshfeld_dipoles = []
         for i, line in enumerate(txt):
-            if line.find('Tot') > -1:
+            if line.find("Tot") > -1:
                 break
-            m = re.findall('(-?\d+\.\d+)', line)
+            m = re.findall("(-?\d+\.\d+)", line)
             if m:
                 hirshfeld_charges.append(m[0])
                 hirshfeld_spin_density.append(m[1])
@@ -314,7 +435,6 @@ class G16Log:
             self.hirshfeld_charges = None
             self.hirshfeld_spin_density = None
             self.hirshfeld_dipoles = None
-
 
     def GetNPA(self):
         with open(self.file) as fh:
@@ -330,17 +450,19 @@ class G16Log:
         # NPA charge
         NPA_Charge = np.zeros([len(self.AtomsNum), 3])
         for i, line in enumerate(txt):
-            m = re.search('Atom\s+No\s+Charge\s+Core\s+Valence\s+Rydberg\s+Total', line)
+            m = re.search("Atom\s+No\s+Charge\s+Core\s+Valence\s+Rydberg\s+Total", line)
             if m:
-                txt = txt[i + 2:]
+                txt = txt[i + 2 :]
                 break
 
         for i, line in enumerate(txt):
-            if re.search('=====', line):
-                txt = txt[i + 1:]
+            if re.search("=====", line):
+                txt = txt[i + 1 :]
                 break
-            m = re.search('(\S+)\s*(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)',
-                          line)
+            m = re.search(
+                "(\S+)\s*(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)",
+                line,
+            )
             NPA_Charge[i, :] = [float(m[3]), float(m[5]), float(m[6])]
         self.NPA_Charge = NPA_Charge
 
@@ -349,38 +471,40 @@ class G16Log:
 
         # valence electron configuration
         for i, line in enumerate(txt):
-            if line.find('Natural Electron Configuration') > -1:
-                txt = txt[i + 2:]
+            if line.find("Natural Electron Configuration") > -1:
+                txt = txt[i + 2 :]
                 break
 
         electron_configuration = []
         for i, line in enumerate(txt):
-            m = [float(x[1]) for x in re.findall(r'(\d+\S+)\(\s?(-?\d+\.\d+)\)', line)]
+            m = [float(x[1]) for x in re.findall(r"(\d+\S+)\(\s?(-?\d+\.\d+)\)", line)]
             if not m:
-                txt = txt[i + 1:]
+                txt = txt[i + 1 :]
                 break
             else:
                 electron_configuration.append(m)
 
         nc_np = np.zeros([len(self.AtomsNum), 5])
         for i, itr in enumerate(electron_configuration):
-            nc_np[i, :len(itr)] = itr
+            nc_np[i, : len(itr)] = itr
 
         self.electron_configuration = nc_np
 
         # bond index
         for i, line in enumerate(txt):
-            if line.find('Wiberg bond index matrix in the NAO basis') > -1:
-                txt = txt[i + 2:]
+            if line.find("Wiberg bond index matrix in the NAO basis") > -1:
+                txt = txt[i + 2 :]
                 break
 
         keep_going = True
-        bond_index_matrix = np.zeros([len(self.AtomsNum), len(self.AtomsNum)], dtype='float32')
+        bond_index_matrix = np.zeros(
+            [len(self.AtomsNum), len(self.AtomsNum)], dtype="float32"
+        )
         while keep_going:
             for i, line in enumerate(txt):
-                m = re.findall('\s+(\d+)', line)
+                m = re.findall("\s+(\d+)", line)
                 if m:
-                    txt = txt[i + 2:]
+                    txt = txt[i + 2 :]
                     start, end = int(m[0]) - 1, int(m[-1])
 
                     if end == len(self.AtomsNum):
@@ -389,9 +513,9 @@ class G16Log:
                     break
 
             for i, line in enumerate(txt):
-                m = re.findall(r'\d+\.\d+', line)
+                m = re.findall(r"\d+\.\d+", line)
                 if not m:
-                    txt = txt[i + 1:]
+                    txt = txt[i + 1 :]
                     break
                 else:
                     bond_index_matrix[i, start:end] = [float(x) for x in m]
@@ -400,26 +524,34 @@ class G16Log:
 
         # occupancy of lewis structure
         for i, line in enumerate(txt):
-            if line.find('(Occupancy)   Bond orbital / Coefficients / Hybrids') > -1:
-                txt = txt[i + 2:]
+            if line.find("(Occupancy)   Bond orbital / Coefficients / Hybrids") > -1:
+                txt = txt[i + 2 :]
                 break
 
         txt_generator = (x for x in txt)
         keep_going = True
         non_lewis = False
-        lone_pairs = np.zeros([len(self.AtomsNum), 4], dtype='float32')
+        lone_pairs = np.zeros([len(self.AtomsNum), 4], dtype="float32")
 
-        bond_lewis = np.zeros([len(self.AtomsNum), len(self.AtomsNum), 3], dtype='float32')
-        bond_lewis_contribution = np.zeros([len(self.AtomsNum), len(self.AtomsNum), 3, 2], dtype='float32')
-        bond_non_lewis = np.zeros([len(self.AtomsNum), len(self.AtomsNum), 3], dtype='float32')
-        bond_non_lewis_contribution = np.zeros([len(self.AtomsNum), len(self.AtomsNum), 3, 2], dtype='float32')
+        bond_lewis = np.zeros(
+            [len(self.AtomsNum), len(self.AtomsNum), 3], dtype="float32"
+        )
+        bond_lewis_contribution = np.zeros(
+            [len(self.AtomsNum), len(self.AtomsNum), 3, 2], dtype="float32"
+        )
+        bond_non_lewis = np.zeros(
+            [len(self.AtomsNum), len(self.AtomsNum), 3], dtype="float32"
+        )
+        bond_non_lewis_contribution = np.zeros(
+            [len(self.AtomsNum), len(self.AtomsNum), 3, 2], dtype="float32"
+        )
 
         while keep_going:
             line = next(txt_generator)
-            if line.find('non-Lewis') > -1:
+            if line.find("non-Lewis") > -1:
                 non_lewis = True
 
-            m = re.search('\((\d+\.\d+)\)\s+LP\s+\(\s+(\d+)\)\s+\S+\s+(\d+)', line)
+            m = re.search("\((\d+\.\d+)\)\s+LP\s+\(\s+(\d+)\)\s+\S+\s+(\d+)", line)
             if m:
                 try:
                     occu, i, atom_num = float(m[1]), int(m[2]), int(m[3])
@@ -429,15 +561,23 @@ class G16Log:
                 lone_pairs[atom_num - 1, i - 1] = occu
                 continue
 
-            m = re.search('\((\d+\.\d+)\)\s+BD[\*\s]+\(\s+(\d+)\)\s+\S+\s+(\d+)-\s+\S+\s+(\d+)', line)
+            m = re.search(
+                "\((\d+\.\d+)\)\s+BD[\*\s]+\(\s+(\d+)\)\s+\S+\s+(\d+)-\s+\S+\s+(\d+)",
+                line,
+            )
             if m:
-                occu, i, start, end = float(m[1]), int(m[2]) - 1, int(m[3]) - 1, int(m[4]) - 1
+                occu, i, start, end = (
+                    float(m[1]),
+                    int(m[2]) - 1,
+                    int(m[3]) - 1,
+                    int(m[4]) - 1,
+                )
                 line = next(txt_generator)
-                p1 = float(re.search('(\d+\.\d+)%', line)[1]) / 100
+                p1 = float(re.search("(\d+\.\d+)%", line)[1]) / 100
 
                 while True:
                     line = next(txt_generator)
-                    m = re.search('(\d+\.\d+)%', line)
+                    m = re.search("(\d+\.\d+)%", line)
                     if m:
                         p2 = float(m[1]) / 100
                         break
@@ -465,27 +605,29 @@ class G16Log:
 
     def GetNMR(self):
         NMR = []
-        with open(self.file, 'r') as fh:
+        with open(self.file, "r") as fh:
             for line in fh:
-                if len(NMR) == len(self.AtomsNum): break
-                m = re.search('Isotropic\s*=\s*(-?\d+\.\d+)', line)
-                if not m: continue
+                if len(NMR) == len(self.AtomsNum):
+                    break
+                m = re.search("Isotropic\s*=\s*(-?\d+\.\d+)", line)
+                if not m:
+                    continue
                 NMR.append(float(m.group(1)))
         self.NMR = np.array(NMR)
 
     def GetHOMOLUMO(self):
-        with open(self.file, 'r') as fh:
+        with open(self.file, "r") as fh:
             txt = fh.readlines()
         txt = [x.strip() for x in txt]
         homo = -float("inf")
-        lumo = ''
+        lumo = ""
         for line in txt:
-            if line.find('Alpha  occ.') > -1:
-                m = re.findall('(-?\d+\.\d+)', line)
+            if line.find("Alpha  occ.") > -1:
+                m = re.findall("(-?\d+\.\d+)", line)
                 if float(m[-1]) > homo:
                     homo = float(m[-1])
-            elif line.find('Alpha virt.') > -1:
-                m = re.findall('(-?\d+\.\d+)', line)
+            elif line.find("Alpha virt.") > -1:
+                m = re.findall("(-?\d+\.\d+)", line)
                 lumo = float(m[0])
                 break
 
@@ -497,8 +639,8 @@ class G16Log:
 class XtbLog:
     def __init__(self, file):
         # default values for thermochemical calculations
-        if '.log' not in file:
-            raise TypeError('A xtb .log file must be provided')
+        if ".log" not in file:
+            raise TypeError("A xtb .log file must be provided")
 
         self.file = file
         self.name = os.path.basename(file)
@@ -506,7 +648,7 @@ class XtbLog:
         self.GetTermination()
         if not self.termination:
             pass
-            #self.GetError()
+            # self.GetError()
         else:
             try:
                 self.GetFreq()
@@ -516,8 +658,11 @@ class XtbLog:
 
     def GetTermination(self):
         with open(self.file) as fh:
-            for line in (fh):
-                if line.find("normal termination") > -1 and not line.find("abnormal termination") > -1:
+            for line in fh:
+                if (
+                    line.find("normal termination") > -1
+                    and not line.find("abnormal termination") > -1
+                ):
                     self.termination = True
                     return True
             self.termination = False
@@ -528,36 +673,38 @@ class XtbLog:
 
         txt = [x.strip() for x in txt]
         for i, line in enumerate(txt):
-            if line.find('Frequency Printout') > -1:
-                txt = txt[i + 3:]
+            if line.find("Frequency Printout") > -1:
+                txt = txt[i + 3 :]
                 break
 
         waveNums = []
         for i, line in enumerate(txt):
-            if line.find('reduced masses') > -1:
-                txt = txt[i + 1:]
+            if line.find("reduced masses") > -1:
+                txt = txt[i + 1 :]
                 break
-            m = re.findall('\s+(-?\d+\.\d+)', line)
+            m = re.findall("\s+(-?\d+\.\d+)", line)
             if m:
                 for match in m:
                     waveNums.append(float(match.strip()))
 
         for i, line in enumerate(txt):
-            if line.find('IR intensities') > -1:
-                txt = txt[i + 1:]
+            if line.find("IR intensities") > -1:
+                txt = txt[i + 1 :]
                 break
 
         intensities = []
         for i, line in enumerate(txt):
-            if line.find('Raman intensities') > -1:
-                txt = txt[i + 1:]
+            if line.find("Raman intensities") > -1:
+                txt = txt[i + 1 :]
                 break
-            m = re.findall('\d+:\s+(\d+\.\d+)', line)
+            m = re.findall("\d+:\s+(\d+\.\d+)", line)
             if m:
                 for match in m:
                     intensities.append(float(match))
 
-        waveNums, intensities = list(zip(*[(w, i) for w, i in zip(waveNums, intensities) if w != 0]))
+        waveNums, intensities = list(
+            zip(*[(w, i) for w, i in zip(waveNums, intensities) if w != 0])
+        )
 
         if waveNums and intensities and len(waveNums) == len(intensities):
             self.wavenum = waveNums
@@ -569,10 +716,10 @@ class XtbLog:
 
         txt = [x.strip() for x in txt]
         for i, line in enumerate(txt):
-            m = re.search('TOTAL ENERGY\s+(-?\d+\.\d+)', line)
+            m = re.search("TOTAL ENERGY\s+(-?\d+\.\d+)", line)
             if m:
                 self.E = m[1]
                 continue
-            m = re.search('TOTAL FREE ENERGY\s+(-?\d+\.\d+)', line)
+            m = re.search("TOTAL FREE ENERGY\s+(-?\d+\.\d+)", line)
             if m:
                 self.G = float(m[1])

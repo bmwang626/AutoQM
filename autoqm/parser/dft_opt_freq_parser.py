@@ -402,7 +402,7 @@ def dft_opt_freq_parser(
             except:
                 failed_job["reason"] = "parser1"
             return failed_job, valid_job
-        
+
         if check_connectivity:
             pre_adj = RDKitMol.FromSmiles(smi).GetAdjacencyMatrix()
 

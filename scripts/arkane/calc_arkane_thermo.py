@@ -15,10 +15,15 @@ from rmgpy import constants
 from rmgpy.molecule.element import get_element
 from rmgpy.molecule.molecule import Molecule
 from rmgpy.species import Species
-from utils import (get_lot_and_freq_scale, get_rmg_conformer,
-                   parse_command_line_arguments, xyz_str_to_coords)
+from utils import (
+    get_lot_and_freq_scale,
+    get_rmg_conformer,
+    parse_command_line_arguments,
+    xyz_str_to_coords,
+)
 
 logger = logging.getLogger()
+
 
 def get_rmg_conformer_from_df(
     row,
@@ -41,13 +46,17 @@ def get_rmg_conformer_from_df(
         freq_software=freq_software,
         freq_scale=freq_scale,
     )
-         
+
     multiplicity = row[f"multiplicity"]
     atomic_numbers, coords = xyz_str_to_coords(row[f"std_xyz_str"])
-    mass = (sum([get_element(int(atomic_number)).mass for atomic_number in atomic_numbers])/constants.Na, 'kg')
+    mass = (
+        sum([get_element(int(atomic_number)).mass for atomic_number in atomic_numbers])
+        / constants.Na,
+        "kg",
+    )
     frequencies = ast.literal_eval(row[f"species_dft_frequencies"])
     frequencies = np.array(frequencies)
-    e_electronic = row[f"species_dlpno_sp_hartree"] * 2625500  # hartree to J/mol 
+    e_electronic = row[f"species_dlpno_sp_hartree"] * 2625500  # hartree to J/mol
 
     try:
         rmg_conformer = get_rmg_conformer(
@@ -71,19 +80,22 @@ def get_rmg_conformer_from_df(
 
     return rmg_conformer
 
-def calc_thermo(row,
-                freq_scale,
-                energy_level,
-                freq_level,
-                energy_software,
-                freq_software,
-                scr_dir=None
-                ):
-    smi = row['asmi']
+
+def calc_thermo(
+    row,
+    freq_scale,
+    energy_level,
+    freq_level,
+    energy_software,
+    freq_software,
+    scr_dir=None,
+):
+    smi = row["asmi"]
 
     molecule = Molecule().from_smiles(smi)
 
-    rmg_conformer = get_rmg_conformer_from_df(row=row,
+    rmg_conformer = get_rmg_conformer_from_df(
+        row=row,
         freq_scale=freq_scale,
         energy_level=energy_level,
         freq_level=freq_level,
@@ -105,6 +117,7 @@ def calc_thermo(row,
 
     return thermo_job.species.thermo
 
+
 def main():
     """
     The executable function
@@ -119,19 +132,54 @@ def main():
     freq_software = args.freq_software
     freq_scale = args.freq_scale
 
-    save_path = os.path.join(os.path.dirname(args.csv_path), os.path.basename(args.csv_path).split(".csv")[0] + '_thermos.csv')
+    save_path = os.path.join(
+        os.path.dirname(args.csv_path),
+        os.path.basename(args.csv_path).split(".csv")[0] + "_thermos.csv",
+    )
 
-    columns = ['H298', 'S298', 'Cp300', 'Cp400', 'Cp500', 'Cp600', 'Cp800', 'Cp1000', 'Cp1500']
+    columns = [
+        "H298",
+        "S298",
+        "Cp300",
+        "Cp400",
+        "Cp500",
+        "Cp600",
+        "Cp800",
+        "Cp1000",
+        "Cp1500",
+    ]
     df[columns] = None
 
-    thermos = Parallel(n_jobs=args.n_jobs)(delayed(calc_thermo)(row, freq_scale, energy_level, freq_level, energy_software, freq_software, scr_dir=f"./scratch_thermo_{idx}") for idx, row in df.iterrows())
+    thermos = Parallel(n_jobs=args.n_jobs)(
+        delayed(calc_thermo)(
+            row,
+            freq_scale,
+            energy_level,
+            freq_level,
+            energy_software,
+            freq_software,
+            scr_dir=f"./scratch_thermo_{idx}",
+        )
+        for idx, row in df.iterrows()
+    )
 
     for idx, thermo in enumerate(thermos):
         if thermo is None:
             continue
-        df.loc[idx, columns] = [thermo.H298.value_si, thermo.S298.value_si, thermo.get_heat_capacity(300).value_si, thermo.get_heat_capacity(400).value_si, thermo.get_heat_capacity(500).value_si, thermo.get_heat_capacity(600).value_si, thermo.get_heat_capacity(800).value_si, thermo.get_heat_capacity(1000).value_si, thermo.get_heat_capacity(1500).value_si]
+        df.loc[idx, columns] = [
+            thermo.H298.value_si,
+            thermo.S298.value_si,
+            thermo.get_heat_capacity(300).value_si,
+            thermo.get_heat_capacity(400).value_si,
+            thermo.get_heat_capacity(500).value_si,
+            thermo.get_heat_capacity(600).value_si,
+            thermo.get_heat_capacity(800).value_si,
+            thermo.get_heat_capacity(1000).value_si,
+            thermo.get_heat_capacity(1500).value_si,
+        ]
 
     df.to_csv(save_path, index=False)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
