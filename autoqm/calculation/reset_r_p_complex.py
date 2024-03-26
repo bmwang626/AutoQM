@@ -7,8 +7,8 @@ from rdmc.mol import RDKitMol
 from rdmc.forcefield import OpenBabelFF
 from rdmc.ts import get_formed_and_broken_bonds
 
-from radical_workflow.calculation.semiempirical_calculation import run_xtb_opt
-from radical_workflow.calculation.utils import mol2charge, mol2mult, mol2xyz
+from autoqm.calculation.semiempirical_calculation import run_xtb_opt
+from autoqm.calculation.utils import mol2charge, mol2mult, mol2xyz
 
 
 def reset_r_p_complex_semi_opt(

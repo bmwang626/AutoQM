@@ -23,7 +23,7 @@ export PATH=$RDMC_PATH:$PATH
 export PYTHONPATH=$PYTHONPATH:$RDMC_PATH
 
 #QMD
-QMD_PATH=/home/gridsan/groups/RMG/Software/radical_workflow
+QMD_PATH=/home/gridsan/groups/RMG/Software/autoqm
 export PYTHONPATH=$PYTHONPATH:$QMD_PATH
 
 #openmpi

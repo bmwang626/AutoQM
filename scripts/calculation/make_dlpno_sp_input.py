@@ -5,7 +5,7 @@ import pandas as pd
 import rdkit.Chem as Chem
 import subprocess
 
-from radical_workflow.calculation.wft_calculation import generate_dlpno_sp_input
+from autoqm.calculation.wft_calculation import generate_dlpno_sp_input
 
 parser = ArgumentParser()
 parser.add_argument('--input_smiles', type=str, required=True,

@@ -22,7 +22,7 @@ COSMOTHERM_PATH=/home/gridsan/groups/RMG/Software/COSMOtherm2023
 COSMO_DATABASE_PATH=/home/gridsan/groups/RMG/COSMO_database/COSMObase2023
 
 #QMD
-QMD_PATH=/home/gridsan/groups/RMG/Software/radical_workflow
+QMD_PATH=/home/gridsan/groups/RMG/Software/autoqm
 export PYTHONPATH=$QMD_PATH:$PYTHONPATH
 
 input_smiles=inputs/ts_nfho_dft_opt_freq_round_1_smi_for_rp_calc.csv

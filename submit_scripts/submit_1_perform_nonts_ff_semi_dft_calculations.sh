@@ -32,7 +32,7 @@ source /home/gridsan/groups/RMG/Software/gaussian/g16/bsd/g16.profile
 export GAUSS_SCRDIR=""
 
 #QMD
-QMD_PATH=/home/gridsan/groups/RMG/Software/radical_workflow
+QMD_PATH=/home/gridsan/groups/RMG/Software/autoqm
 export PATH=$PATH:$QMD_PATH
 export PYTHONPATH=$PYTHONPATH:$QMD_PATH
 

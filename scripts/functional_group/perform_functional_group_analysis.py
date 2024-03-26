@@ -4,7 +4,7 @@ import pandas as pd
 from argparse import ArgumentParser
 from joblib import Parallel, delayed
 
-from radical_workflow.functional_group.analysis import functional_group_analysis
+from autoqm.functional_group.analysis import functional_group_analysis
 
 parser = ArgumentParser()
 parser.add_argument('--input_smiles', type=str, required=True,

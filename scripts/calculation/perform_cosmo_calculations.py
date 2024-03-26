@@ -8,8 +8,8 @@ import pandas as pd
 
 from rdkit import Chem
 
-from radical_workflow.calculation.cosmo_calculation import cosmo_calc
-from radical_workflow.calculation.utils import REPLACE_LETTER
+from autoqm.calculation.cosmo_calculation import cosmo_calc
+from autoqm.calculation.utils import REPLACE_LETTER
 
 parser = ArgumentParser()
 parser.add_argument('--input_smiles', type=str, required=True,

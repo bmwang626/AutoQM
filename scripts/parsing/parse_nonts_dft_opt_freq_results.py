@@ -7,7 +7,7 @@ from tqdm import tqdm
 from joblib import Parallel, delayed
 from argparse import ArgumentParser
 
-from radical_workflow.parser.dft_opt_freq_parser import dft_opt_freq_parser
+from autoqm.parser.dft_opt_freq_parser import dft_opt_freq_parser
 
 parser = ArgumentParser()
 parser.add_argument(

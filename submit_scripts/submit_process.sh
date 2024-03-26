@@ -6,7 +6,7 @@
 conda activate rdmc_env
 
 #QMD
-QMD_PATH=/home/gridsan/groups/RMG/Software/radical_workflow
+QMD_PATH=/home/gridsan/groups/RMG/Software/autoqm
 input_path=<path to the csv file>
 output_name=<output name>
 

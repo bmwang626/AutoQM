@@ -6,8 +6,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import pandas as pd
-from radical_workflow.calculation.dft_calculation import dft_scf_qm_descriptor
-from radical_workflow.calculation.utils import (add_qm_des_arguments,
+from autoqm.calculation.dft_calculation import dft_scf_qm_descriptor
+from autoqm.calculation.utils import (add_qm_des_arguments,
                                                 add_shared_arguments)
 from rdkit import Chem
 

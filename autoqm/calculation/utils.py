@@ -13,7 +13,7 @@ import pandas as pd
 
 from rdkit import Chem
 
-from radical_workflow.calculation.utils import REPLACE_LETTER
+from autoqm.calculation.utils import REPLACE_LETTER
 
 REPLACE_LETTER = {"(": "_", ")": "_", "'": "_"}
 

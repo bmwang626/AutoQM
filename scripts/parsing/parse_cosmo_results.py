@@ -4,7 +4,7 @@ import pickle as pkl
 import pandas as pd
 from joblib import Parallel, delayed
 from tqdm import tqdm
-from radical_workflow.parser.cosmo_parser import cosmo_parser
+from autoqm.parser.cosmo_parser import cosmo_parser
 
 
 def main(input_smiles_path, output_file_name, n_jobs, solvent_path, output_dir):

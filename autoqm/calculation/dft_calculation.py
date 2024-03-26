@@ -13,7 +13,7 @@ from pathlib import Path
 from .file_parser import mol2xyz, xyz2com, write_mol_to_sdf
 from .grab_QM_descriptors import read_log
 from .log_parser import G16Log
-from radical_workflow.parser.dft_opt_freq_parser import read_log_file, check_job_status
+from autoqm.parser.dft_opt_freq_parser import read_log_file, check_job_status
 
 
 def dft_scf_qm_descriptor(

@@ -18,7 +18,7 @@ export PATH=$RDMC_PATH:$PATH
 export PYTHONPATH=$RDMC_PATH:$PYTHONPATH
 
 #QMD
-QMD_PATH=/home/gridsan/groups/RMG/Software/QM_descriptors_calculation-radical_workflow
+QMD_PATH=/home/gridsan/groups/RMG/Software/QM_descriptors_calculation-autoqm
 export PYTHONPATH=$QMD_PATH:$PYTHONPATH
 
 #input

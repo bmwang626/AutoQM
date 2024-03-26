@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 
 from rdmc.mol import RDKitMol
 
-from radical_workflow.calculation.dft_calculation import dft_scf_opt
+from autoqm.calculation.dft_calculation import dft_scf_opt
 
 parser = ArgumentParser()
 parser.add_argument(

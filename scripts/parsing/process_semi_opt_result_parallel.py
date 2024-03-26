@@ -8,7 +8,7 @@ import pickle as pkl
 from tqdm import tqdm
 from joblib import Parallel, delayed
 
-from radical_workflow.parser.semiempirical_opt_parser import semiempirical_opt_parser
+from autoqm.parser.semiempirical_opt_parser import semiempirical_opt_parser
 
 input_smiles_path = sys.argv[1]
 output_file_name = sys.argv[2]
