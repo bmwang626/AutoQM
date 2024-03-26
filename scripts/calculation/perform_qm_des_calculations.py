@@ -51,13 +51,13 @@ def main(args):
     submit_dir = Path.cwd().absolute()
     output_dir = submit_dir / "output"
     output_dir.mkdir(exist_ok=True)
-    qm_des_dir = output_dir / "QM_des_calc"
-    qm_des_dir.mkdir(exist_ok=True)
+    calc_dir = output_dir / "QM_des_calc"
+    calc_dir.mkdir(exist_ok=True)
 
     logging.info("Making inputs and outputs dir...")
-    inputs_dir = qm_des_dir / "inputs"
+    inputs_dir = calc_dir / "inputs"
     inputs_dir.mkdir(exist_ok=True)
-    outputs_dir = qm_des_dir / "outputs"
+    outputs_dir = calc_dir / "outputs"
     outputs_dir.mkdir(exist_ok=True)
 
     logging.info("Making helper input files...")
@@ -104,7 +104,7 @@ def main(args):
     logging.info("Starting QM descriptor calculations...")
     for subinputs_dir in inputs_dir.iterdir():
         job_id_div_1000 = int(subinputs_dir.stem.split("_")[1])
-        suboutputs_dir = output_dir / f"outputs_{job_id_div_1000}"
+        suboutputs_dir = outputs_dir / f"outputs_{job_id_div_1000}"
         for job_input_path in subinputs_dir.iterdir():
             if job_input_path.suffix == ".in":
                 job_id = int(job_input_path.stem)
