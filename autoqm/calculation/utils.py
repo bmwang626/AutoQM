@@ -98,14 +98,20 @@ def add_dlpno_arguments(parser):
     return parser
 
 
-def add_qm_des_arguments(parser):
-    qm_des_parser = parser.add_argument_group("QM descriptor calculation")
-    qm_des_parser.add_argument(
+def add_gaussian_arguments(parser):
+    gaussian_parser = parser.add_argument_group("Gaussian arguments")
+    gaussian_parser.add_argument(
         "--title_card",
         required=True,
         help="level of theory for QM descriptor calculation",
     )
-    qm_des_parser.add_argument(
+    gaussian_parser.add_argument(
         "--G16_path", required=True, help="path to installed Gaussian 16"
+    )
+    gaussian_parser.add_argument(
+        "--n_procs", type=int, required=True, help="number of processors"
+    )
+    gaussian_parser.add_argument(
+        "--job_ram", required=True, help="job memory"
     )
     return parser

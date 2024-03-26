@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-# LLsub ./submit_5_perform_qm_des_calculations.sh [8,48,1] -q spot-xeon-p8
+# LLsub ./submit_5_perform_qm_des_calculations.sh [8,1,48] -q spot-xeon-p8
 # squeue -p spot-xeon-p8
 # watch LLloadSpot
 
@@ -50,7 +50,9 @@ python $AUTOQM_PATH/scripts/calculation/perform_qm_des_calculations.py \
     --task_id $LLSUB_RANK \
     --num_tasks $LLSUB_SIZE \
     --G16_path $g16root/g16 \
-    --title_card "$title_card"
+    --title_card "$title_card" \
+    --n_procs 48 \
+    --job_ram "120gb" \
 
 rm -rf $scratch_dir
 

@@ -2,12 +2,14 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
+import shutil
 from argparse import ArgumentParser
 from pathlib import Path
 
 import pandas as pd
 from autoqm.calculation.dft_calculation import dft_scf_qm_descriptor
-from autoqm.calculation.utils import add_qm_des_arguments, add_shared_arguments
+from autoqm.calculation.utils import (add_gaussian_arguments,
+                                      add_shared_arguments)
 from rdkit import Chem
 
 logging.basicConfig(level=logging.INFO)
@@ -81,6 +83,7 @@ def main(args):
         job_tmp_output_dir = suboutputs_dir / f"{job_id}"
 
         if job_log_path.exists():
+            shutil.rmtree(job_tmp_output_dir)
             continue
 
         if job_input_path.exists():
@@ -96,9 +99,8 @@ def main(args):
             f.write("")
 
     logging.info("Starting QM descriptor calculations...")
-    for subinputs_folder in inputs_dir.iterdir():
-        job_id_div_1000 = int(subinputs_folder.split("_")[1])
-        subinputs_dir = inputs_dir / subinputs_folder
+    for subinputs_dir in inputs_dir.iterdir():
+        job_id_div_1000 = int(subinputs_dir.stem.split("_")[1])
         suboutputs_dir = output_dir / f"outputs_{job_id_div_1000}"
         for job_input_file in subinputs_dir.iterdir():
             if job_input_file.endswith(".in"):
@@ -132,7 +134,7 @@ def main(args):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser = add_shared_arguments(parser)
-    parser = add_qm_des_arguments(parser)
+    parser = add_gaussian_arguments(parser)
     args = parser.parse_args()
     main(args)
     logging.info("DONE!")
