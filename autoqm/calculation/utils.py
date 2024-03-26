@@ -47,9 +47,9 @@ def add_cosmo_arguments(parser):
                         help='temperatures used for COSMO calculation')
     parser.add_argument('--COSMO_input_pure_solvents', required=True,
                         help='input file containing pure solvents used for COSMO calculation.')
-    parser.add_argument('--COSMOtherm_path', required=True
+    parser.add_argument('--COSMOtherm_path', required=True,
                         help='path to COSMOthermo')
-    parser.add_argument('--COSMO_database_path', required=True
+    parser.add_argument('--COSMO_database_path', required=True,
                         help='path to COSMO_database')
 
 def add_xtb_arguments(parser):
