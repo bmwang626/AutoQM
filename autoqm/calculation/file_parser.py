@@ -56,11 +56,8 @@ def xyz2mol(xyz, smiles):
     return mol, comments
 
 
-def xyz2com(xyz, head, footer, comfile, charge=0, mult=1):
-    title = xyz.splitlines()[1]
-    if not title:
-        title = "Title"
-    coords = [x + "\n" for x in xyz.splitlines()[2:]]
+def xyz2com(xyz, head, footer, comfile, charge=0, mult=1, title="Title"):
+    coords = [x + "\n" for x in xyz.splitlines()]
 
     with open(comfile, "w") as com:
         com.write(head)
@@ -72,33 +69,6 @@ def xyz2com(xyz, head, footer, comfile, charge=0, mult=1):
         com.write("\n")
         com.write(footer)
         com.write("\n\n\n")
-
-
-def NBO2csv(out, acsv):
-    # TODO bcsv
-    with open(out, "r") as outhandle:
-        txt = outhandle.readlines()
-
-    txt = [x.strip() for x in txt]
-    df, txt = _GetNPACharge(txt)
-
-    return df
-
-
-def _GetNPACharge(txt):
-    columns = "Atom No    Charge        Core      Valence    Rydberg      Total"
-    start_id = txt.index(columns) + 2
-    end_id = start_id + txt[start_id:].index(
-        "===================================================================="
-    )
-
-    NPACharge = txt[start_id:end_id]
-
-    NPACharge = [x.split() for x in NPACharge]
-
-    df = pd.DataFrame(NPACharge, columns=columns.split())
-
-    return df, txt[end_id:]
 
 
 def write_mol_to_sdf(mol, path, confIds=[0], confEns=None):

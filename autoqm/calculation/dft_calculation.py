@@ -30,6 +30,8 @@ def dft_scf_qm_descriptor(
     subinputs_dir,
     suboutputs_dir,
 ):
+    
+    current_dir = Path.cwd()
 
     job_scratch_dir = scratch_dir / f"{job_id}"
     job_scratch_dir.mkdir()
@@ -47,9 +49,10 @@ def dft_scf_qm_descriptor(
     )
 
     job_tmp_output_dir = suboutputs_dir / f"{job_id}"
-    comfile = job_tmp_output_dir / f"{job_id}.gjf"
-    logfile = job_tmp_output_dir / f"{job_id}.log"
-    outfile = job_tmp_output_dir / f"{job_id}.out"
+    os.chdir(job_tmp_output_dir)
+    comfile = Path(f"{job_id}.gjf").absolute()
+    logfile = Path(f"{job_id}.log").absolute()
+    outfile = Path(f"{job_id}.out").absolute()
 
     xyz2com(
         job_xyz,
@@ -74,8 +77,19 @@ def dft_scf_qm_descriptor(
         f"Optimization of {job_id} with {title_card} took {end_time - start_time} seconds."
     )
 
-    shutil.copyfile(logfile, suboutputs_dir / f"{job_id}.log")
+    with open(logfile, "r") as f:
+        lines = f.readlines()[-10:]
+        if any("Normal termination" in line for line in lines):
+            logging.info(f"Normal temrination for {job_id}.")
+            shutil.copyfile(logfile, suboutputs_dir / f"{job_id}.log")
 
+        else:
+            
+            logging.error(f"Abnormal temrination for {logfile}:")
+            for line in lines:
+                logging.error(line)
+
+    os.chdir(current_dir)
     job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
     job_tmp_input_path.unlink()
     shutil.rmtree(job_scratch_dir)

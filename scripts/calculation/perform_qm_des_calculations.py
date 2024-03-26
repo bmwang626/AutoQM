@@ -70,8 +70,6 @@ def main(args):
             logging.info(f"Mol id: {job_id} not in xyz dict")
             continue
 
-        logging.info(f"Mol id: {job_id} in xyz dict")
-
         job_id_div_1000 = job_id // 1000
         subinputs_dir = inputs_dir / f"inputs_{job_id_div_1000}"
         suboutputs_dir = outputs_dir / f"outputs_{job_id_div_1000}"
@@ -97,7 +95,7 @@ def main(args):
 
         subinputs_dir.mkdir(exist_ok=True)
 
-        logging.info(f"Creating input file for {job_id}...")
+        logging.info(f"Creating input file for {job_id}: {job_input_path}")
         with open(job_input_path, "w") as f:
             f.write("")
 
@@ -116,7 +114,16 @@ def main(args):
                     continue
 
                 logging.info(f"Starting calculation for {job_id}...")
-                job_input_path.rename(job_tmp_input_path)
+
+                try:
+                    job_input_path.rename(job_tmp_input_path)
+                except FileNotFoundError:
+                    logging.error(f"Cannot find input file {job_input_path}. Assuming being calculated by another worker. Skipping...")
+                    continue
+
+                if job_tmp_output_dir.exists():
+                    shutil.rmtree(job_tmp_output_dir)
+
                 job_tmp_output_dir.mkdir()
 
                 charge = id_to_charge_dict[job_id]
