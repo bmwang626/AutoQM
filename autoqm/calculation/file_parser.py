@@ -62,7 +62,7 @@ def xyz2com(xyz, head, footer, comfile, charge=0, mult=1, title="Title"):
 
     for coord in coords:
         symbol, x, y, z = coord.split()
-        new_coords.append("{} {:.6f} {:.6f} {:.6f}".format(symbol, float(x), float(y), float(z)))
+        new_coords.append("{} {:.6f} {:.6f} {:.6f}\n".format(symbol, float(x), float(y), float(z)))
 
     with open(comfile, "w") as com:
         com.write(head)
