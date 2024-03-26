@@ -72,7 +72,7 @@ def main(args):
 
         job_id_div_1000 = job_id // 1000
         subinputs_dir = inputs_dir / f"inputs_{job_id_div_1000}"
-        suboutputs_dir = outputs_dir // f"outputs_{job_id_div_1000}"
+        suboutputs_dir = outputs_dir / f"outputs_{job_id_div_1000}"
         suboutputs_dir.mkdir(exist_ok=True)
 
         job_input_path = subinputs_dir / f"{job_id}.in"
@@ -98,11 +98,11 @@ def main(args):
     logging.info("Starting QM descriptor calculations...")
     for subinputs_folder in inputs_dir.iterdir():
         job_id_div_1000 = int(subinputs_folder.split("_")[1])
-        subinputs_dir = inputs_dir // subinputs_folder
-        suboutputs_dir = output_dir // f"outputs_{job_id_div_1000}"
+        subinputs_dir = inputs_dir / subinputs_folder
+        suboutputs_dir = output_dir / f"outputs_{job_id_div_1000}"
         for job_input_file in subinputs_dir.iterdir():
             if job_input_file.endswith(".in"):
-                job_input_path = subinputs_dir // job_input_file
+                job_input_path = subinputs_dir / job_input_file
                 job_id = int(job_input_file.split(".in")[0])
                 job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
 
