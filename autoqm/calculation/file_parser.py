@@ -70,7 +70,7 @@ def xyz2com(xyz, head, footer, comfile, charge=0, mult=1, title="Title"):
         com.write(title + "\n")
         com.write("\n")
         com.write("{} {}\n".format(charge, mult))
-        com.writelines(coords)
+        com.writelines(new_coords)
         com.write("\n")
         com.write(footer)
         com.write("\n\n\n")
