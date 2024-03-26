@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 def main(args):
     input_df = pd.read_csv(args.input_file)
 
-    job_ids = input_df[args.id].values
+    job_ids = input_df[args.id_column].values
     job_xyzs = input_df[args.xyz_column].str.split("\n\n").str[1].values
     job_smis = input_df[args.smiles_column].values
 
