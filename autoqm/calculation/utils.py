@@ -83,9 +83,6 @@ def add_cosmo_arguments(parser):
 def add_xtb_arguments(parser):
     parser.add_argument("--XTB_path", required=True, help="path to installed XTB")
     parser.add_argument(
-        "--G16_path", required=True, help="path to installed Gaussian 16"
-    )
-    parser.add_argument(
         "--RDMC_path",
         required=True,
         help="path to RDMC to use xtb-gaussian script for xtb optimization calculation.",
@@ -93,7 +90,7 @@ def add_xtb_arguments(parser):
     return parser
 
 
-def add_dlpno_arguments(parser):
+def add_orca_arguments(parser):
     parser.add_argument("--ORCA_path", required=True, help="path to ORCA")
     return parser
 
@@ -106,7 +103,7 @@ def add_gaussian_arguments(parser):
         help="level of theory for QM descriptor calculation",
     )
     gaussian_parser.add_argument(
-        "--G16_path", required=True, help="path to installed Gaussian 16"
+        "--g16_path", required=True, help="path to installed Gaussian 16"
     )
     gaussian_parser.add_argument(
         "--n_procs", type=int, required=True, help="number of processors"

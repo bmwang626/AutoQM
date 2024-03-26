@@ -83,7 +83,10 @@ def main(args):
         job_tmp_output_dir = suboutputs_dir / f"{job_id}"
 
         if job_log_path.exists():
-            shutil.rmtree(job_tmp_output_dir)
+
+            if job_tmp_output_dir.exists():
+                shutil.rmtree(job_tmp_output_dir)
+
             continue
 
         if job_input_path.exists():
@@ -102,10 +105,9 @@ def main(args):
     for subinputs_dir in inputs_dir.iterdir():
         job_id_div_1000 = int(subinputs_dir.stem.split("_")[1])
         suboutputs_dir = output_dir / f"outputs_{job_id_div_1000}"
-        for job_input_file in subinputs_dir.iterdir():
-            if job_input_file.endswith(".in"):
-                job_input_path = subinputs_dir / job_input_file
-                job_id = int(job_input_file.split(".in")[0])
+        for job_input_path in subinputs_dir.iterdir():
+            if job_input_path.suffix == ".in":
+                job_id = int(job_input_path.stem)
                 job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
 
                 if job_tmp_input_path.exists():
