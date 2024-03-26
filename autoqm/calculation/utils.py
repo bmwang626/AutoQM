@@ -23,57 +23,57 @@ def mol2mult(mol):
 
 def add_shared_arguments(parser):
     input_parser = parser.add_argument_group('Input')
-    input_parser.add_argument('--input_file', type=str, required=True,
+    input_parser.add_argument('--input_file', required=True,
                         help='input CSV file containing the species information')
-    input_parser.add_argument('--id_column', type=str, default='id',
+    input_parser.add_argument('--id_column', required=True,
                         help='column name for the species id')
-    input_parser.add_argument('--smiles_column', type=str, default='smiles',
+    input_parser.add_argument('--smiles_column', required=True,
                         help='column name for the SMILES string')
-    input_parser.add_argument('--xyz_column', type=str, default=None,
+    input_parser.add_argument('--xyz_column', required=True,
                         help='column name for the xyz string')
     
-    parser.add_argument('--scratch_dir', type=str, required=True,
+    parser.add_argument('--scratch_dir', required=True,
                         help='scfratch directory')
-    parser.add_argument('--xyz_DFT_opt_dict', type=str, default=None,
+    parser.add_argument('--xyz_DFT_opt_dict', default=None,
                         help='pickle file containing a dictionary to map between the mol_id and DFT-optimized xyz for following calculations',)
     parser.add_argument('--task_id', type=int, default=0,
                         help='task id for the calculation',)
     parser.add_argument('--num_tasks', type=int, default=1,
                         help='number of tasks for the calculation',)
-    parser.add_argument('--RDMC_path', type=str, required=False, default=None,
-                        help='path to RDMC to use xtb-gaussian script for xtb optimization calculation.')
     return parser
 
 def add_cosmo_arguments(parser):
     # Turbomole and COSMO calculation
-    parser.add_argument('--COSMO_folder', type=str, default='COSMO_calc',
+    parser.add_argument('--COSMO_folder', default='COSMO_calc',
                         help='folder for COSMO calculation',)
-    parser.add_argument('--COSMO_temperatures', type=str, nargs="+", required=False, default=['297.15', '298.15', '299.15'],
+    parser.add_argument('--COSMO_temperatures', nargs="+", required=False, default=['297.15', '298.15', '299.15'],
                         help='temperatures used for COSMO calculation')
-    parser.add_argument('--COSMO_input_pure_solvents', type=str, required=False, default='common_solvent_list_final.csv',
+    parser.add_argument('--COSMO_input_pure_solvents', required=False, default='common_solvent_list_final.csv',
                         help='input file containing pure solvents used for COSMO calculation.')
-    parser.add_argument('--COSMOtherm_path', type=str, required=False, default=None,
+    parser.add_argument('--COSMOtherm_path', required=False, default=None,
                         help='path to COSMOthermo')
-    parser.add_argument('--COSMO_database_path', type=str, required=False, default=None,
+    parser.add_argument('--COSMO_database_path', required=False, default=None,
                         help='path to COSMO_database')
 
 def add_xtb_arguments(parser):
-    parser.add_argument('--XTB_path', type=str, required=False, default=None,
+    parser.add_argument('--XTB_path', required=True,
                         help='path to installed XTB')
-    parser.add_argument('--G16_path', type=str, required=False, default=None,
+    parser.add_argument('--G16_path', required=True,
                         help='path to installed Gaussian 16')
+    parser.add_argument('--RDMC_path', required=True,
+                        help='path to RDMC to use xtb-gaussian script for xtb optimization calculation.')
     return parser
 
 def add_dlpno_arguments(parser):
-    parser.add_argument('--ORCA_path', type=str, required=False, default=None,
+    parser.add_argument('--ORCA_path', required=True,
                         help='path to ORCA')
     return parser
 
 def add_qm_des_arguments(parser):
     qm_des_parser = parser.add_argument_group('QM descriptor calculation')
-    qm_des_parser.add_argument('--title_card', type=str, required=True,
+    qm_des_parser.add_argument('--title_card', required=True,
                     help='level of theory for QM descriptor calculation')
-    qm_des_parser.add_argument('--G16_path', type=str, required=True,
+    qm_des_parser.add_argument('--G16_path', required=True,
                     help='path to installed Gaussian 16')
     return parser
 
