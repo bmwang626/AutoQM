@@ -30,10 +30,16 @@ def mol2mult(mol):
     return num_radical_elec + 1
 
 def add_shared_arguments(parser):
-    parser.add_argument('--input_smiles', type=str, required=True,
-                        help='input smiles included in a .csv file')
-    parser.add_argument('--output_folder', type=str, default='output',
-                        help='output folder name')
+    input_parser = parser.add_argument_group('Input')
+    input_parser.add_argument('--input_file', type=str, required=True,
+                        help='input CSV file containing the species information')
+    input_parser.add_argument('--id_column', type=str, default='id',
+                        help='column name for the species id')
+    input_parser.add_argument('--smiles_column', type=str, default='smiles',
+                        help='column name for the SMILES string')
+    input_parser.add_argument('--xyz_column', type=str, default=None,
+                        help='column name for the xyz string')
+    
     parser.add_argument('--scratch_dir', type=str, required=True,
                         help='scfratch directory')
     parser.add_argument('--xyz_DFT_opt_dict', type=str, default=None,
@@ -63,7 +69,7 @@ def add_xtb_arguments(parser):
     parser.add_argument('--XTB_path', type=str, required=False, default=None,
                         help='path to installed XTB')
     parser.add_argument('--G16_path', type=str, required=False, default=None,
-                    help='path to installed Gaussian 16')
+                        help='path to installed Gaussian 16')
     return parser
 
 def add_dlpno_arguments(parser):
@@ -72,8 +78,12 @@ def add_dlpno_arguments(parser):
     return parser
 
 def add_qm_des_arguments(parser):
-    parser.add_argument('--G16_path', type=str, required=False, default=None,
+    qm_des_parser = parser.add_argument_group('QM descriptor calculation')
+    qm_des_parser.add_argument('--title_card', type=str, required=True,
+                    help='level of theory for QM descriptor calculation')
+    qm_des_parser.add_argument('--G16_path', type=str, required=True,
                     help='path to installed Gaussian 16')
+    return parser
 
 
 
