@@ -57,7 +57,12 @@ def xyz2mol(xyz, smiles):
 
 
 def xyz2com(xyz, head, footer, comfile, charge=0, mult=1, title="Title"):
-    coords = [x + "\n" for x in xyz.splitlines()]
+    coords = [x for x in xyz.splitlines()]
+    new_coords = []
+
+    for coord in coords:
+        symbol, x, y, z = coord.split()
+        new_coords.append("{} {:.6f} {:.6f} {:.6f}".format(symbol, float(x), float(y), float(z)))
 
     with open(comfile, "w") as com:
         com.write(head)
