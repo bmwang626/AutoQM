@@ -71,7 +71,7 @@ def main(args):
         logging.info(f"Mol id: {job_id} in xyz dict")
 
         job_id_div_1000 = job_id // 1000
-        subinputs_dir = inputs_dir // f"inputs_{job_id_div_1000}"
+        subinputs_dir = inputs_dir / f"inputs_{job_id_div_1000}"
         suboutputs_dir = outputs_dir // f"outputs_{job_id_div_1000}"
         suboutputs_dir.mkdir(exist_ok=True)
 
