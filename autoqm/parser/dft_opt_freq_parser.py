@@ -6,7 +6,7 @@ import re
 import numpy as np
 
 from rdmc.mol import RDKitMol
-from rdmc.external.gaussian import GaussianLog
+from rdmc.external.logparser.gaussian import GaussianLog
 
 from .utils import make_xyz_str
 
