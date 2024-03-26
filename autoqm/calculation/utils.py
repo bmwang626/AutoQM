@@ -35,14 +35,14 @@ def add_shared_arguments(parser):
     input_parser.add_argument(
         "--xyz_column", required=True, help="column name for the xyz string"
     )
-
-    parser.add_argument("--scratch_dir", required=True, help="scfratch directory")
-    parser.add_argument(
+    input_parser.add_argument(
         "--xyz_DFT_opt_dict",
         default=None,
         type=Path,
         help="pickle file containing a dictionary to map between the mol_id and DFT-optimized xyz for following calculations",
     )
+
+    parser.add_argument("--scratch_dir", required=True, type=Path, help="scfratch directory")
     parser.add_argument(
         "--task_id",
         type=int,
