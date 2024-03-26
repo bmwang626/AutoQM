@@ -48,7 +48,9 @@ def main(args):
 
     submit_dir = Path.cwd().absolute()
     output_dir = submit_dir / "output"
+    output_dir.mkdir(exist_ok=True)
     qm_des_dir = output_dir / "QM_des_calc"
+    qm_des_dir.mkdir(exist_ok=True)
 
     logging.info("Making inputs and outputs dir...")
     inputs_dir = qm_des_dir / "inputs"
