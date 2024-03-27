@@ -39,7 +39,7 @@ input_file="/home/gridsan/hwpang/qmdata_shared/qm_des_hwpang_shihcheng_oscar/inp
 smiles_column="asmi"
 xyz_column="xyz_str"
 id_column="job_id"
-template_file=$AUTOQM_PATH/templates/qm_des.py
+template_file=$AUTOQM_PATH/templates/qm_des.txt
 
 python $AUTOQM_PATH/scripts/calculation/perform_qm_des_calculations.py \
     --input_file $input_file \

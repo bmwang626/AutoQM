@@ -6,7 +6,7 @@
 NMR
 
 {charge} {mult}
-{job_xyz}
+{xyz_str}
 
 --Link1--
 %chk={job_id}.chk
