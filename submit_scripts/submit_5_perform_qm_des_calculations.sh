@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-# LLsub ./submit_5_perform_qm_des_calculations.sh [8,1,48] -q spot-xeon-p8
+# LLsub ./submit_5_perform_qm_des_calculations.sh [8,2,24] -q spot-xeon-p8
 # squeue -p spot-xeon-p8
 # watch LLloadSpot
 
