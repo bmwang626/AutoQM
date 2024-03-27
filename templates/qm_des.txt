@@ -1,6 +1,6 @@
 %chk={job_id}.chk
-%nprocshared=20
-%mem=50gb
+%nprocshared=15
+%mem=60gb
 #P wb97xd/def2svp nmr=GIAO scf=(maxcycle=128, xqc) iop(7/33=1) iop(2/9=2000)
 
 NMR
@@ -10,8 +10,8 @@ NMR
 
 --Link1--
 %chk={job_id}.chk
-%nprocshared=20
-%mem=50gb
+%nprocshared=15
+%mem=60gb
 #P wb97xd/def2svp scf=(maxcycle=128, xqc) pop=(full,mbs,hirshfeld,nbo6read) iop(7/33=1) iop(2/9=2000) geom=check
 
 NBO
