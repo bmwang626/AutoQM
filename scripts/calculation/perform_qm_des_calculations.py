@@ -113,8 +113,9 @@ def main(args):
 
         for subinputs_dir in inputs_dir.iterdir():
 
+            count += 1
+
             if (i == 0) and (count % args.num_tasks != args.task_id):
-                count += 1
                 continue
 
             job_id_div_1000 = int(subinputs_dir.stem.split("_")[1])
