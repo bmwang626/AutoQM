@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main(args):
+    logging.info("Reading input file...")
     input_df = pd.read_csv(args.input_file)
 
     job_ids = input_df[args.id_column].values
@@ -48,6 +49,11 @@ def main(args):
             num_radical_elec += atom.GetNumRadicalElectrons()
         id_to_mult_dict[k] = num_radical_elec + 1
 
+    logging.info("Loading templates...")
+    with open(args.template_file, "r") as f:
+        template = f.read()
+
+    logging.info("Setting up directories...")
     submit_dir = Path.cwd().absolute()
     output_dir = submit_dir / "output"
     output_dir.mkdir(exist_ok=True)
@@ -132,17 +138,15 @@ def main(args):
 
                     charge = id_to_charge_dict[job_id]
                     mult = id_to_mult_dict[job_id]
-                    coords = id_to_xyz_dict[job_id]
+                    xyz_str = id_to_xyz_dict[job_id]
 
                     dft_scf_qm_descriptor(
-                        job_id=job_id,
-                        job_xyz=coords,
                         g16_path=args.g16_path,
-                        title_card=args.title_card,
-                        n_procs=args.n_procs,
-                        job_ram=args.job_ram,
+                        job_id=job_id,
+                        xyz_str=xyz_str,
                         charge=charge,
                         mult=mult,
+                        template=template,
                         scratch_dir=args.scratch_dir,
                         subinputs_dir=subinputs_dir,
                         suboutputs_dir=suboutputs_dir,

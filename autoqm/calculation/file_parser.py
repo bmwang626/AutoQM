@@ -101,3 +101,13 @@ def write_mols_to_sdf(mols, path):
 
 def load_sdf(path, removeHs=False, sanitize=False):
     return Chem.SDMolSupplier(path, removeHs=removeHs, sanitize=sanitize)
+
+def clean_xyz_str(xyz_str):
+    coords = [x for x in xyz_str.splitlines()]
+    new_coords = []
+
+    for coord in coords:
+        symbol, x, y, z = coord.split()
+        new_coords.append("{} {:.6f} {:.6f} {:.6f}\n".format(symbol, float(x), float(y), float(z)))
+
+    return "".join(new_coords)

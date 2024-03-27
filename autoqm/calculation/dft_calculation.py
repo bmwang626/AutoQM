@@ -11,21 +11,19 @@ import numpy as np
 import time
 from pathlib import Path
 
-from .file_parser import mol2xyz, xyz2com, write_mol_to_sdf
+from .file_parser import mol2xyz, xyz2com, clean_xyz_str
 from .grab_QM_descriptors import read_log
 from .log_parser import G16Log
 from autoqm.parser.dft_opt_freq_parser import read_log_file, check_job_status
 
 
 def dft_scf_qm_descriptor(
-    job_id,
-    job_xyz,
     g16_path,
-    title_card,
-    n_procs,
-    job_ram,
+    job_id,
+    xyz_str,
     charge,
     mult,
+    template,
     scratch_dir,
     subinputs_dir,
     suboutputs_dir,
@@ -49,25 +47,15 @@ def dft_scf_qm_descriptor(
     os.chdir(job_tmp_output_dir)
 
     g16_command = os.path.join(g16_path, "g16")
-    head = "%chk={}.chk\n%nprocshared={}\n%mem={}\n{}\n".format(
-        job_id,
-        n_procs,
-        job_ram,
-        title_card,
-    )
+    xyz_str = clean_xyz_str(xyz_str)
+    content = template.format(job_id=job_id, charge=charge, mult=mult, xyz_str=xyz_str)
 
     comfile = Path(f"{job_id}.gjf").absolute()
     logfile = Path(f"{job_id}.log").absolute()
     outfile = Path(f"{job_id}.out").absolute()
 
-    xyz2com(
-        job_xyz,
-        head=head,
-        comfile=comfile,
-        charge=charge,
-        mult=mult,
-        footer="$NBO BNDIDX $END",
-    )
+    with open(comfile, "w") as f:
+        f.write(content)
 
     start_time = time.time()
     with open(outfile, "w") as out:
@@ -80,14 +68,23 @@ def dft_scf_qm_descriptor(
     end_time = time.time()
 
     logging.info(
-        f"Optimization of {job_id} with {title_card} took {end_time - start_time} seconds."
+        f"Optimization of {job_id} took {end_time - start_time} seconds."
     )
 
     with open(logfile, "r") as f:
         lines = f.readlines()[-10:]
         if any("Normal termination" in line for line in lines):
-            logging.info(f"Normal temrination for {job_id}.")
-            shutil.copyfile(logfile, suboutputs_dir / f"{job_id}.log")
+
+            new_logfile = suboutputs_dir / f"{job_id}.log"
+            shutil.copyfile(logfile, new_logfile)
+            logging.info(f"Normal temrination for {new_logfile}")
+
+            os.chdir(current_dir)
+            shutil.rmtree(job_tmp_output_dir)
+            job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
+            job_tmp_input_path.unlink()
+            shutil.rmtree(job_scratch_dir)
+            
 
         else:
             
@@ -95,10 +92,10 @@ def dft_scf_qm_descriptor(
             for line in lines:
                 logging.error(line)
 
-    os.chdir(current_dir)
-    job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
-    job_tmp_input_path.unlink()
-    shutil.rmtree(job_scratch_dir)
+            os.chdir(current_dir)
+            job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
+            job_tmp_input_path.unlink()
+            shutil.rmtree(job_scratch_dir)
 
 
 def dft_scf_opt(

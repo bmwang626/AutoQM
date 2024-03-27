@@ -96,9 +96,9 @@ def add_orca_arguments(parser):
 def add_gaussian_arguments(parser):
     gaussian_parser = parser.add_argument_group("Gaussian arguments")
     gaussian_parser.add_argument(
-        "--title_card",
+        "--template_file",
         required=True,
-        help="level of theory for QM descriptor calculation",
+        help="template file for Gaussian input file",
     )
     gaussian_parser.add_argument(
         "--g16_path", required=True, type=Path, help="path to installed Gaussian 16"
