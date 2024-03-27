@@ -128,7 +128,7 @@ def main(args):
                     if job_tmp_input_path.exists():
                         continue
 
-                    logging.info(f"Starting calculation for {job_id}...")
+                    logging.info(f"Starting calculation for {job_input_path}...")
 
                     try:
                         job_input_path.rename(job_tmp_input_path)
