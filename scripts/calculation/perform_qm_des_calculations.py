@@ -78,7 +78,6 @@ def main(args):
         job_id_div_1000 = job_id // 1000
         subinputs_dir = inputs_dir / f"inputs_{job_id_div_1000}"
         suboutputs_dir = outputs_dir / f"outputs_{job_id_div_1000}"
-        suboutputs_dir.mkdir(exist_ok=True)
 
         job_input_path = subinputs_dir / f"{job_id}.in"
         job_log_path = suboutputs_dir / f"{job_id}.log"
@@ -89,6 +88,8 @@ def main(args):
 
             if job_tmp_output_dir.exists():
                 shutil.rmtree(job_tmp_output_dir)
+
+            job_tmp_input_path.unlink()
 
             continue
 
@@ -119,6 +120,8 @@ def main(args):
 
             job_id_div_1000 = int(subinputs_dir.stem.split("_")[1])
             suboutputs_dir = outputs_dir / f"outputs_{job_id_div_1000}"
+            suboutputs_dir.mkdir(exist_ok=True)
+
             for job_input_path in subinputs_dir.iterdir():
                 if job_input_path.suffix == ".in":
 

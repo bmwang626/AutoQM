@@ -33,7 +33,7 @@ def dft_scf_qm_descriptor(
 
     job_scratch_dir = scratch_dir / f"{job_id}"
     job_scratch_dir.mkdir()
-    logging.info(f"Creating scratch directory {job_scratch_dir} for {job_id}.")
+    logging.info(f"Created scratch directory {job_scratch_dir} for {job_id}.")
     subprocess.run(
         f"export GAUSS_SCRDIR={job_scratch_dir.absolute()}", shell=True, check=True
     )
