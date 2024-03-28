@@ -89,7 +89,8 @@ def main(args):
             if job_tmp_output_dir.exists():
                 shutil.rmtree(job_tmp_output_dir)
 
-            job_tmp_input_path.unlink()
+            if job_tmp_input_path.exists():
+                job_tmp_input_path.unlink()
 
             continue
 
