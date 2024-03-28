@@ -92,6 +92,9 @@ def main(args):
             if job_tmp_input_path.exists():
                 job_tmp_input_path.unlink()
 
+            if job_input_path.exists():
+                job_input_path.unlink()
+
             continue
 
         if job_input_path.exists():
