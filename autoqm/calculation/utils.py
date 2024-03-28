@@ -103,10 +103,4 @@ def add_gaussian_arguments(parser):
     gaussian_parser.add_argument(
         "--g16_path", required=True, type=Path, help="path to installed Gaussian 16"
     )
-    gaussian_parser.add_argument(
-        "--n_procs", type=int, required=True, help="number of processors"
-    )
-    gaussian_parser.add_argument(
-        "--job_ram", required=True, help="job memory"
-    )
     return parser

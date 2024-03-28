@@ -35,7 +35,7 @@ export PATH=$nboroot/nbo7/:$nboroot:$nboroot/nbo7/bin:$PATH
 AUTOQM_PATH=/home/gridsan/groups/RMG/Software/AutoQM
 export PYTHONPATH=$AUTOQM_PATH:$PYTHONPATH
 
-input_file="/home/gridsan/hwpang/qmdata_shared/qm_des_hwpang_shihcheng_oscar/input/quantum_green_species_data_24march12b_input.csv"
+input_file="/home/gridsan/groups/qmdata/qm_des_hwpang_shihcheng_oscar/input/quantum_green_species_data_24march12b_input.csv"
 smiles_column="asmi"
 xyz_column="xyz_str"
 id_column="job_id"
@@ -50,9 +50,7 @@ python $AUTOQM_PATH/scripts/calculation/perform_qm_des_calculations.py \
     --task_id $LLSUB_RANK \
     --num_tasks $LLSUB_SIZE \
     --g16_path $g16root/g16 \
-    --template_file $template_file \
-    --n_procs 48 \
-    --job_ram "120gb" \
+    --template_file $template_file
 
 rm -rf $scratch_dir
 

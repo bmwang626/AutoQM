@@ -82,7 +82,7 @@ def main(args):
         suboutputs_dir.mkdir(exist_ok=True)
 
         job_input_path = subinputs_dir / f"{job_id}.in"
-        job_log_path = outputs_dir / f"{job_id}.log"
+        job_log_path = suboutputs_dir / f"{job_id}.log"
         job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
         job_tmp_output_dir = suboutputs_dir / f"{job_id}"
 
