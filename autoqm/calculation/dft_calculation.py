@@ -28,7 +28,7 @@ def dft_scf_qm_descriptor(
     subinputs_dir,
     suboutputs_dir,
 ):
-    
+
     current_dir = Path.cwd()
 
     job_scratch_dir = scratch_dir / f"{job_id}"
@@ -67,9 +67,7 @@ def dft_scf_qm_descriptor(
         )
     end_time = time.time()
 
-    logging.info(
-        f"Optimization of {job_id} took {end_time - start_time} seconds."
-    )
+    logging.info(f"Optimization of {job_id} took {end_time - start_time} seconds.")
 
     with open(logfile, "r") as f:
         lines = f.readlines()[-10:]
@@ -84,10 +82,9 @@ def dft_scf_qm_descriptor(
             job_tmp_input_path = subinputs_dir / f"{job_id}.tmp"
             job_tmp_input_path.unlink()
             shutil.rmtree(job_scratch_dir)
-            
 
         else:
-            
+
             logging.error(f"Abnormal temrination for {logfile}:")
             for line in lines:
                 logging.error(line)
@@ -125,9 +122,7 @@ def dft_scf_opt(
     )
 
     comfile = f"{job_id}.gjf"
-    xyz2com(
-        job_xyz, head=head, comfile=comfile, charge=charge, mult=mult, footer="\n"
-    )
+    xyz2com(job_xyz, head=head, comfile=comfile, charge=charge, mult=mult, footer="\n")
     shutil.copyfile(comfile, os.path.join(suboutputs_dir, f"{job_id}.gjf"))
 
     logfile = f"{job_id}.log"
@@ -176,9 +171,7 @@ def dft_scf_sp(
     )
 
     comfile = job_id + ".gjf"
-    xyz2com(
-        job_xyz, head=head, comfile=comfile, charge=charge, mult=mult, footer="\n"
-    )
+    xyz2com(job_xyz, head=head, comfile=comfile, charge=charge, mult=mult, footer="\n")
 
     logfile = job_id + ".log"
     outfile = job_id + ".out"

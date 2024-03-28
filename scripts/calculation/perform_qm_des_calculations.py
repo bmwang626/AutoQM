@@ -8,8 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 from autoqm.calculation.dft_calculation import dft_scf_qm_descriptor
-from autoqm.calculation.utils import (add_gaussian_arguments,
-                                      add_shared_arguments)
+from autoqm.calculation.utils import add_gaussian_arguments, add_shared_arguments
 from rdkit import Chem
 
 logging.basicConfig(level=logging.INFO)
@@ -134,7 +133,9 @@ def main(args):
                     try:
                         job_input_path.rename(job_tmp_input_path)
                     except FileNotFoundError:
-                        logging.error(f"Cannot find input file {job_input_path}. Assuming being calculated by another worker. Skipping...")
+                        logging.error(
+                            f"Cannot find input file {job_input_path}. Assuming being calculated by another worker. Skipping..."
+                        )
                         continue
 
                     charge = id_to_charge_dict[job_id]

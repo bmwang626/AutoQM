@@ -42,7 +42,9 @@ def add_shared_arguments(parser):
         help="pickle file containing a dictionary to map between the mol_id and DFT-optimized xyz for following calculations",
     )
 
-    parser.add_argument("--scratch_dir", required=True, type=Path, help="scfratch directory")
+    parser.add_argument(
+        "--scratch_dir", required=True, type=Path, help="scfratch directory"
+    )
     parser.add_argument(
         "--task_id",
         type=int,
@@ -78,7 +80,9 @@ def add_cosmo_arguments(parser):
 
 
 def add_xtb_arguments(parser):
-    parser.add_argument("--XTB_path", required=True, type=Path, help="path to installed XTB")
+    parser.add_argument(
+        "--XTB_path", required=True, type=Path, help="path to installed XTB"
+    )
     parser.add_argument(
         "--RDMC_path",
         required=True,
