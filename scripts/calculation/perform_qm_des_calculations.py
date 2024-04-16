@@ -72,7 +72,7 @@ def main(args):
 
     for job_id, job_smi in id_smi_list[args.task_id :: args.num_tasks]:
         if job_id not in id_to_xyz_dict:
-            logging.info(f"Mol id: {job_id} not in xyz dict")
+            logging.info(f"Job id: {job_id} not in xyz dict")
             continue
 
         job_id_div_1000 = job_id // 1000
@@ -87,13 +87,17 @@ def main(args):
         if job_log_path.exists():
 
             if job_tmp_output_dir.exists():
-                shutil.rmtree(job_tmp_output_dir)
+                shutil.rmtree(job_tmp_output_dir, ignore_errors=True)
 
-            if job_tmp_input_path.exists():
+            try:
                 job_tmp_input_path.unlink()
+            except FileNotFoundError:
+                pass
 
-            if job_input_path.exists():
+            try:
                 job_input_path.unlink()
+            except FileNotFoundError:
+                pass
 
             continue
 

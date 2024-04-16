@@ -32,18 +32,25 @@ def dft_scf_qm_descriptor(
     current_dir = Path.cwd()
 
     job_scratch_dir = scratch_dir / f"{job_id}"
+    logging.info(f"Creating scratch directory {job_scratch_dir}...")
     job_scratch_dir.mkdir()
-    logging.info(f"Created scratch directory {job_scratch_dir} for {job_id}.")
+
     subprocess.run(
         f"export GAUSS_SCRDIR={job_scratch_dir.absolute()}", shell=True, check=True
     )
 
     job_tmp_output_dir = suboutputs_dir / f"{job_id}"
     try:
-        shutil.rmtree(job_tmp_output_dir)
+        shutil.rmtree(job_tmp_output_dir, ignore_errors=True)
     except FileNotFoundError:
         pass
-    job_tmp_output_dir.mkdir()
+    try:
+        job_tmp_output_dir.mkdir()
+    except FileExistsError:
+        logging.error(f"{job_tmp_output_dir} exists. Assuming another worker is using it. Skipping...")
+        shutil.rmtree(job_scratch_dir, ignore_errors=True)
+        return 
+
     os.chdir(job_tmp_output_dir)
 
     g16_command = os.path.join(g16_path, "g16")

@@ -27,7 +27,7 @@ def add_shared_arguments(parser):
         help="input CSV file containing the species information",
     )
     input_parser.add_argument(
-        "--id_column", required=True, help="column name for the species id"
+        "--id_column", required=True, help="column name for the species id (needs to be integer)."
     )
     input_parser.add_argument(
         "--smiles_column", required=True, help="column name for the SMILES string"
