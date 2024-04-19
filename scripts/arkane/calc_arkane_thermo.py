@@ -5,6 +5,7 @@ This module computes rate coefficient from .csv file containing energies and fre
 import ast
 import os
 import logging
+from tqdm import tqdm
 
 import numpy as np
 import pandas as pd
@@ -162,15 +163,12 @@ def main():
             freq_software,
             scr_dir=f"./scratch_thermo_{idx}",
         )
-        for idx, row in df.iterrows()
+        for idx, row in tqdm(df.iterrows())
     )
 
-    for idx, thermo in enumerate(thermos):
+    for idx, thermo in tqdm(enumerate(thermos)):
         if thermo is None:
             continue
-
-        if not isinstance(thermo, ThermoData):
-            thermo = thermo.to_thermo_data()
 
         df.loc[idx, columns] = [
             thermo.get_enthalpy(298),
