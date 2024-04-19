@@ -173,8 +173,8 @@ def main():
             thermo = thermo.to_thermo_data()
 
         df.loc[idx, columns] = [
-            thermo.H298.value_si,
-            thermo.S298.value_si,
+            thermo.get_enthalpy(298),
+            thermo.get_entropy(298),
             thermo.get_heat_capacity(300),
             thermo.get_heat_capacity(400),
             thermo.get_heat_capacity(500),
