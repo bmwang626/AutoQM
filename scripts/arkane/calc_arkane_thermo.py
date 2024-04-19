@@ -151,7 +151,6 @@ def main():
         "Cp1000",
         "Cp1500",
     ]
-    df[columns] = None
 
     thermos = Parallel(n_jobs=args.n_jobs)(
         delayed(calc_thermo)(
