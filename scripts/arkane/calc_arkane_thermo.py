@@ -15,6 +15,8 @@ from rmgpy import constants
 from rmgpy.molecule.element import get_element
 from rmgpy.molecule.molecule import Molecule
 from rmgpy.species import Species
+from rmgpy.thermo import ThermoData
+
 from utils import (
     get_lot_and_freq_scale,
     get_rmg_conformer,
@@ -166,16 +168,20 @@ def main():
     for idx, thermo in enumerate(thermos):
         if thermo is None:
             continue
+
+        if not isinstance(thermo, ThermoData):
+            thermo = thermo.to_thermo_data()
+
         df.loc[idx, columns] = [
             thermo.H298.value_si,
             thermo.S298.value_si,
-            thermo.get_heat_capacity(300).value_si,
-            thermo.get_heat_capacity(400).value_si,
-            thermo.get_heat_capacity(500).value_si,
-            thermo.get_heat_capacity(600).value_si,
-            thermo.get_heat_capacity(800).value_si,
-            thermo.get_heat_capacity(1000).value_si,
-            thermo.get_heat_capacity(1500).value_si,
+            thermo.get_heat_capacity(300),
+            thermo.get_heat_capacity(400),
+            thermo.get_heat_capacity(500),
+            thermo.get_heat_capacity(600),
+            thermo.get_heat_capacity(800),
+            thermo.get_heat_capacity(1000),
+            thermo.get_heat_capacity(1500),
         ]
 
     df.to_csv(save_path, index=False)
