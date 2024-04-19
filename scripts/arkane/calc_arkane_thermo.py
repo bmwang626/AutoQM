@@ -166,21 +166,35 @@ def main():
         for idx, row in tqdm(df.iterrows())
     )
 
-    for idx, thermo in tqdm(enumerate(thermos)):
+    def get_values(thermo, key):
         if thermo is None:
-            continue
+            return None
 
-        df.loc[idx, columns] = [
-            thermo.get_enthalpy(298),
-            thermo.get_entropy(298),
-            thermo.get_heat_capacity(300),
-            thermo.get_heat_capacity(400),
-            thermo.get_heat_capacity(500),
-            thermo.get_heat_capacity(600),
-            thermo.get_heat_capacity(800),
-            thermo.get_heat_capacity(1000),
-            thermo.get_heat_capacity(1500),
-        ]
+        if key == "H298":
+            return thermo.get_enthalpy(298)
+        elif key == "S298":
+            return thermo.get_entropy(298)
+        elif key == "Cp300":
+            return thermo.get_heat_capacity(300)
+        elif key == "Cp400":
+            return thermo.get_heat_capacity(400)
+        elif key == "Cp500":
+            return thermo.get_heat_capacity(500)
+        elif key == "Cp600":
+            return thermo.get_heat_capacity(600)
+        elif key == "Cp800":
+            return thermo.get_heat_capacity(800)
+        elif key == "Cp1000":
+            return thermo.get_heat_capacity(1000)
+        elif key == "Cp1500":
+            return thermo.get_heat_capacity(1500)
+        else:
+            raise ValueError(f"Key {key} is not supported")
+
+
+    df["thermos"] = thermos
+    for column in columns:
+        df[column] = df["thermos"].apply(lambda x: get_values(x, column))
 
     df.to_csv(save_path, index=False)
 
