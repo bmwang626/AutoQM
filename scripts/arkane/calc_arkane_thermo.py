@@ -29,7 +29,10 @@ logger = logging.getLogger()
 
 
 def get_rmg_conformer_from_df(
-    row,
+    multiplicity,
+    xyz_str,
+    frequencies,
+    energy,
     freq_scale,
     energy_level,
     freq_level,
@@ -37,6 +40,7 @@ def get_rmg_conformer_from_df(
     freq_software,
     use_atom_corrections,
     use_bond_corrections,
+    bac_type,
     molecule,
     scr_dir=None,
 ):
@@ -50,16 +54,15 @@ def get_rmg_conformer_from_df(
         freq_scale=freq_scale,
     )
 
-    multiplicity = row[f"multiplicity"]
-    atomic_numbers, coords = xyz_str_to_coords(row[f"std_xyz_str"])
+    atomic_numbers, coords = xyz_str_to_coords(xyz_str)
     mass = (
         sum([get_element(int(atomic_number)).mass for atomic_number in atomic_numbers])
         / constants.Na,
         "kg",
     )
-    frequencies = ast.literal_eval(row[f"species_dft_frequencies"])
+    frequencies = ast.literal_eval(frequencies)
     frequencies = np.array(frequencies)
-    e_electronic = row[f"species_dlpno_sp_hartree"] * 2625500  # hartree to J/mol
+    e_electronic = energy * 2625500  # hartree to J/mol
 
     try:
         rmg_conformer = get_rmg_conformer(
@@ -75,17 +78,22 @@ def get_rmg_conformer_from_df(
             molecule=molecule,
             use_atom_corrections=use_atom_corrections,
             use_bond_corrections=use_bond_corrections,
+            bac_type=bac_type,
             scr_dir=scr_dir,
         )
     except Exception as e:
-        logger.error(f"Error in getting rmg conformer for {row}: {e}")
+        logger.error(f"Error in getting rmg conformer for multiplicity {multiplicity}, xyz_str {xyz_str}, frequencies {frequencies}, energy {energy}, freq_scale {freq_scale}, energy_level {energy_level}, freq_level {freq_level}, energy_software {energy_software}, freq_software {freq_software}, use_atom_corrections {use_atom_corrections}, use_bond_corrections {use_bond_corrections}, molecule {molecule}, scr_dir {scr_dir}: {e}")
         return None
 
     return rmg_conformer
 
 
 def calc_thermo(
-    row,
+    smi,
+    multiplicity,
+    xyz_str,
+    frequencies,
+    energy,
     freq_scale,
     energy_level,
     freq_level,
@@ -93,12 +101,14 @@ def calc_thermo(
     freq_software,
     scr_dir=None,
 ):
-    smi = row["asmi"]
 
     molecule = Molecule().from_smiles(smi)
 
     rmg_conformer = get_rmg_conformer_from_df(
-        row=row,
+        multiplicity=multiplicity,
+        xyz_str=xyz_str,
+        frequencies=frequencies,
+        energy=energy,
         freq_scale=freq_scale,
         energy_level=energy_level,
         freq_level=freq_level,
@@ -108,17 +118,47 @@ def calc_thermo(
         use_bond_corrections=True,
         molecule=molecule,
         scr_dir=scr_dir,
+        bac_type="p",
     )
 
     if rmg_conformer is None:
-        return None
+        return None, None
 
     spc = Species(molecule=[molecule])
     spc.conformer = rmg_conformer
     thermo_job = ThermoJob(species=spc, thermo_class="NASA")
     thermo_job.generate_thermo()
+    p_thermo = thermo_job.species.thermo
 
-    return thermo_job.species.thermo
+    molecule = Molecule().from_smiles(smi)
+
+    rmg_conformer = get_rmg_conformer_from_df(
+        multiplicity=multiplicity,
+        xyz_str=xyz_str,
+        frequencies=frequencies,
+        energy=energy,
+        freq_scale=freq_scale,
+        energy_level=energy_level,
+        freq_level=freq_level,
+        energy_software=energy_software,
+        freq_software=freq_software,
+        use_atom_corrections=True,
+        use_bond_corrections=True,
+        molecule=molecule,
+        scr_dir=scr_dir,
+        bac_type="m",
+    )
+
+    if rmg_conformer is None:
+        return None, None
+
+    spc = Species(molecule=[molecule])
+    spc.conformer = rmg_conformer
+    thermo_job = ThermoJob(species=spc, thermo_class="NASA")
+    thermo_job.generate_thermo()
+    m_thermo = thermo_job.species.thermo
+
+    return p_thermo, m_thermo
 
 
 def main():
@@ -128,17 +168,21 @@ def main():
     # 0. Parse input
     args = parse_command_line_arguments()
 
+    setattr(args, "freq_column", "species_dft_frequencies")
+
+    if args.energy_level == "qgwb97xd/def2svp":
+        energy_column = "species_dft_hartreefock_energy_hartree"
+    elif args.energy_level == "qgdlpnoccsd(t)f12d/ccpvtzf12":
+        energy_column = "species_dlpno_sp_hartree"
+    else:
+        raise ValueError(f"Energy level {args.energy_level} is not supported")
+
     df = pd.read_csv(args.csv_path)
     energy_level = args.energy_level
     freq_level = args.freq_level
     energy_software = args.energy_software
     freq_software = args.freq_software
     freq_scale = args.freq_scale
-
-    save_path = os.path.join(
-        os.path.dirname(args.csv_path),
-        os.path.basename(args.csv_path).split(".csv")[0] + "_thermos.csv",
-    )
 
     columns = [
         "H298",
@@ -152,9 +196,13 @@ def main():
         "Cp1500",
     ]
 
-    thermos = Parallel(n_jobs=args.n_jobs)(
+    thermoss = Parallel(n_jobs=args.n_jobs)(
         delayed(calc_thermo)(
-            row,
+            row["asmi"],
+            row["multiplicity"],
+            row["std_xyz_str"],
+            row["species_dft_frequencies"],
+            row[energy_column],
             freq_scale,
             energy_level,
             freq_level,
@@ -191,11 +239,14 @@ def main():
             raise ValueError(f"Key {key} is not supported")
 
 
-    df["thermos"] = thermos
-    for column in columns:
-        df[column] = df["thermos"].apply(lambda x: get_values(x, column))
+    df["p_thermo"] = [thermos[0] for thermos in thermoss]
+    df["m_thermo"] = [thermos[1] for thermos in thermoss]
 
-    df.to_csv(save_path, index=False)
+    for column in columns:
+        df["p_" + column] = df["p_thermo"].apply(lambda x: get_values(x, column))
+        df["m_" + column] = df["m_thermo"].apply(lambda x: get_values(x, column))
+
+    df.to_csv(args.save_path, index=False)
 
 
 if __name__ == "__main__":

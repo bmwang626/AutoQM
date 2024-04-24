@@ -157,6 +157,7 @@ def get_rmg_conformer(
     molecule=None,
     use_atom_corrections=True,
     use_bond_corrections=False,
+    bac_type="p",
     scr_dir=None,
 ):
 
@@ -194,7 +195,7 @@ def get_rmg_conformer(
                 bonds,
                 coords,
                 numbers,
-                bac_type="p",
+                bac_type=bac_type,
                 multiplicity=multiplicity,
             )
         except AttribureError:
@@ -244,19 +245,22 @@ def parse_command_line_arguments(command_line_args=None):
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--csv_path", type=str, help=".csv file path containing parsed results"
-    )
-    parser.add_argument("--energy_level", type=str, help="Energy level of theory")
-    parser.add_argument(
-        "--freq_level", type=str, default=None, help="Frequency level of theory"
+        "--csv_path", type=str, help=".csv file path containing parsed results", required=True
     )
     parser.add_argument(
-        "--freq_scale", type=float, help="Optional frequency scale factor to use"
+        "--freq_level", type=str, help="Frequency level of theory", required=True
     )
-    parser.add_argument("--energy_software", type=str, help="Energy software")
-    parser.add_argument("--freq_software", type=str, help="Frequency software")
     parser.add_argument(
-        "--n_jobs", type=int, default=1, help="Number of jobs to run in parallel"
+        "--freq_scale", type=float, help="Optional frequency scale factor to use", required=True
+    )
+    parser.add_argument("--freq_software", type=str, help="Frequency software", required=True)
+    parser.add_argument("--energy_level", type=str, help="Energy level of theory", required=True)
+    parser.add_argument("--energy_software", type=str, help="Energy software", required=True)
+    parser.add_argument(
+        "--n_jobs", type=int, help="Number of jobs to run in parallel", default=1
+    )
+    parser.add_argument(
+        "--save_path", type=str, help="Directory to save the results", required=True
     )
     args = parser.parse_args(command_line_args)
 

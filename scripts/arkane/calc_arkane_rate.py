@@ -78,10 +78,15 @@ def get_rmg_conformer_from_df(
 
         frequencies = ast.literal_eval(row[f"{spc_label}_dft_frequencies"])
 
-        e_electronic = row[f"{spc_label}_dlpno_sp_hartree"]
+        if energy_level == "qgdlpnoccsd(t)f12d/ccpvtzf12":
+            e_electronic = row[f"{spc_label}_dlpno_sp_hartree"]
+        elif energy_level == "qgwb97xd/def2svp":
+            e_electronic = row[f"{spc_label}_dft_hartreefock_energy_hartree"]
+        else:
+            raise ValueError(f"Energy level {energy_level} not recognized")
+
         if isinstance(e_electronic, str):
             e_electronic = float(e_electronic)
-        print(e_electronic)
 
         e_electronic = e_electronic * 2625500  # hartree to J/mol
 
@@ -175,7 +180,7 @@ def calc_rate_coefficient(
 
     try:
         kinetics_job.generate_kinetics()
-        return kinetics_job.reaction.kinetics
+        return kinetics_job.reaction
     except Exception as e:
         logger.error(f"Error in generating kinetics for {row}: {e}")
         return None
@@ -204,7 +209,7 @@ def main():
 
     df[["A", "n", "Ea"]] = None
 
-    kinetics_list = Parallel(n_jobs=args.n_jobs, backend="multiprocessing")(
+    reactions_list = Parallel(n_jobs=args.n_jobs, backend="multiprocessing")(
         delayed(calc_rate_coefficient)(
             row,
             freq_scale,
@@ -217,12 +222,14 @@ def main():
         for idx, row in df.iterrows()
     )
 
-    for idx, kinetics in enumerate(kinetics_list):
-        if kinetics is not None:
+    for idx, rxn in enumerate(reactions_list):
+        if rxn is not None:
             df.loc[idx, ["A", "n", "Ea"]] = (
-                kinetics.A.value_si,
-                kinetics.n.value_si,
-                kinetics.Ea.value_si,
+                rxn.kinetics.A.value_si,
+                rxn.kinetics.n.value_si,
+                rxn.kinetics.Ea.value_si,
+                rxn.get_enthalpy_of_reaction(298),
+                rxn.get_free_energy_of_reaction(298),
             )
 
     df.to_csv(save_path, index=False)
