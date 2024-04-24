@@ -202,13 +202,6 @@ def main():
     freq_software = args.freq_software
     freq_scale = args.freq_scale
 
-    save_path = os.path.join(
-        os.path.dirname(args.csv_path),
-        os.path.basename(args.csv_path).split(".csv")[0] + "_rate_coefficients.csv",
-    )
-
-    df[["A", "n", "Ea"]] = None
-
     reactions_list = Parallel(n_jobs=args.n_jobs, backend="multiprocessing")(
         delayed(calc_rate_coefficient)(
             row,
@@ -222,17 +215,31 @@ def main():
         for idx, row in df.iterrows()
     )
 
-    for idx, rxn in enumerate(reactions_list):
-        if rxn is not None:
-            df.loc[idx, ["A", "n", "Ea"]] = (
-                rxn.kinetics.A.value_si,
-                rxn.kinetics.n.value_si,
-                rxn.kinetics.Ea.value_si,
-                rxn.get_enthalpy_of_reaction(298),
-                rxn.get_free_energy_of_reaction(298),
-            )
+    columns = ["A", "n", "Ea", "deltaHrxn", "deltaGrxn"]
 
-    df.to_csv(save_path, index=False)
+    def get_values(rxn, key):
+        if rxn is None:
+            return None
+        
+        if key == "A":
+            return rxn.kinetics.A.value_si
+        elif key == "n":
+            return rxn.kinetics.n.value_si
+        elif key == "Ea":
+            return rxn.kinetics.Ea.value_si
+        elif key == "deltaHrxn":
+            return rxn.get_enthalpy_of_reaction(298)
+        elif key == "deltaGrxn":
+            return rxn.get_free_energy_of_reaction(298)
+        else:
+            raise ValueError(f"Key {key} is not recognized")
+
+    df["reaction"] = reactions_list
+
+    for column in columns:
+        df[column] = df["reaction"].apply(lambda x: get_values(x, column))
+
+    df.to_csv(args.save_path, index=False)
 
 
 if __name__ == "__main__":

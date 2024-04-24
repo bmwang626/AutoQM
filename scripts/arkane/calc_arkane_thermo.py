@@ -126,7 +126,7 @@ def calc_thermo(
 
     spc = Species(molecule=[molecule])
     spc.conformer = rmg_conformer
-    thermo_job = ThermoJob(species=spc, thermo_class="NASA")
+    thermo_job = ThermoJob(species=spc, thermo_class="wilhoit")
     thermo_job.generate_thermo()
     p_thermo = thermo_job.species.thermo
 
@@ -154,7 +154,7 @@ def calc_thermo(
 
     spc = Species(molecule=[molecule])
     spc.conformer = rmg_conformer
-    thermo_job = ThermoJob(species=spc, thermo_class="NASA")
+    thermo_job = ThermoJob(species=spc, thermo_class="wilhoit")
     thermo_job.generate_thermo()
     m_thermo = thermo_job.species.thermo
 
