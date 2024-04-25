@@ -12,4 +12,4 @@ python /home/gridsan/hwpang/RMG_shared/Projects/Hao-Wei-Oscar-Yunsie/HAbs_calcul
     --freq_software gaussian \
     --freq_scale 0.9914 \
     --n_jobs 40 \
-    --save_path /home/gridsan/hwpang/RMG_shared/Projects/Hao-Wei-Oscar-Yunsie/HAbs_calculations/arkane_processing/data/quantum_green_ts_data_24march12b_dft_opted_dlpno_sp_rate_coefficients.csv
+    --save_path /home/gridsan/hwpang/RMG_shared/Projects/Hao-Wei-Oscar-Yunsie/HAbs_calculations/arkane_processing/data/quantum_green_ts_data_24march12b_dft_opted_dlpno_sp_rates_rxn_thermos.csv
