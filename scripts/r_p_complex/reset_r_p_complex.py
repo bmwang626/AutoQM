@@ -4,7 +4,7 @@ import pickle as pkl
 import pandas as pd
 from rdkit import Chem
 
-from radical_workflow.calculation.reset_r_p_complex import reset_r_p_complex_ff_opt
+from autoqm.calculation.reset_r_p_complex import reset_r_p_complex_ff_opt
 
 parser = ArgumentParser()
 parser.add_argument(
@@ -38,49 +38,17 @@ parser.add_argument(
 
 # specify paths
 parser.add_argument(
-    "--XTB_path", type=str, required=False, default=None, help="path to installed XTB"
-)
-parser.add_argument(
-    "--G16_path",
-    type=str,
-    required=False,
-    default=None,
-    help="path to installed Gaussian 16",
-)
-parser.add_argument(
     "--RDMC_path",
     type=str,
     required=False,
     default=None,
     help="path to RDMC to use xtb-gaussian script for xtb optimization calculation.",
 )
-parser.add_argument(
-    "--COSMOtherm_path",
-    type=str,
-    required=False,
-    default=None,
-    help="path to COSMOthermo",
-)
-parser.add_argument(
-    "--COSMO_database_path",
-    type=str,
-    required=False,
-    default=None,
-    help="path to COSMO_database",
-)
-parser.add_argument(
-    "--ORCA_path", type=str, required=False, default=None, help="path to ORCA"
-)
 
 args = parser.parse_args()
 
 # check paths
-XTB_PATH = args.XTB_path
-G16_PATH = args.G16_path
 RDMC_PATH = args.RDMC_path
-COSMOTHERM_PATH = args.COSMOtherm_path
-COSMO_DATABASE_PATH = args.COSMO_database_path
-ORCA_PATH = args.ORCA_path
 
 assert RDMC_PATH is not None, "RDMC_PATH must be provided for ff opt"
 
