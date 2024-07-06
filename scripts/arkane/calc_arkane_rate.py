@@ -58,6 +58,7 @@ def get_rmg_conformer_from_df(
         if spc_label == "ts":
             molecule = None
             multiplicity = row["multiplicity"]
+            use_bond_corrections = False
         else:
             molecule = Molecule().from_smiles(row[f"{spc_label}smi"])
             multiplicity = molecule.multiplicity
@@ -152,48 +153,50 @@ def calc_rate_coefficient(
         )
 
         if output is None:
-            return None
-
-        ts, r1, r2, p1, p2 = output
-
-        spc_r1 = Species().from_smiles(row["r1smi"])
-        spc_r1.conformer = r1
-        spc_r2 = Species().from_smiles(row["r2smi"])
-        spc_r2.conformer = r2
-        spc_p1 = Species().from_smiles(row["p1smi"])
-        spc_p1.conformer = p1
-        spc_p2 = Species().from_smiles(row["p2smi"])
-        spc_p2.conformer = p2
-
-        neg_frequency = row["neg_freq"]
-        neg_frequency = (neg_frequency, "cm^-1")
-
-        spc_ts = TransitionState(
-            conformer=ts,
-            frequency=neg_frequency,
-            tunneling=Eckart(frequency=None, E0_reac=None, E0_TS=None, E0_prod=None),
-        )
-
-        rxn = Reaction(
-            reactants=[spc_r1, spc_r2], products=[spc_p1, spc_p2], transition_state=spc_ts
-        )
-
-        kinetics_job = KineticsJob(
-            reaction=rxn,
-            Tmin=Tmin,
-            Tmax=Tmax,
-            Tcount=Tcount,
-            Tlist=Tlist,
-            sensitivity_conditions=sensitivity_conditions,
-            three_params=three_params,
-        )
-
-        try:
-            kinetics_job.generate_kinetics()
-            kinetics = kinetics_job.reaction.kinetics
-        except Exception as e:
-            logger.error(f"Error in generating kinetics for {row}: {e}")
             kinetics = None
+
+        else:
+
+            ts, r1, r2, p1, p2 = output
+
+            spc_r1 = Species().from_smiles(row["r1smi"])
+            spc_r1.conformer = r1
+            spc_r2 = Species().from_smiles(row["r2smi"])
+            spc_r2.conformer = r2
+            spc_p1 = Species().from_smiles(row["p1smi"])
+            spc_p1.conformer = p1
+            spc_p2 = Species().from_smiles(row["p2smi"])
+            spc_p2.conformer = p2
+
+            neg_frequency = row["neg_freq"]
+            neg_frequency = (neg_frequency, "cm^-1")
+
+            spc_ts = TransitionState(
+                conformer=ts,
+                frequency=neg_frequency,
+                tunneling=Eckart(frequency=None, E0_reac=None, E0_TS=None, E0_prod=None),
+            )
+
+            rxn = Reaction(
+                reactants=[spc_r1, spc_r2], products=[spc_p1, spc_p2], transition_state=spc_ts
+            )
+
+            kinetics_job = KineticsJob(
+                reaction=rxn,
+                Tmin=Tmin,
+                Tmax=Tmax,
+                Tcount=Tcount,
+                Tlist=Tlist,
+                sensitivity_conditions=sensitivity_conditions,
+                three_params=three_params,
+            )
+
+            try:
+                kinetics_job.generate_kinetics()
+                kinetics = kinetics_job.reaction.kinetics
+            except Exception as e:
+                logger.error(f"Error in generating kinetics for {row}: {e}")
+                kinetics = None
 
     else:
         raise ValueError(f"Energy level {energy_level} not recognized")
@@ -213,22 +216,24 @@ def calc_rate_coefficient(
     )
 
     if output is None:
-        return None
+        p_rxn = None
 
-    _, r1, r2, p1, p2 = output
+    else:
 
-    spc_r1 = Species().from_smiles(row["r1smi"])
-    spc_r1.conformer = r1
-    spc_r2 = Species().from_smiles(row["r2smi"])
-    spc_r2.conformer = r2
-    spc_p1 = Species().from_smiles(row["p1smi"])
-    spc_p1.conformer = p1
-    spc_p2 = Species().from_smiles(row["p2smi"])
-    spc_p2.conformer = p2
+        _, r1, r2, p1, p2 = output
 
-    p_rxn = Reaction(
-        reactants=[spc_r1, spc_r2], products=[spc_p1, spc_p2],
-    )
+        spc_r1 = Species().from_smiles(row["r1smi"])
+        spc_r1.conformer = r1
+        spc_r2 = Species().from_smiles(row["r2smi"])
+        spc_r2.conformer = r2
+        spc_p1 = Species().from_smiles(row["p1smi"])
+        spc_p1.conformer = p1
+        spc_p2 = Species().from_smiles(row["p2smi"])
+        spc_p2.conformer = p2
+
+        p_rxn = Reaction(
+            reactants=[spc_r1, spc_r2], products=[spc_p1, spc_p2],
+        )
 
     # get reaction thermo (melius)
     output = get_rmg_conformer_from_df(
@@ -245,22 +250,24 @@ def calc_rate_coefficient(
     )
 
     if output is None:
-        return None
+        m_rxn = None
 
-    _, r1, r2, p1, p2 = output
+    else:
 
-    spc_r1 = Species().from_smiles(row["r1smi"])
-    spc_r1.conformer = r1
-    spc_r2 = Species().from_smiles(row["r2smi"])
-    spc_r2.conformer = r2
-    spc_p1 = Species().from_smiles(row["p1smi"])
-    spc_p1.conformer = p1
-    spc_p2 = Species().from_smiles(row["p2smi"])
-    spc_p2.conformer = p2
+        _, r1, r2, p1, p2 = output
 
-    m_rxn = Reaction(
-        reactants=[spc_r1, spc_r2], products=[spc_p1, spc_p2],
-    )
+        spc_r1 = Species().from_smiles(row["r1smi"])
+        spc_r1.conformer = r1
+        spc_r2 = Species().from_smiles(row["r2smi"])
+        spc_r2.conformer = r2
+        spc_p1 = Species().from_smiles(row["p1smi"])
+        spc_p1.conformer = p1
+        spc_p2 = Species().from_smiles(row["p2smi"])
+        spc_p2.conformer = p2
+
+        m_rxn = Reaction(
+            reactants=[spc_r1, spc_r2], products=[spc_p1, spc_p2],
+        )
 
     return kinetics, p_rxn, m_rxn
 
@@ -289,7 +296,7 @@ def main():
             freq_level,
             energy_software,
             freq_software,
-            scr_dir=f"./scratch_rxn_{idx}",
+            scr_dir=args.scratch_dir / f"reaction_{idx}",
         )
         for idx, row in df.iterrows()
     )

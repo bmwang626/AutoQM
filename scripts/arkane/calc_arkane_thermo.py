@@ -99,6 +99,7 @@ def calc_thermo(
     freq_level,
     energy_software,
     freq_software,
+    use_bond_corrections,
     scr_dir=None,
 ):
 
@@ -115,7 +116,7 @@ def calc_thermo(
         energy_software=energy_software,
         freq_software=freq_software,
         use_atom_corrections=True,
-        use_bond_corrections=True,
+        use_bond_corrections=use_bond_corrections,
         molecule=molecule,
         scr_dir=scr_dir,
         bac_type="p",
@@ -143,7 +144,7 @@ def calc_thermo(
         energy_software=energy_software,
         freq_software=freq_software,
         use_atom_corrections=True,
-        use_bond_corrections=True,
+        use_bond_corrections=use_bond_corrections,
         molecule=molecule,
         scr_dir=scr_dir,
         bac_type="m",
@@ -208,7 +209,8 @@ def main():
             freq_level,
             energy_software,
             freq_software,
-            scr_dir=f"./scratch_thermo_{idx}",
+            use_bond_corrections=not args.no_bac_for_thermo,
+            scr_dir=args.scratch_dir / f"thermo_{idx}",
         )
         for idx, row in tqdm(df.iterrows())
     )

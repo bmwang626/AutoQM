@@ -8,7 +8,6 @@ echo "Running on node : $SLURMD_NODENAME"
 echo "Current directory : $(pwd)"
 echo "============================================================"
 
-source /state/partition1/llgrid/pkg/anaconda/anaconda3-2022b/etc/profile.d/conda.sh
 conda activate autoqm_env
 which python
 
@@ -18,7 +17,7 @@ export PATH=$RDMC_PATH:$PATH
 export PYTHONPATH=$RDMC_PATH:$PYTHONPATH
 
 #QMD
-QMD_PATH=/home/gridsan/groups/RMG/Software/QM_descriptors_calculation-autoqm
+QMD_PATH=/home/gridsan/hwpang/qmdata_shared/quantum_green_reaction_complex_hwpang_shihcheng/AutoQM
 export PYTHONPATH=$QMD_PATH:$PYTHONPATH
 
 #input

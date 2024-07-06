@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 import shutil
-from typing import Optional
+from pathlib import Path
 
 import numpy as np
 from arkane.common import get_principal_moments_of_inertia, symbol_by_number
@@ -188,20 +188,21 @@ def get_rmg_conformer(
     # Bond energy corrections
     if use_bond_corrections:
         # Get bonds count
-        try:
-            bonds = molecule.enumerate_bonds()
-            bond_corrections = get_bac(
-                level_of_theory,
-                bonds,
-                coords,
-                numbers,
-                bac_type=bac_type,
-                multiplicity=multiplicity,
-            )
-        except AttribureError:
+        if molecule is None:
             raise ValueError(
-                "Cannot get BAC, since argument ``molecule`` is not provided."
+                "Cannot get bond corrections, since argument ``molecule`` is not provided."
             )
+
+        bonds = molecule.enumerate_bonds()
+        bond_corrections = get_bac(
+            level_of_theory,
+            bonds,
+            coords,
+            numbers,
+            bac_type=bac_type,
+            multiplicity=multiplicity,
+        )
+
     else:
         bond_corrections = 0
 
@@ -256,11 +257,15 @@ def parse_command_line_arguments(command_line_args=None):
     parser.add_argument("--freq_software", type=str, help="Frequency software", required=True)
     parser.add_argument("--energy_level", type=str, help="Energy level of theory", required=True)
     parser.add_argument("--energy_software", type=str, help="Energy software", required=True)
+    parser.add_argument("--no_bac_for_thermo", action="store_true", help="Do not use bond corrections for thermo")
     parser.add_argument(
         "--n_jobs", type=int, help="Number of jobs to run in parallel", default=1
     )
     parser.add_argument(
         "--save_path", type=str, help="Directory to save the results", required=True
+    )
+    parser.add_argument(
+        "--scratch_dir", type=Path, help="Scratch directory to store temporary files", required=True
     )
     args = parser.parse_args(command_line_args)
 
