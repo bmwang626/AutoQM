@@ -27,6 +27,21 @@ parser.add_argument(
     type=int,
     required=True,
 )
+parser.add_argument(
+    "--smiles_column",
+    type=str,
+    default="rxn_smi",
+)
+parser.add_argument(
+    "--id_column",
+    type=str,
+    default="id",
+)
+parser.add_argument(
+    "--xyz_column",
+    type=str,
+    default="xtb_xyz",
+)
 
 # reactant complex and product complex semiempirical optimization calculation
 parser.add_argument(
@@ -65,34 +80,34 @@ outputs_dir = os.path.join(r_p_complex_ff_opt_dir, "outputs")
 
 # read inputs
 if args.input_smiles.endswith(".csv"):
-    df = pd.read_csv(args.input_smiles, index_col=0)
+    df = pd.read_csv(args.input_smiles)
 elif args.input_smiles.endswith(".pkl"):
     with open(args.input_smiles, "rb") as f:
         output = pkl.load(f)
     success_dict_list = [out[1] for out in output]
     ids = []
     rxn_smiles_list = []
-    dft_xyz_list = []
+    xyz_list = []
 
     for success_dict in success_dict_list:
         for id in success_dict:
             ids.append(id)
             rxn_smiles_list.append(success_dict[id]["rxn_smi"])
-            dft_xyz_list.append(success_dict[id]["xtb_xyz"])
+            xyz_list.append(success_dict[id]["xtb_xyz"])
 
-    df = pd.DataFrame({"id": ids, "rxn_smi": rxn_smiles_list, "dft_xyz": dft_xyz_list})
+    df = pd.DataFrame({"id": ids, "rxn_smi": rxn_smiles_list, "dft_xyz": xyz_list})
 else:
     raise NotImplementedError
 assert len(df["id"]) == len(set(df["id"])), "ids must be unique"
 
-ts_ids = list(df["id"])
-rxn_smiles_list = list(df["rxn_smi"])
-dft_xyz_list = list(df["dft_xyz"])
+ts_ids = list(df[args.id_column])
+rxn_smiles_list = list(df[args.smiles_column])
+xyz_list = list(df[args.xyz_column])
 ts_id_to_rxn_smi = dict(zip(ts_ids, rxn_smiles_list))
-ts_id_to_dft_xyz = dict(zip(ts_ids, dft_xyz_list))
+ts_id_to_dft_xyz = dict(zip(ts_ids, xyz_list))
 
 print("Making inputs...")
-tasks = list(zip(ts_ids, rxn_smiles_list, dft_xyz_list))
+tasks = list(zip(ts_ids, rxn_smiles_list, xyz_list))
 for ts_id, rxn_smi, dft_xyz in tasks[args.task_id :: args.num_tasks]:
     ids = int(ts_id // 1000)
     suboutputs_dir = os.path.join(outputs_dir, f"outputs_{ids}")

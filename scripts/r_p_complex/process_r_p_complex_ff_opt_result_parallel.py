@@ -1,11 +1,9 @@
 import os
 import sys
-import csv
-import tarfile
-import pickle as pkl
+from argparse import ArgumentParser
+
 import pandas as pd
 from joblib import Parallel, delayed
-
 from rdkit import Chem
 from rdmc.mol import RDKitMol
 
@@ -36,10 +34,31 @@ def parser(sdf_file_path):
 
     return rxn_id, r_smi, p_smi, rxn_smi, r_mol._mol, p_mol._mol, ts_mol._mol
 
+parser = ArgumentParser()
+parser.add_argument(
+    "--input_smiles",
+    type=str,
+    required=True,
+    help="input smiles included in a .csv file",
+)
+parser.add_argument(
+    "--output_name", type=str, required=True, help="output file name"
+)
+parser.add_argument(
+    "--num_tasks",
+    type=int,
+    required=True,
+)
+parser.add_argument(
+    "--smiles_column",
+    type=str,
+    default="rxn_smi",
+)
 
-input_smiles_path = sys.argv[1]
-output_file_name = sys.argv[2]
-n_jobs = int(sys.argv[3])
+args = parser.parse_args()
+input_smiles_path = args.input_smiles
+output_file_name = args.output_name
+n_jobs = args.num_tasks
 
 df = pd.read_csv(input_smiles_path)
 

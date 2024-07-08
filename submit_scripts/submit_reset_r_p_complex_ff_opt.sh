@@ -12,7 +12,7 @@ conda activate autoqm_env
 which python
 
 #RDMC
-RDMC_PATH=/home/gridsan/groups/RMG/Software/RDMC-main
+RDMC_PATH=/home/gridsan/hwpang/qmdata_shared/quantum_green_reaction_complex_hwpang_shihcheng/RDMC
 export PATH=$RDMC_PATH:$PATH
 export PYTHONPATH=$RDMC_PATH:$PYTHONPATH
 
@@ -21,13 +21,23 @@ QMD_PATH=/home/gridsan/hwpang/qmdata_shared/quantum_green_reaction_complex_hwpan
 export PYTHONPATH=$QMD_PATH:$PYTHONPATH
 
 #input
-input_smiles=$1
+input_smiles=/home/gridsan/hwpang/qmdata_shared/quantum_green_reaction_complex_hwpang_shihcheng/data/input_20240706.csv
 
 scratch_dir=$TMPDIR/$USER/$SLURM_JOB_ID-$SLURM_ARRAY_TASK_ID-$LLSUB_RANK-$LLSUB_SIZE
 mkdir -p $scratch_dir
 echo $scratch_dir
 
 #r p complex semi opt
-python $QMD_PATH/scripts/r_p_complex/reset_r_p_complex.py --input_smiles $input_smiles --RDMC_path $RDMC_PATH --scratch_dir $scratch_dir --task_id $LLSUB_RANK --num_tasks $LLSUB_SIZE
+python $QMD_PATH/scripts/r_p_complex/reset_r_p_complex.py \
+    --input_smiles $input_smiles \
+    --RDMC_path $RDMC_PATH \
+    --scratch_dir $scratch_dir \
+    --task_id $LLSUB_RANK \
+    --num_tasks $LLSUB_SIZE \
+    --smiles_column smiles \
+    --id_column id \
+    --xyz_column std_xyz_str
 
 rm -rf $scratch_dir
+
+
