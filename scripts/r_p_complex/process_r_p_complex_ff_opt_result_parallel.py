@@ -1,5 +1,4 @@
 import os
-import sys
 from argparse import ArgumentParser
 
 import pandas as pd
@@ -8,7 +7,7 @@ from rdkit import Chem
 from rdmc.mol import RDKitMol
 
 
-def parser(sdf_file_path):
+def sdf_parser(sdf_file_path):
     rxn_id = int(os.path.basename(sdf_file_path).split(".")[0].split("_")[1])
 
     r_mol, p_mol, ts_mol = RDKitMol.FromFile(
@@ -49,11 +48,6 @@ parser.add_argument(
     type=int,
     required=True,
 )
-parser.add_argument(
-    "--smiles_column",
-    type=str,
-    default="rxn_smi",
-)
 
 args = parser.parse_args()
 input_smiles_path = args.input_smiles
@@ -64,13 +58,6 @@ df = pd.read_csv(input_smiles_path)
 
 rxn_ids = df.id
 
-if "rxn_smi" in df.columns:
-    rxn_smis = df.rxn_smi
-elif "rxn_smiles" in df.columns:
-    rxn_smis = df.rxn_smiles
-else:
-    raise ValueError("No reaction smiles provided")
-
 success_sdf_paths = []
 for root, dirs, files in os.walk("output/r_p_complex_ff_opt/outputs"):
     for file in files:
@@ -78,7 +65,7 @@ for root, dirs, files in os.walk("output/r_p_complex_ff_opt/outputs"):
             success_sdf_paths.append(os.path.join(root, file))
 
 out = Parallel(n_jobs=n_jobs, backend="multiprocessing", verbose=5)(
-    delayed(parser)(sdf_path) for sdf_path in success_sdf_paths
+    delayed(sdf_parser)(sdf_path) for sdf_path in success_sdf_paths
 )
 out = [x for x in out if x is not None]
 

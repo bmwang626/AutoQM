@@ -4,9 +4,8 @@ This module computes rate coefficient from .csv file containing energies and fre
 
 import ast
 import logging
-import os
 
-import numpy as np
+from copy import deepcopy
 import pandas as pd
 from joblib import Parallel, delayed
 
@@ -232,7 +231,7 @@ def calc_rate_coefficient(
         spc_p2.conformer = p2
 
         p_rxn = Reaction(
-            reactants=[spc_r1, spc_r2], products=[spc_p1, spc_p2],
+            reactants=[spc_r1, spc_r2], products=[spc_p1, spc_p2], kinetics=deepcopy(kinetics)
         )
 
     # get reaction thermo (melius)
@@ -266,7 +265,7 @@ def calc_rate_coefficient(
         spc_p2.conformer = p2
 
         m_rxn = Reaction(
-            reactants=[spc_r1, spc_r2], products=[spc_p1, spc_p2],
+            reactants=[spc_r1, spc_r2], products=[spc_p1, spc_p2], kinetics=deepcopy(kinetics)
         )
 
     return kinetics, p_rxn, m_rxn
@@ -331,13 +330,19 @@ def main():
     df["kinetics"] = kinetics_list
     df["p_reaction"] = p_reaction_list
     df["m_reaction"] = m_reaction_list
+    df["p_rev_kinetics"] = [rxn.generate_reverse_rate_coefficient() for rxn in p_reaction_list]
+    df["m_rev_kinetics"] = [rxn.generate_reverse_rate_coefficient() for rxn in m_reaction_list]
 
     for column in ["A", "n", "Ea"]:
         df[column] = df["kinetics"].apply(lambda x: get_kinetics_values(x, column))
+        df["p_rev_" + column] = df["p_rev_kinetics"].apply(lambda x: get_kinetics_values(x, column))
+        df["m_rev_" + column] = df["m_rev_kinetics"].apply(lambda x: get_kinetics_values(x, column))
 
     for column in ["deltaHrxn298", "deltaGrxn298"]:
         df["p_" + column] = df["p_reaction"].apply(lambda x: get_rxn_values(x, column))
         df["m_" + column] = df["m_reaction"].apply(lambda x: get_rxn_values(x, column))
+
+    df = df.drop(columns=["kinetics", "p_reaction", "m_reaction", "p_rev_kinetics", "m_rev_kinetics"])
 
     df.to_csv(args.save_path, index=False)
 
