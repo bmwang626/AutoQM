@@ -344,6 +344,8 @@ def main():
 
     df = df.drop(columns=["kinetics", "p_reaction", "m_reaction", "p_rev_kinetics", "m_rev_kinetics"])
 
+    df = df.dropna(subset=["A", "n", "Ea", "p_rev_A", "p_rev_n", "p_rev_Ea", "m_rev_A", "m_rev_n", "m_rev_Ea"])
+
     df.to_csv(args.save_path, index=False)
 
 
