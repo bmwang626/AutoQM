@@ -323,6 +323,15 @@ def main():
             return rxn.get_free_energy_of_reaction(298)
         else:
             raise ValueError(f"Key {key} is not recognized")
+    
+    def get_rev_kin(rxn):
+        if rxn is None:
+            return None
+        
+        if rxn.kinetics is None:
+            return None
+        
+        return rxn.generate_reverse_rate_coefficient()
 
     kinetics_list = [x[0] for x in reactions_list]
     p_reaction_list = [x[1] for x in reactions_list]
@@ -330,8 +339,8 @@ def main():
     df["kinetics"] = kinetics_list
     df["p_reaction"] = p_reaction_list
     df["m_reaction"] = m_reaction_list
-    df["p_rev_kinetics"] = [rxn.generate_reverse_rate_coefficient() for rxn in p_reaction_list]
-    df["m_rev_kinetics"] = [rxn.generate_reverse_rate_coefficient() for rxn in m_reaction_list]
+    df["p_rev_kinetics"] = [get_rev_kin(rxn) for rxn in p_reaction_list]
+    df["m_rev_kinetics"] = [get_rev_kin(rxn) for rxn in m_reaction_list]
 
     for column in ["A", "n", "Ea"]:
         df[column] = df["kinetics"].apply(lambda x: get_kinetics_values(x, column))
